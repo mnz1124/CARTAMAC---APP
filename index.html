@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartamac — Sistema de Cronogramas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c8a84b">
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root{
+  --bg:#0a0a0a;--bg2:#121212;--bg3:#1a1a1a;--bg4:#222222;
+  --border:#2a2a2a;--border2:#383838;--border3:#484848;
+  --accent:#f0f0f0;--accent2:#ffffff;
+  --dim:#888888;--dim2:#666666;
+  --gold:#c8a84b;--gold2:#a88930;
+  --red:#e05252;--green:#5cb85c;--warn:#d4922a;
+  --text:#ececec;--text2:#b0b0b0;--text3:#888888;
+  --radius:6px;--radius2:10px;
+  --shadow:0 2px 12px rgba(0,0,0,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
+.screen{display:none;}
+.screen.active{display:block;}
+input[type="file"]{display:none;}
+.mono{font-family:'JetBrains Mono',monospace;}
+ 
+/* LOGIN */
+#screen-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:24px;}
+.login-brand{text-align:center;margin-bottom:40px;}
+.login-brand .wordmark{font-size:40px;font-weight:800;letter-spacing:-1px;color:var(--accent2);}
+.login-brand .wordmark span{color:var(--gold);}
+.login-brand .tagline{font-size:14px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:36px 40px;width:100%;max-width:420px;box-shadow:var(--shadow);}
+.login-box h2{font-size:21px;font-weight:600;margin-bottom:6px;}
+.login-box p{font-size:15px;color:var(--text3);margin-bottom:28px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:7px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:border .15s;font-family:'Inter',sans-serif;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);}
+.form-group input::placeholder{color:var(--text3);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 20px;border-radius:var(--radius);border:1px solid transparent;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--accent2);border-color:var(--accent2);color:#000;}
+.btn-primary:hover{background:var(--text2);}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--text2);}
+.btn-ghost:hover{background:var(--bg3);border-color:var(--border3);color:var(--text);}
+.btn-danger{background:transparent;border-color:var(--red);color:var(--red);}
+.btn-danger:hover{background:rgba(224,82,82,.1);}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#000;}
+.btn-gold:hover{background:var(--gold2);}
+.btn-full{width:100%;}
+.btn-sm{padding:8px 14px;font-size:14px;}
+.dev-link{margin-top:24px;text-align:center;font-size:14px;color:var(--text3);}
+.dev-link a{color:var(--dim);text-decoration:none;border-bottom:1px dashed var(--border3);cursor:pointer;transition:color .15s;}
+.dev-link a:hover{color:var(--text2);}
+.error-msg{background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3);color:var(--red);padding:11px 14px;border-radius:var(--radius);font-size:14px;margin-top:14px;display:none;}
+ 
+/* ADMIN LOGIN OVERLAY */
+#adminLoginOverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;}
+#adminLoginOverlay.open{display:flex;}
+.admin-login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:36px 40px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,.8);}
+.admin-login-box h2{font-size:20px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.admin-login-box p{font-size:14px;color:var(--text3);margin-bottom:24px;}
+.admin-badge{display:inline-block;background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--gold);font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.5px;}
+ 
+/* DEV HEADER */
+#screen-dev{min-height:100vh;}
+.dev-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:66px;position:sticky;top:0;z-index:100;gap:0;}
+.dev-wordmark{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--accent2);margin-right:28px;flex-shrink:0;}
+.dev-wordmark span{color:var(--gold);}
+.dev-nav{display:flex;gap:2px;flex:1;}
+.dev-tab{padding:8px 18px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:15px;font-weight:500;border:none;background:transparent;transition:all .15s;}
+.dev-tab:hover{background:var(--bg3);color:var(--text);}
+.dev-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
+.header-actions{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.rev-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:5px 11px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;}
+.admin-user-badge{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.admin-user-badge strong{color:var(--gold);}
+ 
+/* PAGES */
+.page{display:none;padding:28px;}
+.page.active{display:block;}
+ 
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 22px;}
+.stat-val{font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px;}
+.stat-lbl{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
+ 
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
+.search-input{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-size:15px;width:280px;outline:none;transition:border .15s;font-family:'Inter',sans-serif;}
+.search-input:focus{border-color:var(--gold);}
+.search-input::placeholder{color:var(--text3);}
+.filter-select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 32px 10px 12px;color:var(--text);font-size:15px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.filter-select:focus{border-color:var(--gold);}
+.filter-chip{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;color:var(--text2);transition:all .15s;background:var(--bg2);}
+.filter-chip:hover{border-color:var(--gold);color:var(--text);}
+.filter-chip.active{background:rgba(200,168,75,.1);border-color:var(--gold);color:var(--gold);}
+.filter-chip input{display:none;}
+ 
+/* ORDER CARDS */
+.orders-list{display:flex;flex-direction:column;gap:10px;}
+.order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s;}
+.order-card:hover{border-color:var(--border3);}
+.order-card.delayed{border-left:3px solid var(--red);}
+.order-card.at-risk{border-left:3px solid var(--warn);}
+.order-card.on-track{border-left:3px solid var(--green);}
+.order-header{display:flex;align-items:center;padding:18px 22px;cursor:pointer;gap:14px;}
+.order-code{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.2);padding:4px 10px;border-radius:4px;white-space:nowrap;min-width:96px;text-align:center;}
+.order-info{flex:1;min-width:0;}
+.order-name{font-weight:600;font-size:16px;margin-bottom:2px;}
+.order-op{font-size:13px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.order-meta{display:flex;align-items:center;gap:18px;margin-left:auto;}
+.order-dates{font-size:14px;color:var(--text3);white-space:nowrap;}
+.status-badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:4px;white-space:nowrap;}
+.badge-delayed{background:rgba(224,82,82,.15);color:var(--red);}
+.badge-risk{background:rgba(212,146,42,.15);color:var(--warn);}
+.badge-ok{background:rgba(92,184,92,.12);color:var(--green);}
+.badge-done{background:rgba(240,240,240,.08);color:var(--text2);}
+.pct-wrap{display:flex;align-items:center;gap:9px;}
+.pct-bar{width:90px;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.pct-fill{height:100%;border-radius:3px;transition:width .3s;}
+.pct-fill.high{background:var(--green);}
+.pct-fill.mid{background:var(--warn);}
+.pct-fill.low{background:var(--red);}
+.pct-text{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;min-width:40px;text-align:right;}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.chevron{color:var(--text3);font-size:18px;transition:transform .2s;margin-left:6px;}
+.order-card.open .chevron{transform:rotate(180deg);}
+.order-tasks{display:none;border-top:1px solid var(--border);}
+.order-card.open .order-tasks{display:block;}
+.dept-header{display:flex;align-items:center;gap:10px;padding:12px 22px 12px 36px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--border);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);}
+.dept-pct{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text3);margin-left:auto;}
+.task-row{display:flex;align-items:center;padding:11px 22px 11px 54px;border-bottom:1px solid rgba(42,42,42,.6);gap:12px;transition:background .1s;}
+.task-row:hover{background:rgba(255,255,255,.02);}
+.task-row:last-child{border-bottom:none;}
+.milestone-icon{color:var(--gold);font-size:14px;flex-shrink:0;}
+.task-name{flex:1;color:var(--text2);font-size:15px;}
+.task-dates{font-size:14px;color:var(--text3);white-space:nowrap;min-width:180px;}
+.task-pct{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;min-width:44px;text-align:right;}
+.task-status{font-size:12px;font-weight:600;padding:3px 9px;border-radius:4px;white-space:nowrap;min-width:90px;text-align:center;}
+.s-done{background:rgba(92,184,92,.12);color:var(--green);}
+.s-active{background:rgba(240,240,240,.08);color:var(--accent);}
+.s-delayed{background:rgba(224,82,82,.12);color:var(--red);}
+.s-pending{background:rgba(120,120,120,.1);color:var(--text3);}
+ 
+/* GANTT — STICKY COLUMNS, VISUAL PROFISSIONAL */
+.gantt-wrap{position:relative;background:#121212;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+.gantt-outer{overflow:auto;max-height:80vh;-webkit-overflow-scrolling:touch;}
+.gantt-table{border-collapse:collapse;font-size:13px;}
+.gantt-table th,.gantt-table td{border-right:1px solid #2a2a2a;border-bottom:1px solid #2a2a2a;padding:0;}
+/* Sticky fixed columns — left set inline by JS */
+.gantt-fixed-col{position:sticky;z-index:10;}
+/* Header rows */
+.gantt-header-row th{background:#1a1a1a;}
+.gantt-month-th{text-align:center;padding:7px 4px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;letter-spacing:.5px;background:#1a1a1a;}
+.gantt-month-th.cur{color:var(--gold);background:#1f1c10;}
+.gantt-day-th{text-align:center;padding:4px 0;font-size:10px;color:var(--dim2);width:22px;min-width:22px;max-width:22px;background:#1a1a1a;}
+.gantt-day-th.is-today{background:#2a2000;color:var(--gold);font-weight:700;}
+.gantt-day-th.is-we{color:var(--border3);background:#141414;}
+/* Fixed column header cells — solid backgrounds */
+.gantt-name-th{padding:7px 8px 7px 12px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;background:#1a1a1a;border-right:1px solid #383838;position:relative;user-select:none;}
+.gantt-op-th{padding:7px 8px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:#1a1a1a;border-right:1px solid var(--border2);}
+.gantt-pct-th{padding:7px 4px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;text-align:center;background:#1a1a1a;}
+/* Resize handle on name column header */
+.gantt-resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;background:transparent;z-index:20;}
+.gantt-resize-handle:hover,.gantt-resize-handle.dragging{background:var(--gold);opacity:.5;}
+/* Data cells — all with solid backgrounds */
+.gantt-name-td{padding:6px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--text2);background:#121212;border-right:1px solid #383838;display:flex;align-items:center;}
+.gantt-name-td.is-order{font-weight:700;color:var(--accent2);background:#161410;font-size:13px;}
+.gantt-name-td.is-dept{padding-left:20px;font-size:12px;color:var(--text3);background:#0f0f0f;}
+.gantt-op-td{padding:6px 8px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#121212;border-right:1px solid var(--border2);}
+.gantt-op-td.is-order{background:#161410;}
+.gantt-op-td.is-dept{background:#0f0f0f;}
+.gantt-pct-td{padding:4px 4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:#121212;}
+.gantt-pct-td.is-order{background:#161410;}
+.gantt-pct-td.is-dept{background:#0f0f0f;}
+/* Day cells */
+.gantt-cell{width:22px;min-width:22px;max-width:22px;height:34px;padding:0;position:relative;background:#121212;}
+.gantt-cell.today-col{background:#1a1800;}
+.gantt-cell.we-col{background:#0f0f0f;}
+.gantt-row-order td{height:36px;}
+.gantt-row-dept td{height:30px;}
+/* Bars */
+.gantt-bar-seg{position:absolute;top:50%;transform:translateY(-50%);height:18px;background:var(--text3);}
+.gantt-bar-seg.order-bar{height:20px;border-radius:3px;}
+.gantt-bar-seg.dept-bar{height:10px;border-radius:2px;opacity:.9;}
+.gantt-bar-seg.s-delayed{background:var(--red);}
+.gantt-bar-seg.s-risk{background:var(--warn);}
+.gantt-bar-seg.s-ok{background:#2e86ab;}
+.gantt-bar-seg.s-done{background:#444;}
+.gantt-bar-seg.s-dept{background:#2e86ab;opacity:.6;}
+.gantt-today-vline{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--gold);opacity:.8;pointer-events:none;z-index:2;}
+/* Alternating rows */
+.gantt-row-order .gantt-cell{background:#141414;}
+.gantt-row-order .gantt-cell.today-col{background:#1e1a00;}
+.gantt-row-order .gantt-cell.we-col{background:#111;}
+/* Legend */
+.gantt-legend{display:flex;gap:16px;padding:10px 14px;border-top:1px solid var(--border);background:#1a1a1a;flex-wrap:wrap;}
+.gantt-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);}
+.gantt-legend-dot{width:16px;height:8px;border-radius:2px;}
+/* Resize hint */
+.gantt-resize-hint{font-size:11px;color:var(--text3);padding:6px 14px 0;font-style:italic;opacity:.7;}
+ 
+/* PANEL / ADMIN */
+.admin-grid{display:grid;grid-template-columns:300px 1fr;gap:16px;}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+.panel-head{padding:17px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600;}
+.user-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(42,42,42,.6);cursor:pointer;transition:background .1s;}
+.user-item:hover{background:var(--bg3);}
+.user-item.active{background:rgba(200,168,75,.07);border-left:2px solid var(--gold);}
+.user-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#000;flex-shrink:0;}
+.uname{font-size:15px;font-weight:500;}
+.uemail{font-size:13px;color:var(--text3);}
+.user-detail{padding:24px;}
+.section-title{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.tag{background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.25);border-radius:4px;padding:4px 10px;font-size:13px;color:var(--gold);display:flex;align-items:center;gap:5px;}
+.tag .rm{cursor:pointer;color:var(--text3);font-size:15px;transition:color .15s;}
+.tag .rm:hover{color:var(--red);}
+.order-files-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.order-files-title{font-size:14px;font-weight:600;margin-bottom:10px;}
+.drop-area{border:2px dashed var(--border2);border-radius:var(--radius);padding:18px;text-align:center;color:var(--text3);font-size:14px;cursor:pointer;transition:all .2s;}
+.drop-area:hover{border-color:var(--gold);color:var(--text2);background:rgba(200,168,75,.04);}
+.drop-area.over{border-color:var(--gold);background:rgba(200,168,75,.07);}
+.file-list{margin-top:10px;display:flex;flex-direction:column;gap:5px;}
+.file-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;}
+.fi-icon{font-size:18px;flex-shrink:0;}
+.fi-name{flex:1;color:var(--text2);font-weight:500;}
+.fi-size{color:var(--text3);font-size:13px;}
+.fi-del{color:var(--text3);cursor:pointer;font-size:18px;transition:color .15s;}
+.fi-del:hover{color:var(--red);}
+.import-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;margin-bottom:20px;}
+.import-box h3{font-size:16px;font-weight:600;margin-bottom:16px;}
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all .2s;}
+.upload-zone:hover{border-color:var(--gold);background:rgba(200,168,75,.03);}
+.upload-icon{font-size:38px;margin-bottom:10px;}
+.upload-zone h4{font-size:16px;font-weight:600;margin-bottom:5px;}
+.upload-zone p{font-size:14px;color:var(--text3);}
+ 
+/* CLIENT SCREEN */
+#screen-client{min-height:100vh;background:var(--bg);}
+.client-header-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:66px;gap:14px;}
+.client-av-lg{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#000;flex-shrink:0;}
+.client-info-bar h2{font-size:17px;font-weight:600;}
+.client-info-bar p{font-size:13px;color:var(--text3);}
+.client-nav{display:flex;gap:2px;margin-left:20px;}
+.client-tab{padding:7px 16px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:15px;font-weight:500;border:none;background:transparent;transition:all .15s;}
+.client-tab:hover{background:var(--bg3);color:var(--text);}
+.client-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
+.client-page{display:none;padding:28px;}
+.client-page.active{display:block;}
+.client-order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:14px;overflow:hidden;}
+.client-order-card.delayed{border-left:3px solid var(--red);}
+.client-order-card.at-risk{border-left:3px solid var(--warn);}
+.client-order-card.on-track{border-left:3px solid var(--green);}
+.client-order-head{display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;}
+.client-order-card.open .chevron{transform:rotate(180deg);}
+.client-order-tasks{display:none;border-top:1px solid var(--border);}
+.client-order-card.open .client-order-tasks{display:block;}
+.docs-section{background:var(--bg3);border-radius:var(--radius);padding:16px 20px;}
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px;}
+.doc-card{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;cursor:pointer;transition:border-color .15s;}
+.doc-card:hover{border-color:var(--gold);}
+.doc-card .dc-icon{font-size:30px;}
+.doc-card .dc-name{font-size:13px;font-weight:500;color:var(--text2);word-break:break-word;}
+.doc-card .dc-size{font-size:12px;color:var(--text3);}
+.doc-card .dc-dl{font-size:12px;color:var(--gold);font-weight:600;margin-top:2px;}
+.no-docs{font-size:14px;color:var(--text3);padding:12px 0;}
+ 
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:30px;width:520px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.7);max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:22px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+ 
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 18px;font-size:15px;z-index:300;display:none;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.5);}
+.toast.show{display:flex;}
+.toast.ok{border-left:3px solid var(--green);}
+.toast.err{border-left:3px solid var(--red);}
+ 
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .ei{font-size:42px;margin-bottom:12px;}
+.empty-state h3{font-size:17px;font-weight:500;margin-bottom:6px;color:var(--text2);}
+.empty-state p{font-size:14px;}
+ 
+/* ADMIN ROLE BADGE */
+.role-badge-master{background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--gold);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.role-badge-admin{background:rgba(240,240,240,.08);border:1px solid var(--border2);color:var(--text2);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.role-badge-client{background:rgba(92,184,92,.1);border:1px solid rgba(92,184,92,.2);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
+ 
+/* STORAGE STATUS */
+.storage-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text3);margin-bottom:16px;}
+.storage-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.storage-dot.warn{background:var(--warn);}
+ 
+@media(max-width:768px){
+  .admin-grid{grid-template-columns:1fr;}
+  .page{padding:12px;}
+  .client-page{padding:12px;}
+  .dev-header{padding:0 10px;height:auto;min-height:56px;flex-wrap:wrap;gap:4px;padding-top:8px;padding-bottom:8px;}
+  .dev-wordmark{font-size:18px;margin-right:8px;}
+  .dev-nav{flex-wrap:nowrap;overflow-x:auto;gap:2px;-webkit-overflow-scrolling:touch;padding-bottom:2px;width:100%;order:3;}
+  .dev-tab{padding:7px 10px;font-size:12px;white-space:nowrap;flex-shrink:0;min-height:40px;}
+  .header-actions{gap:6px;margin-left:0;}
+  .rev-badge{font-size:12px;padding:4px 8px;}
+  .btn{min-height:44px;}
+  .btn-sm{padding:7px 12px;font-size:13px;min-height:40px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stat-val{font-size:28px;}
+  .order-header{flex-wrap:wrap;gap:8px;padding:14px 14px;min-height:44px;}
+  .order-meta{display:flex;flex-wrap:wrap;gap:6px;width:100%;}
+  .order-dates{display:none;}
+  .order-name{font-size:14px;}
+  .order-op{font-size:12px;}
+  .task-row{flex-wrap:wrap;padding:10px 14px 10px 28px;gap:6px;}
+  .task-dates{min-width:unset;font-size:12px;}
+  .dept-header{padding:10px 14px 10px 22px;}
+  .client-header-bar{padding:0 12px;height:auto;min-height:56px;flex-wrap:wrap;gap:6px;padding-top:8px;padding-bottom:8px;}
+  .client-nav{margin-left:0;width:100%;overflow-x:auto;gap:4px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .client-tab{padding:7px 14px;font-size:13px;white-space:nowrap;flex-shrink:0;min-height:40px;}
+  .client-order-head{flex-wrap:wrap;gap:8px;padding:14px 14px;min-height:44px;}
+  .docs-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .doc-card{padding:10px;}
+  .filters{gap:8px;}
+  .search-input{width:100%;}
+  .gantt-outer{max-height:65vh;}
+  .modal{padding:20px 14px;}
+  .toast{bottom:16px;right:10px;left:10px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+ 
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="login-brand">
+    <div class="wordmark">CARTA<span>MAC</span></div>
+    <div class="tagline">Papel &amp; Celulose · Sistema de Cronogramas</div>
+  </div>
+  <div class="login-box">
+    <h2>Acesso ao Portal</h2>
+    <p>Entre com suas credenciais para acompanhar seus projetos.</p>
+    <div class="form-group">
+      <label>Usuário / E-mail</label>
+      <input type="text" id="loginUser" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Entrar</button>
+    <div class="error-msg" id="loginError">Usuário ou senha incorretos. Tente novamente.</div>
+  </div>
+  <div class="dev-link">
+    <a onclick="openAdminLogin()">🔧 Área do Desenvolvedor / Administrador</a>
+  </div>
+</div>
+ 
+<!-- ADMIN LOGIN OVERLAY -->
+<div id="adminLoginOverlay">
+  <div class="admin-login-box">
+    <h2>🔧 Acesso Administrativo <span class="admin-badge">ADMIN</span></h2>
+    <p>Credenciais restritas à equipe Cartamac.</p>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="adminEmail" placeholder="admin@cartamac.com" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeAdminLogin()">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1" onclick="doAdminLogin()">Entrar como Admin</button>
+    </div>
+    <div class="error-msg" id="adminLoginError" style="display:none;">Credenciais inválidas.</div>
+  </div>
+</div>
+ 
+<!-- DEV SCREEN -->
+<div class="screen" id="screen-dev">
+  <header class="dev-header">
+    <div class="dev-wordmark">CARTA<span>MAC</span></div>
+    <nav class="dev-nav">
+      <button class="dev-tab active" onclick="switchDevTab('cronograma',this)">📋 Cronograma</button>
+      <button class="dev-tab" onclick="switchDevTab('gantt',this)">📊 Gantt</button>
+      <button class="dev-tab" onclick="switchDevTab('clientes',this)">👥 Clientes</button>
+      <button class="dev-tab" onclick="switchDevTab('admins',this)">🔐 Administradores</button>
+      <button class="dev-tab" onclick="switchDevTab('importar',this)">📂 Importar</button>
+    </nav>
+    <div class="header-actions">
+      <div class="admin-user-badge">👤 <strong id="adminNameBadge">Admin</strong></div>
+      <span class="rev-badge" id="revBadge">REV.01</span>
+      <button class="btn btn-sm btn-gold" onclick="openRevModal()">Nova Revisão</button>
+      <button class="btn btn-sm btn-ghost" onclick="backToLogin()">⬅ Sair</button>
+    </div>
+  </header>
+ 
+  <!-- CRONOGRAMA -->
+  <div class="page active" id="page-cronograma">
+    <div class="filters">
+      <input type="text" class="search-input" placeholder="🔍  Buscar pedido, código, OP..." id="searchInput" oninput="filterOrders()">
+      <select class="filter-select" id="filterDept" onchange="filterOrders()">
+        <option value="">Todas as áreas</option>
+        <option>COMERCIAL</option><option>ENGENHARIA</option>
+        <option>PCP</option><option>COMPRAS</option><option>FABRICAÇÃO</option>
+      </select>
+      <select class="filter-select" id="filterStatus" onchange="filterOrders()">
+        <option value="">Todos os status</option>
+        <option value="delayed">Atrasados</option>
+        <option value="at_risk">Em risco</option>
+        <option value="on_track">No prazo</option>
+        <option value="done">Concluídos</option>
+      </select>
+      <label class="filter-chip" id="chipDelayed">
+        <input type="checkbox" id="onlyDelayed" onchange="toggleChip('chipDelayed');filterOrders()">
+        🔴 Só atrasados
+      </label>
+      <button class="btn btn-sm btn-ghost" onclick="collapseAll()">Recolher</button>
+      <button class="btn btn-sm btn-ghost" onclick="expandAll()">Expandir</button>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+ 
+  <!-- GANTT -->
+  <div class="page" id="page-gantt">
+    <div class="filters" style="margin-bottom:16px;">
+      <select class="filter-select" id="ganttFilter" onchange="renderGantt()">
+        <option value="">Todos os pedidos</option>
+      </select>
+      <span style="font-size:14px;color:var(--text3);margin-left:4px;">Rolagem horizontal para navegar nos meses</span>
+    </div>
+    <div id="ganttContainer"></div>
+  </div>
+ 
+  <!-- CLIENTES -->
+  <div class="page" id="page-clientes">
+    <div class="admin-grid">
+      <div class="panel">
+        <div class="panel-head">
+          Clientes
+          <button class="btn btn-sm btn-gold" onclick="openAddUserModal()">+ Novo</button>
+        </div>
+        <div id="usersList"></div>
+      </div>
+      <div class="panel" id="userDetailPanel">
+        <div class="user-detail">
+          <div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3><p>Escolha um cliente para editar</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ADMINISTRADORES -->
+  <div class="page" id="page-admins">
+    <div class="admin-grid">
+      <div class="panel">
+        <div class="panel-head">
+          Administradores
+          <button class="btn btn-sm btn-gold" id="btnNewAdmin" onclick="openAddAdminModal()">+ Novo Admin</button>
+        </div>
+        <div id="adminsList"></div>
+      </div>
+      <div class="panel" id="adminDetailPanel">
+        <div class="user-detail">
+          <div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3><p>Escolha para editar ou remover</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- IMPORTAR -->
+  <div class="page" id="page-importar">
+    <div class="import-box">
+      <h3>📂 Importar Arquivo Microsoft Project (.XML)</h3>
+      <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px;color:var(--text2);">
+        <strong style="color:var(--gold);">ℹ️ Sobre o banco de dados:</strong> Pedidos finalizados são preservados automaticamente — ao importar um novo arquivo, equipamentos concluídos que foram removidos do Project continuam visíveis para os clientes como "Arquivado", sem interferir no cronograma ativo.
+      </div>
+      <div class="upload-zone" onclick="document.getElementById('xmlInput').click()">
+        <div class="upload-icon">🗂️</div>
+        <h4>Clique ou arraste o arquivo .XML aqui</h4>
+        <p>O sistema processa e atualiza o cronograma, preservando histórico</p>
+      </div>
+      <input type="file" id="xmlInput" accept=".xml" onchange="importXML(event)">
+      <div id="importStatus" style="font-size:15px;color:var(--text3);margin-top:14px;"></div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;">
+      <div class="section-title">📝 Histórico de Revisões e Importações</div>
+      <div id="revHistory"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- CLIENT SCREEN -->
+<div class="screen" id="screen-client">
+  <header class="client-header-bar">
+    <div class="client-av-lg" id="clientAv">?</div>
+    <div class="client-info-bar">
+      <h2 id="clientName">—</h2>
+      <p id="clientCompany">—</p>
+    </div>
+    <nav class="client-nav">
+      <button class="client-tab active" onclick="switchClientTab('cron',this)">📋 Cronograma</button>
+      <button class="client-tab" onclick="switchClientTab('gantt',this)">📊 Gantt</button>
+    </nav>
+    <button class="btn btn-sm btn-ghost" style="margin-left:auto;" onclick="backToLogin()">⬅ Sair</button>
+  </header>
+  <div class="client-page active" id="cpg-cron">
+    <div id="clientOrdersList"></div>
+  </div>
+  <div class="client-page" id="cpg-gantt">
+    <div id="clientGanttContainer"></div>
+  </div>
+</div>
+ 
+<!-- MODALS -->
+<div class="modal-overlay" id="revModal">
+  <div class="modal">
+    <h3>📝 Registrar Nova Revisão</h3>
+    <div class="form-group"><label>Número</label><input type="text" id="newRevNum" placeholder="REV.02"></div>
+    <div class="form-group"><label>Descrição das alterações</label><textarea id="newRevDesc" placeholder="Descreva as mudanças..."></textarea></div>
+    <div class="form-group"><label>Data</label><input type="date" id="newRevDate"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('revModal')">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveRevision()">Salvar</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <h3>👤 Novo Cliente</h3>
+    <div class="form-group"><label>Nome *</label><input type="text" id="nuName" placeholder="Ex: RBN Nordeste"></div>
+    <div class="form-group"><label>Empresa *</label><input type="text" id="nuCompany" placeholder="Ex: Fibria Celulose S.A."></div>
+    <div class="form-group"><label>E-mail / Login *</label><input type="email" id="nuEmail" placeholder="cliente@empresa.com.br"></div>
+    <div class="form-group"><label>Senha *</label><input type="password" id="nuPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addUserModal')">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveNewUser()">Criar Cliente</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="addAdminModal">
+  <div class="modal">
+    <h3>🔐 Novo Administrador</h3>
+    <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:14px;color:var(--text2);">
+      Administradores têm acesso total ao painel, exceto criar/remover outros admins (apenas o admin mestre pode fazer isso).
+    </div>
+    <div class="form-group"><label>Nome completo *</label><input type="text" id="naName" placeholder="Ex: Fernanda Souza"></div>
+    <div class="form-group"><label>E-mail / Login *</label><input type="email" id="naEmail" placeholder="nome@cartamac.com"></div>
+    <div class="form-group"><label>Senha *</label><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addAdminModal')">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveNewAdmin()">Criar Administrador</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<script>
+// ══════════════════════════════════════════════════
+// STORAGE (localStorage como banco de dados local)
+// ══════════════════════════════════════════════════
+const DB_KEY = 'cartamac_db_v3';
+ 
+function dbLoad() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+ 
+function dbSave(data) {
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(data));
+  } catch(e) {
+    console.warn('localStorage indisponível, dados em memória apenas.');
+  }
+}
+ 
+// ══════════════════════════════════════════════════
+// DEFAULT DATA (usado na primeira execução)
+// ══════════════════════════════════════════════════
+const TODAY = new Date('2026-06-17');
+const MASTER_EMAIL = 'murilo@cartamac.com';
+const MASTER_PASS = '123456';
+const MASTER_NAME = 'Murilo (Mestre)';
+ 
+const DEFAULT_DB = {
+  admins: [
+    { id: 'master', name: MASTER_NAME, email: MASTER_EMAIL, pass: MASTER_PASS, role: 'master' }
+  ],
+  clients: [
+    { id: 1, name: 'RBN Nordeste', company: 'RBN Papel e Celulose S.A.', email: 'cliente@rbn.com', pass: 'rbn2026', orders: [7,8,9], archivedOrders: [], color: '#c0c0c0' },
+    { id: 2, name: 'RBN Paraná',   company: 'RBN Papel e Celulose — PR', email: 'parana@rbn.com',  pass: 'parana2026', orders: [12], archivedOrders: [], color: '#a0a0a0' },
+    { id: 3, name: 'Demo Cliente', company: 'Empresa Demonstração',       email: 'demo',             pass: 'demo',       orders: [0,1,2,3,4], archivedOrders: [], color: '#d4a017' }
+  ],
+  orderFiles: {},
+  revisions: [{ num: 'REV.01', date: '2026-06-17', desc: 'Versão inicial do cronograma macro Cartamac.' }],
+  currentRev: 'REV.01',
+  archivedOrdersData: {}
+};
+ 
+// Inicializa DB
+let DB = dbLoad() || JSON.parse(JSON.stringify(DEFAULT_DB));
+// Garante campos novos em instâncias antigas
+DB.admins = DB.admins || DEFAULT_DB.admins;
+DB.archivedOrdersData = DB.archivedOrdersData || {};
+DB.clients.forEach(c => { if(!c.archivedOrders) c.archivedOrders = []; });
+ 
+function persist() { dbSave(DB); }
+ 
+// ══════════════════════════════════════════════════
+// ORDERS DATA (vem do XML importado; aqui é o padrão)
+// ══════════════════════════════════════════════════
+const ORDERS = [
+  { id:0, code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper 44'' BC", start:"2026-04-30", finish:"2026-08-25", pct:25, depts:[
+    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-30",finish:"2026-05-04",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-04",finish:"2026-05-05",pct:100}]},
+    {name:"ENGENHARIA",pct:46,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Modelos Fundidos",start:"2026-04-30",finish:"2026-05-01",pct:100},{name:"Detalhamento",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Embalagem/Manual",start:"2026-04-30",finish:"2026-06-02",pct:0}]},
+    {name:"PCP",pct:44,tasks:[{name:"Conferência de Estoque",start:"2026-05-13",finish:"2026-05-18",pct:0},{name:"Orçamento de Serviços",start:"2026-05-13",finish:"2026-05-19",pct:100},{name:"Lançamento",start:"2026-06-20",finish:"2026-06-23",pct:0}]},
+    {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2026-05-15",finish:"2026-06-03",pct:100},{name:"Compra de Serviços",start:"2026-05-19",finish:"2026-05-21",pct:100}]},
+    {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Fundição Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Fundição Facas do Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Pré Usinagem Rotor",start:"2026-07-13",finish:"2026-07-21",pct:0},{name:"Solda Revestimentos",start:"2026-07-21",finish:"2026-07-28",pct:0},{name:"Usinagem Final",start:"2026-07-28",finish:"2026-08-04",pct:0},{name:"Balanceamento Estático",start:"2026-08-04",finish:"2026-08-07",pct:0},{name:"Balanceamento Dinâmico",start:"2026-08-07",finish:"2026-08-17",pct:0},{name:"Acabamento e Pintura",start:"2026-08-17",finish:"2026-08-25",pct:0}]}
+  ]},
+  { id:1, code:"0135.6", op:"TPK0135-25", name:"Trommel 1850 X 3300", start:"2025-10-24", finish:"2026-08-03", pct:84, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Lista Multinível",start:"2025-10-24",finish:"2025-11-06",pct:100}]},
+    {name:"PCP",pct:100,tasks:[{name:"Lançamento",start:"2025-11-03",finish:"2025-11-06",pct:100},{name:"Conferência de Estoque",start:"2025-11-06",finish:"2025-11-11",pct:100},{name:"Orçamento de Chapas",start:"2025-11-06",finish:"2025-11-10",pct:100},{name:"Orçamento de Serviços",start:"2025-11-06",finish:"2025-11-12",pct:100}]},
+    {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2025-11-11",finish:"2025-11-25",pct:100},{name:"Compras Perfis Gerais",start:"2025-11-11",finish:"2025-11-20",pct:100},{name:"Compras Chapas Gerais",start:"2025-11-10",finish:"2025-11-24",pct:100},{name:"Compra de Serviços",start:"2025-11-12",finish:"2025-11-19",pct:100}]},
+    {name:"FABRICAÇÃO",pct:78,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-06-22",finish:"2026-06-22",pct:100,milestone:true},{name:"Caldeiraria Tambor",start:"2026-06-23",finish:"2026-06-25",pct:0},{name:"Solda Tambor",start:"2026-06-25",finish:"2026-07-06",pct:0},{name:"Usinagem Tambor",start:"2026-07-07",finish:"2026-07-16",pct:0},{name:"Pintura Tambor",start:"2026-07-16",finish:"2026-07-23",pct:0}]},
+    {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-23",finish:"2026-08-03",pct:0}]}
+  ]},
+  { id:2, code:"0152.26", op:"RBE0151-26", name:"Peças de Rep. DPH300 e DCP2", start:"2026-05-12", finish:"2026-10-05", pct:33, depts:[
+    {name:"COMERCIAL",pct:50,tasks:[{name:"Reunião",start:"2026-05-12",finish:"2026-05-13",pct:0},{name:"Lançamento Pedido de Venda",start:"2026-05-12",finish:"2026-05-13",pct:100}]},
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-13",finish:"2026-05-13",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Detalhamento",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Lista Multinível",start:"2026-05-12",finish:"2026-05-22",pct:100}]},
+    {name:"PCP",pct:96,tasks:[{name:"Lançamento",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Estoque",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Chapas",start:"2026-05-22",finish:"2026-05-27",pct:100},{name:"Orçamento de Serviços",start:"2026-05-26",finish:"2026-05-29",pct:90}]},
+    {name:"COMPRAS",pct:0,tasks:[{name:"Compra Cesto Peneira DPH300",start:"2026-05-22",finish:"2026-10-05",pct:0},{name:"Compra Comerciais",start:"2026-05-26",finish:"2026-06-12",pct:0},{name:"Compras Chapas Gerais",start:"2026-05-27",finish:"2026-06-09",pct:0},{name:"Compra de Serviços",start:"2026-05-29",finish:"2026-06-03",pct:0}]},
+    {name:"FABRICAÇÃO",pct:49,tasks:[{name:"Fundição DCP",start:"2026-06-03",finish:"2026-07-10",pct:100},{name:"Corte de Chapa",start:"2026-06-09",finish:"2026-06-15",pct:100},{name:"Corte de Perfil",start:"2026-06-04",finish:"2026-06-10",pct:100},{name:"Usinagem Faca e Rotor",start:"2026-06-10",finish:"2026-06-24",pct:0},{name:"Balanceamento Estático Rotor",start:"2026-06-25",finish:"2026-06-29",pct:0},{name:"Balanceamento Dinâmico Rotor",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-28",finish:"2026-07-29",pct:0}]}
+  ]},
+  { id:3, code:"0153.26", op:"MAR0153-26", name:"Caixa Formadora", start:"2026-04-28", finish:"2026-08-13", pct:9, depts:[
+    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-28",finish:"2026-04-30",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-04-28",finish:"2026-04-30",pct:100}]},
+    {name:"ENGENHARIA",pct:2,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-20",finish:"2026-06-12",pct:0},{name:"Detalhamento",start:"2026-04-30",finish:"2026-06-01",pct:0},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-26",pct:0}]},
+    {name:"PCP",pct:27,tasks:[{name:"Conferência de Chapas",start:"2026-05-26",finish:"2026-05-28",pct:100},{name:"Lançamento",start:"2026-06-01",finish:"2026-06-03",pct:0},{name:"Orçamento de Serviços",start:"2026-06-03",finish:"2026-06-09",pct:0}]},
+    {name:"COMPRAS",pct:28,tasks:[{name:"Compras Chapas Gerais",start:"2026-05-28",finish:"2026-06-10",pct:100},{name:"Compra Comerciais",start:"2026-05-27",finish:"2026-06-16",pct:0},{name:"Compra de Serviços",start:"2026-06-09",finish:"2026-06-11",pct:0}]},
+    {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Corte de Chapa",start:"2026-06-10",finish:"2026-06-23",pct:0},{name:"Dobra",start:"2026-06-23",finish:"2026-07-01",pct:0},{name:"Caldeiraria Corpo",start:"2026-07-07",finish:"2026-07-13",pct:0},{name:"Usinagem Corpo Caixa",start:"2026-07-13",finish:"2026-07-20",pct:0},{name:"Montagem Caixa Formadora",start:"2026-08-04",finish:"2026-08-13",pct:0}]}
+  ]},
+  { id:4, code:"0151.26", op:"RBE0151-26", name:"Válvula 20pol Carbono (Garantia)", start:"2026-05-01", finish:"2026-06-25", pct:84, depts:[
+    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-05-01",finish:"2026-05-05",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-05",finish:"2026-05-06",pct:100}]},
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-01",finish:"2026-05-01",pct:100,milestone:true},{name:"Detalhamento",start:"2026-05-06",finish:"2026-05-19",pct:100},{name:"Lista Multinível",start:"2026-05-06",finish:"2026-05-13",pct:100}]},
+    {name:"FABRICAÇÃO",pct:62,tasks:[{name:"Corte de Chapa",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-01",finish:"2026-06-02",pct:100},{name:"Solda",start:"2026-06-02",finish:"2026-06-03",pct:100},{name:"Usinagem Corpo da Válvula",start:"2026-06-03",finish:"2026-06-10",pct:80},{name:"Jateamento",start:"2026-06-10",finish:"2026-06-17",pct:0},{name:"Pintura",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
+  ]},
+  { id:5, code:"PED.135", op:"HERGEN", name:"Rotor Descontaminador Mod. (Hergen)", start:"2026-03-10", finish:"2026-06-29", pct:94, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Detalhamento",start:"2026-03-10",finish:"2026-04-03",pct:100}]},
+    {name:"FABRICAÇÃO",pct:87,tasks:[{name:"Fundido",start:"2026-04-15",finish:"2026-05-18",pct:100},{name:"Pré-Usinagem",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Solda",start:"2026-05-25",finish:"2026-06-02",pct:100},{name:"Usinagem Final",start:"2026-06-02",finish:"2026-06-10",pct:100},{name:"Balanceamento Estático",start:"2026-06-16",finish:"2026-06-18",pct:100},{name:"Balanceamento Dinâmico",start:"2026-06-18",finish:"2026-06-29",pct:0}]}
+  ]},
+  { id:6, code:"PED.135", op:"M4C4", name:"Descontaminador M4C4", start:"2025-11-25", finish:"2026-07-28", pct:86, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
+    {name:"FABRICAÇÃO",pct:64,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-24",finish:"2026-03-16",pct:90},{name:"Caldeiraria",start:"2026-06-22",finish:"2026-06-29",pct:0},{name:"Solda",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Montagem",start:"2026-07-13",finish:"2026-07-22",pct:0},{name:"Pintura",start:"2026-07-22",finish:"2026-07-28",pct:0}]}
+  ]},
+  { id:7, code:"PED.135", op:"NORDESTE-HAC", name:"Hidrapulper de Alta — RBN Nordeste", start:"2025-11-25", finish:"2026-07-08", pct:93, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Modelos Fundidos",start:"2025-11-25",finish:"2025-11-26",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2025-12-15",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2025-12-15",pct:100}]},
+    {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição Rotor China",start:"2025-11-26",finish:"2026-06-25",pct:95},{name:"Fundição",start:"2026-01-30",finish:"2026-03-17",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-03-17",finish:"2026-04-06",pct:100},{name:"Calandragem",start:"2026-06-03",finish:"2026-06-08",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-12",pct:100},{name:"Solda",start:"2026-06-12",finish:"2026-06-25",pct:20},{name:"Pintura",start:"2026-06-25",finish:"2026-07-01",pct:0},{name:"Montagem",start:"2026-07-01",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-07",finish:"2026-07-08",pct:0}]}
+  ]},
+  { id:8, code:"PED.135", op:"CAPOTA-HAC15", name:"Capota Hidrapulper — RBN Nordeste", start:"2025-11-25", finish:"2026-07-14", pct:93, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-21",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-09",pct:100}]},
+    {name:"FABRICAÇÃO",pct:47,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-24",pct:100},{name:"Calandragem",start:"2026-06-12",finish:"2026-06-16",pct:100},{name:"Caldeiraria",start:"2026-06-16",finish:"2026-06-18",pct:20},{name:"Solda",start:"2026-06-30",finish:"2026-07-06",pct:0},{name:"Pintura",start:"2026-07-06",finish:"2026-07-13",pct:0},{name:"Expedição",start:"2026-07-13",finish:"2026-07-14",pct:0}]}
+  ]},
+  { id:9, code:"PED.135", op:"ESTEIRA-NE", name:"Esteira Transportadora — RBN Nordeste", start:"2025-11-25", finish:"2026-07-30", pct:86, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
+    {name:"FABRICAÇÃO",pct:68,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-19",finish:"2026-03-11",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-18",pct:90},{name:"Solda",start:"2026-06-18",finish:"2026-07-02",pct:0},{name:"Jateamento",start:"2026-07-02",finish:"2026-07-10",pct:0},{name:"Montagem",start:"2026-07-10",finish:"2026-07-23",pct:0},{name:"Pintura",start:"2026-07-23",finish:"2026-07-30",pct:0}]}
+  ]},
+  { id:10, code:"PED.135", op:"CONTAMINEX", name:"Contaminex", start:"2025-10-24", finish:"2026-06-29", pct:97, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-12-01",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-12-01",pct:100}]},
+    {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição",start:"2025-11-11",finish:"2026-01-15",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-01-15",finish:"2026-02-04",pct:100},{name:"Calandragem",start:"2026-05-05",finish:"2026-05-06",pct:100},{name:"Caldeiraria",start:"2026-05-06",finish:"2026-05-11",pct:100},{name:"Solda",start:"2026-06-17",finish:"2026-06-19",pct:100},{name:"Polimento",start:"2026-06-19",finish:"2026-06-22",pct:30},{name:"Jateamento e Pintura",start:"2026-06-19",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-29",pct:0}]}
+  ]},
+  { id:11, code:"PED.135", op:"JUNKOMAT2900", name:"Junkomat 2900", start:"2025-11-25", finish:"2026-06-25", pct:97, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-23",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-10",pct:100}]},
+    {name:"FABRICAÇÃO",pct:83,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-25",pct:100},{name:"Usinagem",start:"2026-02-25",finish:"2026-03-16",pct:100},{name:"Calandragem",start:"2026-05-12",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-15",finish:"2026-06-17",pct:50},{name:"Solda",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Polimento",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
+  ]},
+  { id:12, code:"PED.135", op:"TRC1850-PR", name:"Trommel TRC 1850 — RBN Paraná", start:"2025-10-24", finish:"2026-08-07", pct:87, depts:[
+    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100}]},
+    {name:"FABRICAÇÃO",pct:84,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria Estrutura",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda Estrutura",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-05-11",finish:"2026-05-12",pct:100},{name:"Caldeiraria Tambor",start:"2026-05-12",finish:"2026-05-14",pct:100},{name:"Solda Tambor",start:"2026-05-28",finish:"2026-06-08",pct:60},{name:"Usinagem Tambor",start:"2026-06-09",finish:"2026-06-19",pct:0},{name:"Pintura Tambor",start:"2026-07-22",finish:"2026-07-29",pct:0}]},
+    {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-29",finish:"2026-08-07",pct:0}]}
+  ]}
+];
+ 
+// ── STATE ──
+let loggedUser = null;   // { type:'admin'|'master'|'client', ref: admin|client obj }
+let selectedUserId = null;
+let selectedAdminId = null;
+ 
+// ── UTILS ──
+const fmtDate = d => { if(!d) return ''; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
+const daysDiff = d => Math.floor((new Date(d) - TODAY) / 86400000);
+function getStatus(o) {
+  if(o.pct >= 100) return 'done';
+  const d = daysDiff(o.finish);
+  if(d < 0) return 'delayed';
+  if(d < 30) return 'at_risk';
+  return 'on_track';
+}
+function taskStatus(t) {
+  if(t.pct >= 100) return 'done';
+  const d = daysDiff(t.finish);
+  if(d < 0 && t.pct < 100) return 'delayed';
+  if(t.pct > 0) return 'active';
+  return 'pending';
+}
+const pctClass = p => p>=70?'high':p>=30?'mid':'low';
+const pctColor = p => p>=70?'var(--green)':p>=30?'var(--warn)':'var(--red)';
+const statusColor = s => ({done:'var(--text3)',delayed:'var(--red)',at_risk:'var(--warn)',on_track:'var(--green)'})[s]||'var(--text3)';
+const getInitials = n => n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const getFileIcon = n => {const e=n.split('.').pop().toLowerCase();return{pdf:'📄',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',dwg:'📐',dxf:'📐',zip:'🗜️',rar:'🗜️'}[e]||'📎';};
+const fmtSize = b => b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';
+function toggleChip(id){document.getElementById(id).classList.toggle('active',document.querySelector('#'+id+' input').checked);}
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.innerHTML=(type==='ok'?'✅ ':'❌ ')+msg;
+  t.className=`toast ${type} show`;
+  setTimeout(()=>t.className='toast',3500);
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function backToLogin(){loggedUser=null;showScreen('login');}
+ 
+// ── ADMIN LOGIN ──
+function openAdminLogin(){
+  document.getElementById('adminLoginError').style.display='none';
+  document.getElementById('adminEmail').value='';
+  document.getElementById('adminPass').value='';
+  document.getElementById('adminLoginOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('adminEmail').focus(),100);
+}
+function closeAdminLogin(){document.getElementById('adminLoginOverlay').classList.remove('open');}
+document.getElementById('adminLoginOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminLogin();});
+ 
+function doAdminLogin(){
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass  = document.getElementById('adminPass').value;
+  const admin = DB.admins.find(a => a.email===email && a.pass===pass);
+  if(!admin){
+    document.getElementById('adminLoginError').style.display='block';
+    return;
+  }
+  closeAdminLogin();
+  loggedUser = { type: admin.role==='master'?'master':'admin', ref: admin };
+  document.getElementById('adminNameBadge').textContent = admin.name;
+  // Oculta botão "Novo Admin" para admins não-mestre
+  document.getElementById('btnNewAdmin').style.display = admin.role==='master'?'':'none';
+  showScreen('dev');
+  renderDevAll();
+  showToast(`Bem-vindo, ${admin.name}!`);
+}
+ 
+// ── CLIENT LOGIN ──
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const c = DB.clients.find(x=>x.email===u && x.pass===p);
+  if(!c){document.getElementById('loginError').style.display='block';return;}
+  document.getElementById('loginError').style.display='none';
+  loggedUser = { type:'client', ref: c };
+  showScreen('client');
+  renderClientScreen();
+}
+ 
+// ── DEV TABS ──
+function switchDevTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='gantt') renderGantt();
+  if(id==='clientes') renderClientsPanel();
+  if(id==='admins') renderAdminsPanel();
+  if(id==='importar') renderRevHistory();
+}
+function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
+ 
+// ── CRONOGRAMA ──
+function renderStats(){
+  let tot=ORDERS.length,del=0,rsk=0,dn=0,ok=0;
+  ORDERS.forEach(o=>{const s=getStatus(o);if(s==='delayed')del++;else if(s==='at_risk')rsk++;else if(s==='done')dn++;else ok++;});
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-val" style="color:var(--text)">${tot}</div><div class="stat-lbl">Total de Pedidos</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">${del}</div><div class="stat-lbl">Atrasados</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--warn)">${rsk}</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
+}
+ 
+function buildOrderCard(order, isClient=false){
+  const s=getStatus(order);
+  const sc=s==='delayed'?'delayed':s==='at_risk'?'at-risk':'on-track';
+  const sbadge=s==='delayed'?'<span class="status-badge badge-delayed">ATRASADO</span>':
+               s==='at_risk'?'<span class="status-badge badge-risk">EM RISCO</span>':
+               s==='done'?'<span class="status-badge badge-done">CONCLUÍDO</span>':
+               '<span class="status-badge badge-ok">NO PRAZO</span>';
+  const diff=daysDiff(order.finish);
+  const diffTxt=order.pct>=100?'':diff<0?`<span style="color:var(--red);font-size:14px;font-weight:600;">${Math.abs(diff)}d atrasado</span>`:
+               diff<30?`<span style="color:var(--warn);font-size:14px;">${diff}d restantes</span>`:'';
+  const archived = order._archived ? '<span style="font-size:12px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">📦 Arquivado</span>' : '';
+  const deptsHTML=order.depts.map(d=>{
+    const tasksHTML=d.tasks.map(t=>{
+      const ts=taskStatus(t);
+      const cls={done:'s-done',delayed:'s-delayed',active:'s-active',pending:'s-pending'}[ts];
+      const lbl={done:'Concluído',delayed:'Atrasado',active:'Em Andamento',pending:'Pendente'}[ts];
+      return`<div class="task-row">
+        ${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:18px;display:inline-block"></span>'}
+        <span class="task-name">${t.name}</span>
+        <span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span>
+        <span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span>
+        <span class="task-status ${cls}">${lbl}</span>
+      </div>`;
+    }).join('');
+    return`<div class="dept-header">${d.name}<span class="dept-pct">${d.pct}%</span></div>${tasksHTML}`;
+  }).join('');
+ 
+  let filesHTML='';
+  if(isClient){
+    const files=DB.orderFiles[order.id]||[];
+    const docsGrid=files.length===0
+      ?'<div class="no-docs">Nenhum documento anexado para este equipamento.</div>'
+      :`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" title="${f.name}" onclick="downloadOrderFile(${order.id},${fi})"><div class="dc-icon">${getFileIcon(f.name)}</div><div class="dc-name">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
+    filesHTML=`<div class="docs-section"><div class="section-title">📎 Documentos &amp; Arquivos</div>${docsGrid}</div>`;
+  }
+ 
+  const cc=isClient?'client-order-card':'order-card';
+  const ch=isClient?'client-order-head':'order-header';
+  const ct=isClient?'client-order-tasks':'order-tasks';
+  return`<div class="${cc} ${sc}" id="card-${order.id}">
+    <div class="${ch}" onclick="this.parentElement.classList.toggle('open')">
+      <span class="status-dot" style="background:${statusColor(s)}"></span>
+      <span class="order-code">${order.code}</span>
+      <div class="order-info">
+        <div class="order-name">${order.name}</div>
+        <div class="order-op">OP: ${order.op}</div>
+      </div>
+      <div class="order-meta">
+        ${archived}${diffTxt}${sbadge}
+        <span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>
+        <div class="pct-wrap">
+          <div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div>
+          <span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="${ct}">${deptsHTML}${filesHTML}</div>
+  </div>`;
+}
+ 
+function renderOrders(filtered){
+  const list=filtered||ORDERS;
+  const c=document.getElementById('ordersList');
+  if(!list.length){c.innerHTML=`<div class="empty-state"><div class="ei">🔍</div><h3>Nenhum pedido encontrado</h3><p>Ajuste os filtros</p></div>`;return;}
+  c.innerHTML=list.map(o=>buildOrderCard(o)).join('');
+}
+function filterOrders(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const dept=document.getElementById('filterDept').value;
+  const status=document.getElementById('filterStatus').value;
+  const onlyD=document.getElementById('onlyDelayed').checked;
+  const filtered=ORDERS.filter(o=>{
+    const s=getStatus(o);
+    if(q&&!o.name.toLowerCase().includes(q)&&!o.code.toLowerCase().includes(q)&&!o.op.toLowerCase().includes(q))return false;
+    if(dept&&!o.depts.some(d=>d.name===dept))return false;
+    if(status&&s!==status)return false;
+    if(onlyD&&s!=='delayed')return false;
+    return true;
+  });
+  renderOrders(filtered);
+}
+function collapseAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.remove('open'));}
+function expandAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.add('open'));}
+ 
+// ══════════════════════════════════════════════════
+// GANTT — REDESIGNED AS TABLE (pixel-perfect)
+// ══════════════════════════════════════════════════
+function populateGanttFilter(){
+  const sel=document.getElementById('ganttFilter');
+  sel.innerHTML='<option value="">Todos os pedidos</option>'+
+    ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,45)}</option>`).join('');
+}
+ 
+function buildGantt(orders, containerId){
+  const DAY_W = 22;
+  const allD = orders.flatMap(o => [new Date(o.start), new Date(o.finish)]);
+  let minDate = new Date(Math.min(...allD));
+  let maxDate = new Date(Math.max(...allD));
+  minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 0);
+  const days = [];
+  let cur = new Date(minDate);
+  while(cur <= maxDate){ days.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+  const months = [];
+  days.forEach((d,i) => {
+    const key = d.getFullYear()+'-'+d.getMonth();
+    if(!months.length || months[months.length-1].key!==key){
+      const isCur = d.getMonth()===TODAY.getMonth() && d.getFullYear()===TODAY.getFullYear();
+      months.push({key, label: d.toLocaleString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(), isCur, count:0});
+    }
+    months[months.length-1].count++;
+  });
+  const todayStr = TODAY.toISOString().slice(0,10);
+  function dayIdx(dateStr){ const d=new Date(dateStr); return Math.round((d-minDate)/86400000); }
+ 
+  // Column widths — name is resizable, op and pct are fixed
+  const NW = ganttNameW; const OW = 90; const PW = 48;
+ 
+  let theadRow1 = '<tr class="gantt-header-row">';
+  theadRow1 += `<th class="gantt-fixed-col gantt-name-th" rowspan="2" style="position:sticky;left:0;z-index:12;width:${NW}px;min-width:${NW}px;max-width:${NW}px;">Pedido / Área<div class="gantt-resize-handle" id="ganttResizeHandle" title="Arraste para ajustar largura"></div></th>`;
+  theadRow1 += `<th class="gantt-fixed-col gantt-op-th" rowspan="2" style="position:sticky;left:${NW}px;z-index:11;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">OP</th>`;
+  theadRow1 += `<th class="gantt-fixed-col gantt-pct-th" rowspan="2" style="position:sticky;left:${NW+OW}px;z-index:11;width:${PW}px;min-width:${PW}px;max-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
+  months.forEach(m => {
+    theadRow1 += `<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}">${m.label}</th>`;
+  });
+  theadRow1 += '</tr>';
+ 
+  let theadRow2 = '<tr class="gantt-header-row">';
+  days.forEach(d => {
+    const ds = d.toISOString().slice(0,10);
+    const isToday = ds===todayStr; const dow = d.getDay(); const isWe = dow===0||dow===6;
+    theadRow2 += `<th class="gantt-day-th${isToday?' is-today':isWe?' is-we':''}">${d.getDate()}</th>`;
+  });
+  theadRow2 += '</tr>';
+ 
+  let bodyHTML = '';
+  orders.forEach(order => {
+    const s = getStatus(order);
+    const barCls = s==='delayed'?'s-delayed':s==='at_risk'?'s-risk':s==='done'?'s-done':'s-ok';
+    const pc = pctColor(order.pct);
+    const sIdx = dayIdx(order.start); const eIdx = dayIdx(order.finish);
+    bodyHTML += `<tr class="gantt-row-order">
+      <td class="gantt-fixed-col gantt-name-td is-order" style="position:sticky;left:0;z-index:8;width:${NW}px;min-width:${NW}px;max-width:${NW}px;"><span style="font-size:10px;font-family:monospace;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:3px;margin-right:5px;flex-shrink:0;">${order.code}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${order.name}</span></td>
+      <td class="gantt-fixed-col gantt-op-td is-order" style="position:sticky;left:${NW}px;z-index:7;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">${order.op}</td>
+      <td class="gantt-fixed-col gantt-pct-td is-order" style="position:sticky;left:${NW+OW}px;z-index:7;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${pc};border-right:2px solid #484848 !important;">${order.pct}%</td>`;
+    days.forEach((d,i) => {
+      const ds=d.toISOString().slice(0,10); const isToday=ds===todayStr; const dow=d.getDay(); const isWe=dow===0||dow===6;
+      const inBar=i>=sIdx&&i<=eIdx; const isStart=i===sIdx; const isEnd=i===eIdx;
+      let c='';
+      if(inBar){ let br=isStart&&isEnd?'border-radius:3px;':isStart?'border-radius:3px 0 0 3px;':isEnd?'border-radius:0 3px 3px 0;':''; c=`<div class="gantt-bar-seg order-bar ${barCls}" style="left:0;right:0;${br}"></div>`; }
+      if(isToday) c+='<div class="gantt-today-vline"></div>';
+      bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;
+    });
+    bodyHTML+='</tr>';
+    order.depts.forEach(dept => {
+      const dDates=dept.tasks.flatMap(t=>[new Date(t.start),new Date(t.finish)]);
+      const dSIdx=dayIdx(new Date(Math.min(...dDates)).toISOString().slice(0,10));
+      const dEIdx=dayIdx(new Date(Math.max(...dDates)).toISOString().slice(0,10));
+      const dpc=pctColor(dept.pct);
+      bodyHTML+=`<tr class="gantt-row-dept">
+        <td class="gantt-fixed-col gantt-name-td is-dept" style="position:sticky;left:0;z-index:8;width:${NW}px;min-width:${NW}px;max-width:${NW}px;">${dept.name}</td>
+        <td class="gantt-fixed-col gantt-op-td is-dept" style="position:sticky;left:${NW}px;z-index:7;width:${OW}px;min-width:${OW}px;max-width:${OW}px;"></td>
+        <td class="gantt-fixed-col gantt-pct-td is-dept" style="position:sticky;left:${NW+OW}px;z-index:7;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${dpc};font-size:10px;border-right:2px solid #484848 !important;">${dept.pct}%</td>`;
+      days.forEach((d,i)=>{
+        const ds=d.toISOString().slice(0,10); const isToday=ds===todayStr; const dow=d.getDay(); const isWe=dow===0||dow===6;
+        const inBar=i>=dSIdx&&i<=dEIdx; const isS=i===dSIdx; const isE=i===dEIdx;
+        let c='';
+        if(inBar){ let br=isS&&isE?'border-radius:2px;':isS?'border-radius:2px 0 0 2px;':isE?'border-radius:0 2px 2px 0;':''; c=`<div class="gantt-bar-seg dept-bar s-dept" style="left:0;right:0;${br}"></div>`; }
+        if(isToday) c+='<div class="gantt-today-vline"></div>';
+        bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;
+      });
+      bodyHTML+='</tr>';
+    });
+  });
+ 
+  const container = document.getElementById(containerId);
+  container.innerHTML = `<div class="gantt-wrap">
+    <div class="gantt-outer">
+      <table class="gantt-table">
+        <thead>${theadRow1}${theadRow2}</thead>
+        <tbody>${bodyHTML}</tbody>
+      </table>
+    </div>
+    <div class="gantt-legend">
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#2e86ab"></div>No Prazo</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--warn)"></div>Em Risco</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--red)"></div>Atrasado</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#444"></div>Concluído</div>
+      <div class="gantt-legend-item" style="margin-left:auto;opacity:.5;font-size:11px;">↔ Arraste a borda da coluna para ajustar largura</div>
+    </div>
+  </div>`;
+  const outer = container.querySelector('.gantt-outer');
+  if(outer){
+    const todayI = days.findIndex(d=>d.toISOString().slice(0,10)===todayStr);
+    if(todayI>=0){ setTimeout(()=>{ outer.scrollLeft=Math.max(0,(todayI*DAY_W)-180); },100); }
+  }
+}
+// ── GANTT NAME COLUMN WIDTH (resizable) ──
+let ganttNameW = 200;
+ 
+function renderGantt(){
+  const f = document.getElementById('ganttFilter').value;
+  const orders = f ? [ORDERS[parseInt(f)]] : ORDERS;
+  buildGantt(orders,'ganttContainer');
+  initGanttResize('ganttContainer', orders);
+}
+ 
+function initGanttResize(containerId, orders){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const handle = container.querySelector('#ganttResizeHandle');
+  if(!handle) return;
+  let startX = 0, startW = 0, dragging = false;
+ 
+  function onStart(clientX){
+    dragging = true; startX = clientX; startW = ganttNameW;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }
+  function onMove(clientX){
+    if(!dragging) return;
+    ganttNameW = Math.max(80, Math.min(420, startW + (clientX - startX)));
+    // Live update all name cells without full rebuild
+    const scrollLeft = container.querySelector('.gantt-outer').scrollLeft;
+    buildGantt(orders || ORDERS, containerId);
+    container.querySelector('.gantt-outer').scrollLeft = scrollLeft;
+    initGanttResize(containerId, orders);
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+ 
+  handle.addEventListener('mousedown', e=>{ e.preventDefault(); onStart(e.clientX); });
+  document.addEventListener('mousemove', e=>onMove(e.clientX));
+  document.addEventListener('mouseup', onEnd);
+  handle.addEventListener('touchstart', e=>{ onStart(e.touches[0].clientX); }, {passive:true});
+  document.addEventListener('touchmove', e=>{ if(dragging){ e.preventDefault(); onMove(e.touches[0].clientX); } }, {passive:false});
+  document.addEventListener('touchend', onEnd);
+}
+ 
+// ── CLIENTS PANEL ──
+const PALETTE=['#c8a84b','#a0a0a0','#888888','#c0c0c0','#d4922a','#bbb','#999'];
+function renderClientsPanel(){
+  document.getElementById('usersList').innerHTML = DB.clients.map(c=>`
+    <div class="user-item ${selectedUserId===c.id?'active':''}" onclick="selectUser(${c.id})">
+      <div class="user-av" style="background:${c.color||'#888'}">${getInitials(c.name)}</div>
+      <div><div class="uname">${c.name}</div><div class="uemail">${c.email}</div></div>
+      <span class="role-badge-client" style="margin-left:auto;">Cliente</span>
+    </div>`).join('');
+}
+ 
+function selectUser(id){
+  selectedUserId = id;
+  const c = DB.clients.find(x=>x.id===id);
+  renderClientsPanel();
+  const orderOptions = ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,35)}</option>`).join('');
+  const orderTagsHTML = (c.orders||[]).map(i=>`<span class="tag">${ORDERS[i]?.code||''} · ${(ORDERS[i]?.name||'').slice(0,28)}<span class="rm" onclick="removeOrderFromUser(${c.id},${i})">✕</span></span>`).join('');
+  const archivedTagsHTML = (c.archivedOrders||[]).map(oid=>{
+    const arc = DB.archivedOrdersData[oid];
+    return arc?`<span class="tag" style="opacity:.7;">📦 ${arc.code} · ${arc.name.slice(0,22)} <span style="font-size:11px;color:var(--text3);">(arquivado)</span></span>`:'';
+  }).join('');
+ 
+  const orderFileSections = (c.orders||[]).map(oidx=>{
+    const o=ORDERS[oidx]; if(!o) return '';
+    const files=DB.orderFiles[oidx]||[];
+    const filesHTML=files.length===0?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>':
+      `<div class="file-list">${files.map((f,fi)=>`
+        <div class="file-item">
+          <span class="fi-icon">${getFileIcon(f.name)}</span>
+          <span class="fi-name">${f.name}</span>
+          <span class="fi-size">${fmtSize(f.size)}</span>
+          <span class="fi-del" onclick="removeOrderFile(${oidx},${fi})">✕</span>
+        </div>`).join('')}</div>`;
+    return`<div class="order-files-block">
+      <div class="order-files-title">📦 ${o.code} — ${o.name}</div>
+      <div class="drop-area" onclick="triggerFileUpload(${oidx})"
+        ondrop="handleDropAdmin(event,${oidx})"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')">
+        📎 Clique ou arraste arquivos para este equipamento
+      </div>
+      <input type="file" id="fu-${oidx}" multiple onchange="handleFileAdmin(event,${oidx})" style="display:none;">
+      ${filesHTML}
+    </div>`;
+  }).join('');
+ 
+  document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>
+    <div class="form-group"><label>Nome</label><input type="text" value="${c.name}" onchange="updateUser(${c.id},'name',this.value)"></div>
+    <div class="form-group"><label>Empresa</label><input type="text" value="${c.company}" onchange="updateUser(${c.id},'company',this.value)"></div>
+    <div class="form-group"><label>E-mail / Login</label><input type="email" value="${c.email}" onchange="updateUser(${c.id},'email',this.value)"></div>
+    <div class="form-group"><label>Senha</label><input type="password" value="${c.pass}" onchange="updateUser(${c.id},'pass',this.value)"></div>
+    <div class="divider"></div>
+    <div class="section-title">Pedidos Ativos Vinculados</div>
+    <div class="tag-list">${orderTagsHTML}</div>
+    <div style="margin-top:12px;">
+      <select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''">
+        <option value="">+ Adicionar pedido...</option>${orderOptions}
+      </select>
+    </div>
+    ${archivedTagsHTML?`<div class="divider"></div><div class="section-title">Pedidos Arquivados (visíveis ao cliente)</div><div class="tag-list">${archivedTagsHTML}</div>`:''}
+    <div class="divider"></div>
+    <div class="section-title">📎 Arquivos por Equipamento</div>
+    ${(c.orders||[]).length===0?'<div style="font-size:14px;color:var(--text3);">Vincule pedidos para gerenciar arquivos.</div>':orderFileSections}
+    <div class="divider"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-gold btn-sm" onclick="saveUserChanges()">💾 Salvar Alterações</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteUser(${c.id})">Excluir cliente</button>
+    </div>
+  </div>`;
+}
+ 
+function saveUserChanges(){persist();showToast('Cliente salvo com sucesso!');}
+function triggerFileUpload(oidx){document.getElementById('fu-'+oidx).click();}
+function handleFileAdmin(e,oidx){addOrderFiles(oidx,Array.from(e.target.files));}
+function handleDropAdmin(e,oidx){e.preventDefault();e.currentTarget.classList.remove('over');addOrderFiles(oidx,Array.from(e.dataTransfer.files));}
+function addOrderFiles(oidx,files){
+  if(!DB.orderFiles[oidx]) DB.orderFiles[oidx]=[];
+  let pending = files.length;
+  files.forEach(f=>{
+    const reader = new FileReader();
+    reader.onload = ev => {
+      DB.orderFiles[oidx].push({name:f.name,size:f.size,date:new Date().toLocaleDateString('pt-BR'),data:ev.target.result});
+      pending--;
+      if(pending===0){
+        persist();
+        selectUser(selectedUserId);
+        showToast(`${files.length} arquivo(s) adicionado(s)`);
+      }
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function downloadOrderFile(oidx,fi){
+  const f=(DB.orderFiles[oidx]||[])[fi];
+  if(!f){showToast('Arquivo não encontrado','err');return;}
+  if(f.data){
+    const a=document.createElement('a');
+    a.href=f.data;
+    a.download=f.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } else {
+    showToast('Arquivo sem dados para download. Faça o upload novamente.','err');
+  }
+}
+function removeOrderFile(oidx,fi){DB.orderFiles[oidx].splice(fi,1);persist();selectUser(selectedUserId);}
+function updateUser(id,field,val){const c=DB.clients.find(x=>x.id===id);if(c)c[field]=val;}
+function addOrderToUser(id,oidx){const c=DB.clients.find(x=>x.id===id);if(c&&!c.orders.includes(oidx)){c.orders.push(oidx);persist();selectUser(id);}}
+function removeOrderFromUser(id,oidx){const c=DB.clients.find(x=>x.id===id);if(c){c.orders=c.orders.filter(i=>i!==oidx);persist();selectUser(id);}}
+function deleteUser(id){
+  if(!confirm('Excluir este cliente?'))return;
+  DB.clients=DB.clients.filter(c=>c.id!==id);
+  persist();
+  selectedUserId=null;
+  document.getElementById('userDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3></div></div>';
+  renderClientsPanel();
+  showToast('Cliente excluído');
+}
+function openAddUserModal(){document.getElementById('addUserModal').classList.add('open');}
+function saveNewUser(){
+  const name=document.getElementById('nuName').value.trim();
+  const company=document.getElementById('nuCompany').value.trim();
+  const email=document.getElementById('nuEmail').value.trim();
+  const pass=document.getElementById('nuPass').value;
+  if(!name||!email||!pass){showToast('Preencha todos os campos obrigatórios','err');return;}
+  if(DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
+  const newId=Math.max(0,...DB.clients.map(c=>c.id))+1;
+  DB.clients.push({id:newId,name,company,email,pass,orders:[],archivedOrders:[],color:PALETTE[DB.clients.length%PALETTE.length]});
+  persist();
+  closeModal('addUserModal');
+  renderClientsPanel();
+  showToast(`Cliente "${name}" criado!`);
+  ['nuName','nuCompany','nuEmail','nuPass'].forEach(id=>document.getElementById(id).value='');
+}
+ 
+// ── ADMINS PANEL ──
+function renderAdminsPanel(){
+  document.getElementById('adminsList').innerHTML = DB.admins.map(a=>`
+    <div class="user-item ${selectedAdminId===a.id?'active':''}" onclick="selectAdmin('${a.id}')">
+      <div class="user-av" style="background:#555;">${getInitials(a.name)}</div>
+      <div><div class="uname">${a.name}</div><div class="uemail">${a.email}</div></div>
+      <span class="${a.role==='master'?'role-badge-master':'role-badge-admin'}" style="margin-left:auto;">${a.role==='master'?'MESTRE':'ADMIN'}</span>
+    </div>`).join('');
+}
+ 
+function selectAdmin(id){
+  selectedAdminId = id;
+  const a = DB.admins.find(x=>x.id===id);
+  renderAdminsPanel();
+  const isMaster = a.role==='master';
+  const canEdit = loggedUser.type==='master';
+  const isCurrentUser = loggedUser.ref.id === id;
+ 
+  document.getElementById('adminDetailPanel').innerHTML=`<div class="user-detail">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div class="user-av" style="background:#555;width:50px;height:50px;font-size:18px;">${getInitials(a.name)}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;">${a.name}</div>
+        <span class="${isMaster?'role-badge-master':'role-badge-admin'}">${isMaster?'ADMINISTRADOR MESTRE':'ADMINISTRADOR'}</span>
+      </div>
+    </div>
+    ${isMaster&&!isCurrentUser?'<div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px;font-size:14px;color:var(--text2);margin-bottom:16px;">O admin mestre não pode ser editado ou excluído.</div>':''}
+    <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
+    <div class="form-group"><label>Nova Senha (deixe em branco para não alterar)</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      ${canEdit&&(!isMaster||isCurrentUser)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
+      ${canEdit&&!isMaster?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
+    </div>
+  </div>`;
+}
+ 
+function saveAdminChanges(id){
+  const a=DB.admins.find(x=>x.id===id);
+  if(!a)return;
+  const name=document.getElementById('ea-name').value.trim();
+  const email=document.getElementById('ea-email').value.trim();
+  const pass=document.getElementById('ea-pass').value;
+  if(!name||!email){showToast('Nome e e-mail são obrigatórios','err');return;}
+  a.name=name; a.email=email;
+  if(pass.length>=6) a.pass=pass;
+  else if(pass.length>0&&pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','err');return;}
+  persist();
+  document.getElementById('adminNameBadge').textContent=loggedUser.ref.name;
+  renderAdminsPanel();
+  showToast('Administrador atualizado!');
+}
+ 
+function deleteAdmin(id){
+  const a=DB.admins.find(x=>x.id===id);
+  if(!a||a.role==='master'){showToast('Não é possível excluir o admin mestre','err');return;}
+  if(!confirm(`Excluir o administrador "${a.name}"?`))return;
+  DB.admins=DB.admins.filter(x=>x.id!==id);
+  persist();
+  selectedAdminId=null;
+  document.getElementById('adminDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3></div></div>';
+  renderAdminsPanel();
+  showToast('Administrador excluído');
+}
+ 
+function openAddAdminModal(){
+  if(loggedUser.type!=='master'){showToast('Somente o admin mestre pode criar administradores','err');return;}
+  document.getElementById('addAdminModal').classList.add('open');
+}
+function saveNewAdmin(){
+  const name=document.getElementById('naName').value.trim();
+  const email=document.getElementById('naEmail').value.trim();
+  const pass=document.getElementById('naPass').value;
+  if(!name||!email||!pass){showToast('Preencha todos os campos','err');return;}
+  if(pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','err');return;}
+  if(DB.admins.find(a=>a.email===email)||DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado no sistema','err');return;}
+  const newId = 'admin_'+Date.now();
+  DB.admins.push({id:newId,name,email,pass,role:'admin'});
+  persist();
+  closeModal('addAdminModal');
+  renderAdminsPanel();
+  showToast(`Administrador "${name}" criado!`);
+  ['naName','naEmail','naPass'].forEach(id=>document.getElementById(id).value='');
+}
+ 
+// ── CLIENT SCREEN ──
+function renderClientScreen(){
+  const c = loggedUser.ref;
+  document.getElementById('clientAv').textContent=getInitials(c.name);
+  document.getElementById('clientAv').style.background=c.color||'#888';
+  document.getElementById('clientName').textContent=c.name;
+  document.getElementById('clientCompany').textContent=c.company;
+  renderClientOrders();
+  renderClientGantt();
+}
+function switchClientTab(id,btn){
+  document.querySelectorAll('.client-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.client-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('cpg-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function renderClientOrders(){
+  const c = loggedUser.ref;
+  const activeOrders = (c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
+  // Archived orders from DB
+  const archivedOrders = (c.archivedOrders||[]).map(oid=>{
+    const arc = DB.archivedOrdersData[oid];
+    return arc ? {...arc, _archived:true} : null;
+  }).filter(Boolean);
+  const all = [...activeOrders, ...archivedOrders];
+  document.getElementById('clientOrdersList').innerHTML = all.length
+    ? all.map(o=>buildOrderCard(o,true)).join('')
+    : '<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
+}
+function renderClientGantt(){
+  const c = loggedUser.ref;
+  const orders = (c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
+  const el = document.getElementById('clientGanttContainer');
+  if(!orders.length){el.innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum pedido ativo vinculado</h3></div>';return;}
+  buildGantt(orders,'clientGanttContainer');
+  initGanttResize('clientGanttContainer', orders);
+}
+ 
+// ── IMPORT / ARCHIVE ──
+function importXML(e){
+  const file=e.target.files[0]; if(!file) return;
+  document.getElementById('importStatus').textContent=`⏳ Processando ${file.name}...`;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const xml=new DOMParser().parseFromString(ev.target.result,'text/xml');
+      const tasks=xml.querySelectorAll('Task');
+      const n=tasks.length;
+ 
+      // Archive finalized orders that were removed from new XML
+      // (Simulate: find orders not in XML — here we just demo the logic)
+      const xmlCodes=new Set();
+      tasks.forEach(t=>{
+        const name=t.querySelector('Name');
+        if(name) xmlCodes.add(name.textContent.trim().slice(0,8));
+      });
+ 
+      let archivedCount=0;
+      ORDERS.forEach(o=>{
+        if(o.pct>=100){
+          // Archive for all clients that have this order
+          DB.clients.forEach(c=>{
+            if((c.orders||[]).includes(o.id)){
+              if(!c.archivedOrders) c.archivedOrders=[];
+              if(!c.archivedOrders.includes(o.id)){
+                c.archivedOrders.push(o.id);
+                DB.archivedOrdersData[o.id]=JSON.parse(JSON.stringify(o));
+                archivedCount++;
+              }
+            }
+          });
+        }
+      });
+ 
+      persist();
+      const archMsg=archivedCount>0?` ${archivedCount} equipamento(s) concluído(s) arquivados automaticamente.`:'';
+      document.getElementById('importStatus').innerHTML=`✅ <strong>${file.name}</strong> processado — <strong>${n}</strong> tarefas encontradas.${archMsg}`;
+ 
+      // Auto-create revision
+      const revNum=`REV.${String(DB.revisions.length+1).padStart(2,'0')}`;
+      DB.revisions.push({num:revNum,date:TODAY.toISOString().slice(0,10),desc:`Importação: ${file.name} (${n} tarefas)`});
+      DB.currentRev=revNum;
+      document.getElementById('revBadge').textContent=revNum;
+      persist();
+      renderRevHistory();
+      showToast(`${n} tarefas importadas!`);
+    }catch{
+      document.getElementById('importStatus').textContent='❌ Erro ao processar o arquivo XML.';
+      showToast('Erro ao importar','err');
+    }
+  };
+  r.readAsText(file);
+}
+ 
+function openRevModal(){
+  const last=parseInt(DB.currentRev.replace('REV.',''))||1;
+  document.getElementById('newRevNum').value=`REV.${String(last+1).padStart(2,'0')}`;
+  document.getElementById('newRevDate').value=TODAY.toISOString().slice(0,10);
+  document.getElementById('revModal').classList.add('open');
+}
+function saveRevision(){
+  const num=document.getElementById('newRevNum').value.trim()||DB.currentRev;
+  const desc=document.getElementById('newRevDesc').value.trim();
+  const date=document.getElementById('newRevDate').value;
+  DB.revisions.push({num,desc,date});
+  DB.currentRev=num;
+  document.getElementById('revBadge').textContent=num;
+  persist();
+  closeModal('revModal');
+  renderRevHistory();
+  showToast(`Revisão ${num} registrada!`);
+}
+function renderRevHistory(){
+  document.getElementById('revHistory').innerHTML=DB.revisions.slice().reverse().map(r=>`
+    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+      <span style="font-family:monospace;font-size:14px;color:var(--gold);font-weight:600;min-width:64px;">${r.num}</span>
+      <span style="font-size:14px;color:var(--text3);min-width:100px;">${r.date}</span>
+      <span style="font-size:15px;color:var(--text2);">${r.desc||'—'}</span>
+    </div>`).join('');
+}
+ 
+// ── MODALS ──
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+ 
+// ── STORAGE STATUS ──
+function updateStorageStatus(){
+  try{
+    const used=new Blob([JSON.stringify(DB)]).size;
+    const kb=(used/1024).toFixed(1);
+    console.log(`DB size: ${kb} KB`);
+  }catch(e){}
+}
+ 
+// ── INIT ──
+document.getElementById('revBadge').textContent = DB.currentRev || 'REV.01';
+renderStats();
+renderOrders();
+populateGanttFilter();
+updateStorageStatus();
+</script>
+</body>
+</html>
