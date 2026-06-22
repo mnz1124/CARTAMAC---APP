@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cartamac — Sistema de Cronogramas</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#c8a84b">
-<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{
@@ -570,36 +567,37 @@ input[type="file"]{display:none;}
  
 <div class="toast" id="toast"></div>
  
-<script>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 // ══════════════════════════════════════════════════
-// STORAGE (localStorage como banco de dados local)
+// FIREBASE CONFIG
 // ══════════════════════════════════════════════════
-const DB_KEY = 'cartamac_db_v3';
- 
-function dbLoad() {
-  try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return null;
-}
- 
-function dbSave(data) {
-  try {
-    localStorage.setItem(DB_KEY, JSON.stringify(data));
-  } catch(e) {
-    console.warn('localStorage indisponível, dados em memória apenas.');
-  }
-}
- 
+const firebaseConfig = {
+  apiKey: "AIzaSyBFZ6HohhFTBxzoUlqooRPzjqbaAd81jE8",
+  authDomain: "cartamac-app.firebaseapp.com",
+  projectId: "cartamac-app",
+  storageBucket: "cartamac-app.firebasestorage.app",
+  messagingSenderId: "59657142601",
+  appId: "1:59657142601:web:b65d0f061fe7ceba375a98",
+  measurementId: "G-NRPJWFPKJB"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const DB_REF = doc(db, "cartamac", "db");
+
 // ══════════════════════════════════════════════════
-// DEFAULT DATA (usado na primeira execução)
+// STORAGE (Firestore como banco de dados na nuvem)
 // ══════════════════════════════════════════════════
 const TODAY = new Date('2026-06-17');
 const MASTER_EMAIL = 'murilo@cartamac.com';
 const MASTER_PASS = '123456';
 const MASTER_NAME = 'Murilo (Mestre)';
- 
+
 const DEFAULT_DB = {
   admins: [
     { id: 'master', name: MASTER_NAME, email: MASTER_EMAIL, pass: MASTER_PASS, role: 'master' }
@@ -614,18 +612,34 @@ const DEFAULT_DB = {
   currentRev: 'REV.01',
   archivedOrdersData: {}
 };
- 
-// Inicializa DB
-let DB = dbLoad() || JSON.parse(JSON.stringify(DEFAULT_DB));
-// Garante campos novos em instâncias antigas
-DB.admins = DB.admins || DEFAULT_DB.admins;
-DB.archivedOrdersData = DB.archivedOrdersData || {};
-DB.clients.forEach(c => { if(!c.archivedOrders) c.archivedOrders = []; });
- 
-function persist() { dbSave(DB); }
- 
+
+let DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+let loggedUser = null;
+let selectedUserId = null;
+let selectedAdminId = null;
+let _dbLoaded = false;
+
+async function dbLoad() {
+  try {
+    const snap = await getDoc(DB_REF);
+    if (snap.exists()) {
+      return snap.data();
+    }
+  } catch(e) { console.warn('Firebase load error:', e); }
+  return null;
+}
+
+async function persist() {
+  try {
+    await setDoc(DB_REF, DB);
+  } catch(e) {
+    console.warn('Firebase save error:', e);
+    showToast('Erro ao salvar na nuvem','err');
+  }
+}
+
 // ══════════════════════════════════════════════════
-// ORDERS DATA (vem do XML importado; aqui é o padrão)
+// ORDERS DATA
 // ══════════════════════════════════════════════════
 const ORDERS = [
   { id:0, code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper 44'' BC", start:"2026-04-30", finish:"2026-08-25", pct:25, depts:[
@@ -695,12 +709,7 @@ const ORDERS = [
     {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-29",finish:"2026-08-07",pct:0}]}
   ]}
 ];
- 
-// ── STATE ──
-let loggedUser = null;   // { type:'admin'|'master'|'client', ref: admin|client obj }
-let selectedUserId = null;
-let selectedAdminId = null;
- 
+
 // ── UTILS ──
 const fmtDate = d => { if(!d) return ''; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 const daysDiff = d => Math.floor((new Date(d) - TODAY) / 86400000);
@@ -736,7 +745,22 @@ function showScreen(id){
   document.getElementById('screen-'+id).classList.add('active');
 }
 function backToLogin(){loggedUser=null;showScreen('login');}
- 
+
+// ── LOADING OVERLAY ──
+function showLoading(msg='Carregando...'){
+  let el=document.getElementById('_loadingOverlay');
+  if(!el){
+    el=document.createElement('div');
+    el.id='_loadingOverlay';
+    el.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    el.innerHTML='<div style="width:40px;height:40px;border:3px solid #333;border-top-color:#c8a84b;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="color:#888;font-size:15px;" id="_loadingMsg"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('_loadingMsg').textContent=msg;
+  el.style.display='flex';
+}
+function hideLoading(){const el=document.getElementById('_loadingOverlay');if(el)el.style.display='none';}
+
 // ── ADMIN LOGIN ──
 function openAdminLogin(){
   document.getElementById('adminLoginError').style.display='none';
@@ -747,7 +771,7 @@ function openAdminLogin(){
 }
 function closeAdminLogin(){document.getElementById('adminLoginOverlay').classList.remove('open');}
 document.getElementById('adminLoginOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminLogin();});
- 
+
 function doAdminLogin(){
   const email = document.getElementById('adminEmail').value.trim();
   const pass  = document.getElementById('adminPass').value;
@@ -759,13 +783,12 @@ function doAdminLogin(){
   closeAdminLogin();
   loggedUser = { type: admin.role==='master'?'master':'admin', ref: admin };
   document.getElementById('adminNameBadge').textContent = admin.name;
-  // Oculta botão "Novo Admin" para admins não-mestre
   document.getElementById('btnNewAdmin').style.display = admin.role==='master'?'':'none';
   showScreen('dev');
   renderDevAll();
   showToast(`Bem-vindo, ${admin.name}!`);
 }
- 
+
 // ── CLIENT LOGIN ──
 function doLogin(){
   const u = document.getElementById('loginUser').value.trim();
@@ -777,7 +800,7 @@ function doLogin(){
   showScreen('client');
   renderClientScreen();
 }
- 
+
 // ── DEV TABS ──
 function switchDevTab(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -790,7 +813,7 @@ function switchDevTab(id,btn){
   if(id==='importar') renderRevHistory();
 }
 function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
- 
+
 // ── CRONOGRAMA ──
 function renderStats(){
   let tot=ORDERS.length,del=0,rsk=0,dn=0,ok=0;
@@ -801,7 +824,7 @@ function renderStats(){
     <div class="stat-card"><div class="stat-val" style="color:var(--warn)">${rsk}</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>
     <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
 }
- 
+
 function buildOrderCard(order, isClient=false){
   const s=getStatus(order);
   const sc=s==='delayed'?'delayed':s==='at_risk'?'at-risk':'on-track';
@@ -828,7 +851,7 @@ function buildOrderCard(order, isClient=false){
     }).join('');
     return`<div class="dept-header">${d.name}<span class="dept-pct">${d.pct}%</span></div>${tasksHTML}`;
   }).join('');
- 
+
   let filesHTML='';
   if(isClient){
     const files=DB.orderFiles[order.id]||[];
@@ -837,7 +860,7 @@ function buildOrderCard(order, isClient=false){
       :`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" title="${f.name}" onclick="downloadOrderFile(${order.id},${fi})"><div class="dc-icon">${getFileIcon(f.name)}</div><div class="dc-name">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
     filesHTML=`<div class="docs-section"><div class="section-title">📎 Documentos &amp; Arquivos</div>${docsGrid}</div>`;
   }
- 
+
   const cc=isClient?'client-order-card':'order-card';
   const ch=isClient?'client-order-head':'order-header';
   const ct=isClient?'client-order-tasks':'order-tasks';
@@ -862,7 +885,7 @@ function buildOrderCard(order, isClient=false){
     <div class="${ct}">${deptsHTML}${filesHTML}</div>
   </div>`;
 }
- 
+
 function renderOrders(filtered){
   const list=filtered||ORDERS;
   const c=document.getElementById('ordersList');
@@ -886,16 +909,14 @@ function filterOrders(){
 }
 function collapseAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.remove('open'));}
 function expandAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.add('open'));}
- 
-// ══════════════════════════════════════════════════
-// GANTT — REDESIGNED AS TABLE (pixel-perfect)
-// ══════════════════════════════════════════════════
+
+// ── GANTT ──
 function populateGanttFilter(){
   const sel=document.getElementById('ganttFilter');
   sel.innerHTML='<option value="">Todos os pedidos</option>'+
     ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,45)}</option>`).join('');
 }
- 
+let ganttNameW = 200;
 function buildGantt(orders, containerId){
   const DAY_W = 22;
   const allD = orders.flatMap(o => [new Date(o.start), new Date(o.finish)]);
@@ -917,19 +938,13 @@ function buildGantt(orders, containerId){
   });
   const todayStr = TODAY.toISOString().slice(0,10);
   function dayIdx(dateStr){ const d=new Date(dateStr); return Math.round((d-minDate)/86400000); }
- 
-  // Column widths — name is resizable, op and pct are fixed
   const NW = ganttNameW; const OW = 90; const PW = 48;
- 
   let theadRow1 = '<tr class="gantt-header-row">';
   theadRow1 += `<th class="gantt-fixed-col gantt-name-th" rowspan="2" style="position:sticky;left:0;z-index:12;width:${NW}px;min-width:${NW}px;max-width:${NW}px;">Pedido / Área<div class="gantt-resize-handle" id="ganttResizeHandle" title="Arraste para ajustar largura"></div></th>`;
   theadRow1 += `<th class="gantt-fixed-col gantt-op-th" rowspan="2" style="position:sticky;left:${NW}px;z-index:11;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">OP</th>`;
   theadRow1 += `<th class="gantt-fixed-col gantt-pct-th" rowspan="2" style="position:sticky;left:${NW+OW}px;z-index:11;width:${PW}px;min-width:${PW}px;max-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
-  months.forEach(m => {
-    theadRow1 += `<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}">${m.label}</th>`;
-  });
+  months.forEach(m => { theadRow1 += `<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}">${m.label}</th>`; });
   theadRow1 += '</tr>';
- 
   let theadRow2 = '<tr class="gantt-header-row">';
   days.forEach(d => {
     const ds = d.toISOString().slice(0,10);
@@ -937,7 +952,6 @@ function buildGantt(orders, containerId){
     theadRow2 += `<th class="gantt-day-th${isToday?' is-today':isWe?' is-we':''}">${d.getDate()}</th>`;
   });
   theadRow2 += '</tr>';
- 
   let bodyHTML = '';
   orders.forEach(order => {
     const s = getStatus(order);
@@ -977,7 +991,6 @@ function buildGantt(orders, containerId){
       bodyHTML+='</tr>';
     });
   });
- 
   const container = document.getElementById(containerId);
   container.innerHTML = `<div class="gantt-wrap">
     <div class="gantt-outer">
@@ -991,7 +1004,6 @@ function buildGantt(orders, containerId){
       <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--warn)"></div>Em Risco</div>
       <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--red)"></div>Atrasado</div>
       <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#444"></div>Concluído</div>
-      <div class="gantt-legend-item" style="margin-left:auto;opacity:.5;font-size:11px;">↔ Arraste a borda da coluna para ajustar largura</div>
     </div>
   </div>`;
   const outer = container.querySelector('.gantt-outer');
@@ -1000,45 +1012,21 @@ function buildGantt(orders, containerId){
     if(todayI>=0){ setTimeout(()=>{ outer.scrollLeft=Math.max(0,(todayI*DAY_W)-180); },100); }
   }
 }
-// ── GANTT NAME COLUMN WIDTH (resizable) ──
-let ganttNameW = 200;
- 
 function renderGantt(){
   const f = document.getElementById('ganttFilter').value;
   const orders = f ? [ORDERS[parseInt(f)]] : ORDERS;
   buildGantt(orders,'ganttContainer');
   initGanttResize('ganttContainer', orders);
 }
- 
 function initGanttResize(containerId, orders){
   const container = document.getElementById(containerId);
   if(!container) return;
   const handle = container.querySelector('#ganttResizeHandle');
   if(!handle) return;
   let startX = 0, startW = 0, dragging = false;
- 
-  function onStart(clientX){
-    dragging = true; startX = clientX; startW = ganttNameW;
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-  }
-  function onMove(clientX){
-    if(!dragging) return;
-    ganttNameW = Math.max(80, Math.min(420, startW + (clientX - startX)));
-    // Live update all name cells without full rebuild
-    const scrollLeft = container.querySelector('.gantt-outer').scrollLeft;
-    buildGantt(orders || ORDERS, containerId);
-    container.querySelector('.gantt-outer').scrollLeft = scrollLeft;
-    initGanttResize(containerId, orders);
-  }
-  function onEnd(){
-    if(!dragging) return;
-    dragging = false;
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  }
- 
+  function onStart(clientX){ dragging = true; startX = clientX; startW = ganttNameW; handle.classList.add('dragging'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; }
+  function onMove(clientX){ if(!dragging) return; ganttNameW = Math.max(80, Math.min(420, startW + (clientX - startX))); const scrollLeft = container.querySelector('.gantt-outer').scrollLeft; buildGantt(orders || ORDERS, containerId); container.querySelector('.gantt-outer').scrollLeft = scrollLeft; initGanttResize(containerId, orders); }
+  function onEnd(){ if(!dragging) return; dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; }
   handle.addEventListener('mousedown', e=>{ e.preventDefault(); onStart(e.clientX); });
   document.addEventListener('mousemove', e=>onMove(e.clientX));
   document.addEventListener('mouseup', onEnd);
@@ -1046,7 +1034,7 @@ function initGanttResize(containerId, orders){
   document.addEventListener('touchmove', e=>{ if(dragging){ e.preventDefault(); onMove(e.touches[0].clientX); } }, {passive:false});
   document.addEventListener('touchend', onEnd);
 }
- 
+
 // ── CLIENTS PANEL ──
 const PALETTE=['#c8a84b','#a0a0a0','#888888','#c0c0c0','#d4922a','#bbb','#999'];
 function renderClientsPanel(){
@@ -1057,42 +1045,20 @@ function renderClientsPanel(){
       <span class="role-badge-client" style="margin-left:auto;">Cliente</span>
     </div>`).join('');
 }
- 
 function selectUser(id){
   selectedUserId = id;
   const c = DB.clients.find(x=>x.id===id);
   renderClientsPanel();
   const orderOptions = ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,35)}</option>`).join('');
   const orderTagsHTML = (c.orders||[]).map(i=>`<span class="tag">${ORDERS[i]?.code||''} · ${(ORDERS[i]?.name||'').slice(0,28)}<span class="rm" onclick="removeOrderFromUser(${c.id},${i})">✕</span></span>`).join('');
-  const archivedTagsHTML = (c.archivedOrders||[]).map(oid=>{
-    const arc = DB.archivedOrdersData[oid];
-    return arc?`<span class="tag" style="opacity:.7;">📦 ${arc.code} · ${arc.name.slice(0,22)} <span style="font-size:11px;color:var(--text3);">(arquivado)</span></span>`:'';
-  }).join('');
- 
+  const archivedTagsHTML = (c.archivedOrders||[]).map(oid=>{ const arc = DB.archivedOrdersData[oid]; return arc?`<span class="tag" style="opacity:.7;">📦 ${arc.code} · ${arc.name.slice(0,22)} <span style="font-size:11px;color:var(--text3);">(arquivado)</span></span>`:''; }).join('');
   const orderFileSections = (c.orders||[]).map(oidx=>{
     const o=ORDERS[oidx]; if(!o) return '';
     const files=DB.orderFiles[oidx]||[];
     const filesHTML=files.length===0?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>':
-      `<div class="file-list">${files.map((f,fi)=>`
-        <div class="file-item">
-          <span class="fi-icon">${getFileIcon(f.name)}</span>
-          <span class="fi-name">${f.name}</span>
-          <span class="fi-size">${fmtSize(f.size)}</span>
-          <span class="fi-del" onclick="removeOrderFile(${oidx},${fi})">✕</span>
-        </div>`).join('')}</div>`;
-    return`<div class="order-files-block">
-      <div class="order-files-title">📦 ${o.code} — ${o.name}</div>
-      <div class="drop-area" onclick="triggerFileUpload(${oidx})"
-        ondrop="handleDropAdmin(event,${oidx})"
-        ondragover="event.preventDefault();this.classList.add('over')"
-        ondragleave="this.classList.remove('over')">
-        📎 Clique ou arraste arquivos para este equipamento
-      </div>
-      <input type="file" id="fu-${oidx}" multiple onchange="handleFileAdmin(event,${oidx})" style="display:none;">
-      ${filesHTML}
-    </div>`;
+      `<div class="file-list">${files.map((f,fi)=>`<div class="file-item"><span class="fi-icon">${getFileIcon(f.name)}</span><span class="fi-name">${f.name}</span><span class="fi-size">${fmtSize(f.size)}</span><span class="fi-del" onclick="removeOrderFile(${oidx},${fi})">✕</span></div>`).join('')}</div>`;
+    return`<div class="order-files-block"><div class="order-files-title">📦 ${o.code} — ${o.name}</div><div class="drop-area" onclick="triggerFileUpload(${oidx})" ondrop="handleDropAdmin(event,${oidx})" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">📎 Clique ou arraste arquivos para este equipamento</div><input type="file" id="fu-${oidx}" multiple onchange="handleFileAdmin(event,${oidx})" style="display:none;">${filesHTML}</div>`;
   }).join('');
- 
   document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail">
     <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>
     <div class="form-group"><label>Nome</label><input type="text" value="${c.name}" onchange="updateUser(${c.id},'name',this.value)"></div>
@@ -1102,12 +1068,8 @@ function selectUser(id){
     <div class="divider"></div>
     <div class="section-title">Pedidos Ativos Vinculados</div>
     <div class="tag-list">${orderTagsHTML}</div>
-    <div style="margin-top:12px;">
-      <select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''">
-        <option value="">+ Adicionar pedido...</option>${orderOptions}
-      </select>
-    </div>
-    ${archivedTagsHTML?`<div class="divider"></div><div class="section-title">Pedidos Arquivados (visíveis ao cliente)</div><div class="tag-list">${archivedTagsHTML}</div>`:''}
+    <div style="margin-top:12px;"><select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''"><option value="">+ Adicionar pedido...</option>${orderOptions}</select></div>
+    ${archivedTagsHTML?`<div class="divider"></div><div class="section-title">Pedidos Arquivados</div><div class="tag-list">${archivedTagsHTML}</div>`:''}
     <div class="divider"></div>
     <div class="section-title">📎 Arquivos por Equipamento</div>
     ${(c.orders||[]).length===0?'<div style="font-size:14px;color:var(--text3);">Vincule pedidos para gerenciar arquivos.</div>':orderFileSections}
@@ -1118,7 +1080,6 @@ function selectUser(id){
     </div>
   </div>`;
 }
- 
 function saveUserChanges(){persist();showToast('Cliente salvo com sucesso!');}
 function triggerFileUpload(oidx){document.getElementById('fu-'+oidx).click();}
 function handleFileAdmin(e,oidx){addOrderFiles(oidx,Array.from(e.target.files));}
@@ -1131,11 +1092,7 @@ function addOrderFiles(oidx,files){
     reader.onload = ev => {
       DB.orderFiles[oidx].push({name:f.name,size:f.size,date:new Date().toLocaleDateString('pt-BR'),data:ev.target.result});
       pending--;
-      if(pending===0){
-        persist();
-        selectUser(selectedUserId);
-        showToast(`${files.length} arquivo(s) adicionado(s)`);
-      }
+      if(pending===0){ persist(); selectUser(selectedUserId); showToast(`${files.length} arquivo(s) adicionado(s)`); }
     };
     reader.readAsDataURL(f);
   });
@@ -1143,16 +1100,8 @@ function addOrderFiles(oidx,files){
 function downloadOrderFile(oidx,fi){
   const f=(DB.orderFiles[oidx]||[])[fi];
   if(!f){showToast('Arquivo não encontrado','err');return;}
-  if(f.data){
-    const a=document.createElement('a');
-    a.href=f.data;
-    a.download=f.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  } else {
-    showToast('Arquivo sem dados para download. Faça o upload novamente.','err');
-  }
+  if(f.data){ const a=document.createElement('a');a.href=f.data;a.download=f.name;document.body.appendChild(a);a.click();document.body.removeChild(a); }
+  else { showToast('Arquivo sem dados. Faça o upload novamente.','err'); }
 }
 function removeOrderFile(oidx,fi){DB.orderFiles[oidx].splice(fi,1);persist();selectUser(selectedUserId);}
 function updateUser(id,field,val){const c=DB.clients.find(x=>x.id===id);if(c)c[field]=val;}
@@ -1161,11 +1110,9 @@ function removeOrderFromUser(id,oidx){const c=DB.clients.find(x=>x.id===id);if(c
 function deleteUser(id){
   if(!confirm('Excluir este cliente?'))return;
   DB.clients=DB.clients.filter(c=>c.id!==id);
-  persist();
-  selectedUserId=null;
+  persist(); selectedUserId=null;
   document.getElementById('userDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3></div></div>';
-  renderClientsPanel();
-  showToast('Cliente excluído');
+  renderClientsPanel(); showToast('Cliente excluído');
 }
 function openAddUserModal(){document.getElementById('addUserModal').classList.add('open');}
 function saveNewUser(){
@@ -1177,13 +1124,10 @@ function saveNewUser(){
   if(DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
   const newId=Math.max(0,...DB.clients.map(c=>c.id))+1;
   DB.clients.push({id:newId,name,company,email,pass,orders:[],archivedOrders:[],color:PALETTE[DB.clients.length%PALETTE.length]});
-  persist();
-  closeModal('addUserModal');
-  renderClientsPanel();
-  showToast(`Cliente "${name}" criado!`);
+  persist(); closeModal('addUserModal'); renderClientsPanel(); showToast(`Cliente "${name}" criado!`);
   ['nuName','nuCompany','nuEmail','nuPass'].forEach(id=>document.getElementById(id).value='');
 }
- 
+
 // ── ADMINS PANEL ──
 function renderAdminsPanel(){
   document.getElementById('adminsList').innerHTML = DB.admins.map(a=>`
@@ -1193,7 +1137,6 @@ function renderAdminsPanel(){
       <span class="${a.role==='master'?'role-badge-master':'role-badge-admin'}" style="margin-left:auto;">${a.role==='master'?'MESTRE':'ADMIN'}</span>
     </div>`).join('');
 }
- 
 function selectAdmin(id){
   selectedAdminId = id;
   const a = DB.admins.find(x=>x.id===id);
@@ -1201,29 +1144,23 @@ function selectAdmin(id){
   const isMaster = a.role==='master';
   const canEdit = loggedUser.type==='master';
   const isCurrentUser = loggedUser.ref.id === id;
- 
   document.getElementById('adminDetailPanel').innerHTML=`<div class="user-detail">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div class="user-av" style="background:#555;width:50px;height:50px;font-size:18px;">${getInitials(a.name)}</div>
-      <div>
-        <div style="font-size:18px;font-weight:700;">${a.name}</div>
-        <span class="${isMaster?'role-badge-master':'role-badge-admin'}">${isMaster?'ADMINISTRADOR MESTRE':'ADMINISTRADOR'}</span>
-      </div>
+      <div><div style="font-size:18px;font-weight:700;">${a.name}</div><span class="${isMaster?'role-badge-master':'role-badge-admin'}">${isMaster?'ADMINISTRADOR MESTRE':'ADMINISTRADOR'}</span></div>
     </div>
     ${isMaster&&!isCurrentUser?'<div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px;font-size:14px;color:var(--text2);margin-bottom:16px;">O admin mestre não pode ser editado ou excluído.</div>':''}
     <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
     <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
-    <div class="form-group"><label>Nova Senha (deixe em branco para não alterar)</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
+    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       ${canEdit&&(!isMaster||isCurrentUser)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
       ${canEdit&&!isMaster?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
     </div>
   </div>`;
 }
- 
 function saveAdminChanges(id){
-  const a=DB.admins.find(x=>x.id===id);
-  if(!a)return;
+  const a=DB.admins.find(x=>x.id===id); if(!a)return;
   const name=document.getElementById('ea-name').value.trim();
   const email=document.getElementById('ea-email').value.trim();
   const pass=document.getElementById('ea-pass').value;
@@ -1231,24 +1168,16 @@ function saveAdminChanges(id){
   a.name=name; a.email=email;
   if(pass.length>=6) a.pass=pass;
   else if(pass.length>0&&pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','err');return;}
-  persist();
-  document.getElementById('adminNameBadge').textContent=loggedUser.ref.name;
-  renderAdminsPanel();
-  showToast('Administrador atualizado!');
+  persist(); document.getElementById('adminNameBadge').textContent=loggedUser.ref.name; renderAdminsPanel(); showToast('Administrador atualizado!');
 }
- 
 function deleteAdmin(id){
   const a=DB.admins.find(x=>x.id===id);
   if(!a||a.role==='master'){showToast('Não é possível excluir o admin mestre','err');return;}
   if(!confirm(`Excluir o administrador "${a.name}"?`))return;
-  DB.admins=DB.admins.filter(x=>x.id!==id);
-  persist();
-  selectedAdminId=null;
+  DB.admins=DB.admins.filter(x=>x.id!==id); persist(); selectedAdminId=null;
   document.getElementById('adminDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3></div></div>';
-  renderAdminsPanel();
-  showToast('Administrador excluído');
+  renderAdminsPanel(); showToast('Administrador excluído');
 }
- 
 function openAddAdminModal(){
   if(loggedUser.type!=='master'){showToast('Somente o admin mestre pode criar administradores','err');return;}
   document.getElementById('addAdminModal').classList.add('open');
@@ -1262,13 +1191,10 @@ function saveNewAdmin(){
   if(DB.admins.find(a=>a.email===email)||DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado no sistema','err');return;}
   const newId = 'admin_'+Date.now();
   DB.admins.push({id:newId,name,email,pass,role:'admin'});
-  persist();
-  closeModal('addAdminModal');
-  renderAdminsPanel();
-  showToast(`Administrador "${name}" criado!`);
+  persist(); closeModal('addAdminModal'); renderAdminsPanel(); showToast(`Administrador "${name}" criado!`);
   ['naName','naEmail','naPass'].forEach(id=>document.getElementById(id).value='');
 }
- 
+
 // ── CLIENT SCREEN ──
 function renderClientScreen(){
   const c = loggedUser.ref;
@@ -1288,11 +1214,7 @@ function switchClientTab(id,btn){
 function renderClientOrders(){
   const c = loggedUser.ref;
   const activeOrders = (c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
-  // Archived orders from DB
-  const archivedOrders = (c.archivedOrders||[]).map(oid=>{
-    const arc = DB.archivedOrdersData[oid];
-    return arc ? {...arc, _archived:true} : null;
-  }).filter(Boolean);
+  const archivedOrders = (c.archivedOrders||[]).map(oid=>{ const arc = DB.archivedOrdersData[oid]; return arc ? {...arc, _archived:true} : null; }).filter(Boolean);
   const all = [...activeOrders, ...archivedOrders];
   document.getElementById('clientOrdersList').innerHTML = all.length
     ? all.map(o=>buildOrderCard(o,true)).join('')
@@ -1306,7 +1228,7 @@ function renderClientGantt(){
   buildGantt(orders,'clientGanttContainer');
   initGanttResize('clientGanttContainer', orders);
 }
- 
+
 // ── IMPORT / ARCHIVE ──
 function importXML(e){
   const file=e.target.files[0]; if(!file) return;
@@ -1317,19 +1239,9 @@ function importXML(e){
       const xml=new DOMParser().parseFromString(ev.target.result,'text/xml');
       const tasks=xml.querySelectorAll('Task');
       const n=tasks.length;
- 
-      // Archive finalized orders that were removed from new XML
-      // (Simulate: find orders not in XML — here we just demo the logic)
-      const xmlCodes=new Set();
-      tasks.forEach(t=>{
-        const name=t.querySelector('Name');
-        if(name) xmlCodes.add(name.textContent.trim().slice(0,8));
-      });
- 
       let archivedCount=0;
       ORDERS.forEach(o=>{
         if(o.pct>=100){
-          // Archive for all clients that have this order
           DB.clients.forEach(c=>{
             if((c.orders||[]).includes(o.id)){
               if(!c.archivedOrders) c.archivedOrders=[];
@@ -1342,19 +1254,14 @@ function importXML(e){
           });
         }
       });
- 
       persist();
       const archMsg=archivedCount>0?` ${archivedCount} equipamento(s) concluído(s) arquivados automaticamente.`:'';
       document.getElementById('importStatus').innerHTML=`✅ <strong>${file.name}</strong> processado — <strong>${n}</strong> tarefas encontradas.${archMsg}`;
- 
-      // Auto-create revision
       const revNum=`REV.${String(DB.revisions.length+1).padStart(2,'0')}`;
       DB.revisions.push({num:revNum,date:TODAY.toISOString().slice(0,10),desc:`Importação: ${file.name} (${n} tarefas)`});
       DB.currentRev=revNum;
       document.getElementById('revBadge').textContent=revNum;
-      persist();
-      renderRevHistory();
-      showToast(`${n} tarefas importadas!`);
+      persist(); renderRevHistory(); showToast(`${n} tarefas importadas!`);
     }catch{
       document.getElementById('importStatus').textContent='❌ Erro ao processar o arquivo XML.';
       showToast('Erro ao importar','err');
@@ -1362,7 +1269,6 @@ function importXML(e){
   };
   r.readAsText(file);
 }
- 
 function openRevModal(){
   const last=parseInt(DB.currentRev.replace('REV.',''))||1;
   document.getElementById('newRevNum').value=`REV.${String(last+1).padStart(2,'0')}`;
@@ -1373,13 +1279,9 @@ function saveRevision(){
   const num=document.getElementById('newRevNum').value.trim()||DB.currentRev;
   const desc=document.getElementById('newRevDesc').value.trim();
   const date=document.getElementById('newRevDate').value;
-  DB.revisions.push({num,desc,date});
-  DB.currentRev=num;
+  DB.revisions.push({num,desc,date}); DB.currentRev=num;
   document.getElementById('revBadge').textContent=num;
-  persist();
-  closeModal('revModal');
-  renderRevHistory();
-  showToast(`Revisão ${num} registrada!`);
+  persist(); closeModal('revModal'); renderRevHistory(); showToast(`Revisão ${num} registrada!`);
 }
 function renderRevHistory(){
   document.getElementById('revHistory').innerHTML=DB.revisions.slice().reverse().map(r=>`
@@ -1389,28 +1291,72 @@ function renderRevHistory(){
       <span style="font-size:15px;color:var(--text2);">${r.desc||'—'}</span>
     </div>`).join('');
 }
- 
+
 // ── MODALS ──
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
 });
- 
-// ── STORAGE STATUS ──
-function updateStorageStatus(){
-  try{
-    const used=new Blob([JSON.stringify(DB)]).size;
-    const kb=(used/1024).toFixed(1);
-    console.log(`DB size: ${kb} KB`);
-  }catch(e){}
-}
- 
-// ── INIT ──
-document.getElementById('revBadge').textContent = DB.currentRev || 'REV.01';
-renderStats();
-renderOrders();
-populateGanttFilter();
-updateStorageStatus();
+
+// ── INIT (carrega do Firebase antes de exibir) ──
+showLoading('Conectando ao servidor...');
+dbLoad().then(data => {
+  if(data) {
+    DB = data;
+    DB.admins = DB.admins || DEFAULT_DB.admins;
+    DB.archivedOrdersData = DB.archivedOrdersData || {};
+    DB.clients.forEach(c => { if(!c.archivedOrders) c.archivedOrders = []; });
+  } else {
+    // Primeira vez: salva os dados padrão na nuvem
+    persist();
+  }
+  document.getElementById('revBadge').textContent = DB.currentRev || 'REV.01';
+  renderStats();
+  renderOrders();
+  populateGanttFilter();
+  hideLoading();
+}).catch(err => {
+  console.error('Erro ao carregar Firebase:', err);
+  hideLoading();
+  showToast('Erro ao conectar. Verifique sua conexão.','err');
+});
+
+// Expõe funções globalmente (necessário pois o script é type="module")
+window.doLogin=doLogin;
+window.openAdminLogin=openAdminLogin;
+window.doAdminLogin=doAdminLogin;
+window.backToLogin=backToLogin;
+window.switchDevTab=switchDevTab;
+window.switchClientTab=switchClientTab;
+window.filterOrders=filterOrders;
+window.collapseAll=collapseAll;
+window.expandAll=expandAll;
+window.toggleChip=toggleChip;
+window.renderGantt=renderGantt;
+window.openAddUserModal=openAddUserModal;
+window.saveNewUser=saveNewUser;
+window.selectUser=selectUser;
+window.saveUserChanges=saveUserChanges;
+window.updateUser=updateUser;
+window.addOrderToUser=addOrderToUser;
+window.removeOrderFromUser=removeOrderFromUser;
+window.deleteUser=deleteUser;
+window.triggerFileUpload=triggerFileUpload;
+window.handleFileAdmin=handleFileAdmin;
+window.handleDropAdmin=handleDropAdmin;
+window.removeOrderFile=removeOrderFile;
+window.downloadOrderFile=downloadOrderFile;
+window.openAddAdminModal=openAddAdminModal;
+window.saveNewAdmin=saveNewAdmin;
+window.selectAdmin=selectAdmin;
+window.saveAdminChanges=saveAdminChanges;
+window.deleteAdmin=deleteAdmin;
+window.openRevModal=openRevModal;
+window.saveRevision=saveRevision;
+window.importXML=importXML;
+window.closeModal=closeModal;
+window.closeAdminLogin=closeAdminLogin;
+
 </script>
 </body>
 </html>
