@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cartamac — Sistema de Cronogramas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c8a84b">
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{
@@ -18,26 +21,14 @@
   --shadow:0 2px 12px rgba(0,0,0,0.6);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:16px;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
-/* FIX: Login screen fills viewport exactly, no scroll needed */
-html, body { height: 100%; overflow-x: hidden; }
+html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;height:100%;overflow-x:hidden;}
 .screen{display:none;}
 .screen.active{display:block;}
 input[type="file"]{display:none;}
 .mono{font-family:'JetBrains Mono',monospace;}
- 
-/* LOGIN — fills exact viewport, content centered */
-#screen-login{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  background:var(--bg);
-  padding:24px;
-  overflow:hidden;
-}
+
+/* LOGIN */
+#screen-login{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:24px;overflow:hidden;}
 .login-brand{text-align:center;margin-bottom:32px;}
 .login-brand .wordmark{font-size:40px;font-weight:800;letter-spacing:-1px;color:var(--accent2);}
 .login-brand .wordmark span{color:var(--gold);}
@@ -66,7 +57,7 @@ input[type="file"]{display:none;}
 .dev-link a{color:var(--dim);text-decoration:none;border-bottom:1px dashed var(--border3);cursor:pointer;transition:color .15s;}
 .dev-link a:hover{color:var(--text2);}
 .error-msg{background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3);color:var(--red);padding:11px 14px;border-radius:var(--radius);font-size:14px;margin-top:14px;display:none;}
- 
+
 /* ADMIN LOGIN OVERLAY */
 #adminLoginOverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;}
 #adminLoginOverlay.open{display:flex;}
@@ -74,112 +65,28 @@ input[type="file"]{display:none;}
 .admin-login-box h2{font-size:20px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
 .admin-login-box p{font-size:14px;color:var(--text3);margin-bottom:24px;}
 .admin-badge{display:inline-block;background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--gold);font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.5px;}
- 
-/* ══════════════════════════════════════
-   DEV HEADER — layout adaptável
-   ══════════════════════════════════════ */
-#screen-dev{min-height:100vh;}
 
-/* Desktop: single row */
-.dev-header{
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  padding:0 20px;
-  display:flex;
-  align-items:center;
-  height:56px;
-  position:sticky;
-  top:0;
-  z-index:100;
-  gap:8px;
-}
+/* DEV HEADER */
+#screen-dev{min-height:100vh;}
+.dev-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;gap:8px;}
 .dev-wordmark{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--accent2);flex-shrink:0;}
 .dev-wordmark span{color:var(--gold);}
-
-/* Nav tabs — scrollable row */
-.dev-nav{
-  display:flex;
-  gap:2px;
-  flex:1;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  min-width:0;
-}
+.dev-nav{display:flex;gap:2px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0;}
 .dev-nav::-webkit-scrollbar{display:none;}
-
-.dev-tab{
-  padding:6px 12px;
-  border-radius:var(--radius);
-  cursor:pointer;
-  color:var(--text2);
-  font-size:13px;
-  font-weight:500;
-  border:none;
-  background:transparent;
-  transition:all .15s;
-  white-space:nowrap;
-  flex-shrink:0;
-  min-height:36px;
-  display:flex;
-  align-items:center;
-}
+.dev-tab{padding:6px 12px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border:none;background:transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;min-height:36px;display:flex;align-items:center;}
 .dev-tab:hover{background:var(--bg3);color:var(--text);}
 .dev-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
-
-/* Actions group — compact on mobile */
-.header-actions{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-shrink:0;
-}
-.rev-badge{
-  background:var(--bg3);
-  border:1px solid var(--border2);
-  border-radius:5px;
-  padding:4px 8px;
-  font-size:12px;
-  font-family:'JetBrains Mono',monospace;
-  color:var(--gold);
-  font-weight:500;
-  white-space:nowrap;
-}
-.admin-user-badge{
-  font-size:12px;
-  color:var(--text3);
-  display:flex;
-  align-items:center;
-  gap:4px;
-  white-space:nowrap;
-}
+.header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.rev-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;white-space:nowrap;}
+.admin-user-badge{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .admin-user-badge strong{color:var(--gold);}
 
-/* Hide text labels on small screens, keep icons */
 @media(max-width:640px){
-  .dev-header{
-    height:auto;
-    flex-wrap:wrap;
-    padding:8px 12px;
-    gap:6px;
-    align-items:center;
-  }
-  /* Row 1: wordmark + actions */
+  .dev-header{height:auto;flex-wrap:wrap;padding:8px 12px;gap:6px;align-items:center;}
   .dev-wordmark{font-size:20px;order:0;}
   .header-actions{order:1;margin-left:auto;}
-  /* Row 2: nav tabs full width */
-  .dev-nav{
-    order:2;
-    width:100%;
-    flex:none;
-    padding-bottom:2px;
-  }
-  .dev-tab{
-    font-size:12px;
-    padding:5px 10px;
-    min-height:34px;
-  }
-  /* Hide label text in some action buttons to save space */
+  .dev-nav{order:2;width:100%;flex:none;padding-bottom:2px;}
+  .dev-tab{font-size:12px;padding:5px 10px;min-height:34px;}
   .btn-rev-label{display:none;}
   .btn-sair-label{display:none;}
   .admin-user-badge .uname-full{display:none;}
@@ -189,13 +96,13 @@ input[type="file"]{display:none;}
 /* PAGES */
 .page{display:none;padding:28px;}
 .page.active{display:block;}
- 
+
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 22px;}
 .stat-val{font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px;}
 .stat-lbl{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
- 
+
 /* FILTERS */
 .filters{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
 .search-input{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-size:15px;width:280px;outline:none;transition:border .15s;font-family:'Inter',sans-serif;}
@@ -207,7 +114,7 @@ input[type="file"]{display:none;}
 .filter-chip:hover{border-color:var(--gold);color:var(--text);}
 .filter-chip.active{background:rgba(200,168,75,.1);border-color:var(--gold);color:var(--gold);}
 .filter-chip input{display:none;}
- 
+
 /* ORDER CARDS */
 .orders-list{display:flex;flex-direction:column;gap:10px;}
 .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s;}
@@ -254,213 +161,38 @@ input[type="file"]{display:none;}
 .s-delayed{background:rgba(224,82,82,.12);color:var(--red);}
 .s-pending{background:rgba(120,120,120,.1);color:var(--text3);}
 
-/* ══════════════════════════════════════
-   GANTT — Colunas fixas corrigidas
-   A chave é: overflow no wrapper externo,
-   position:sticky nas células com z-index
-   correto e background sólido SEMPRE.
-   ══════════════════════════════════════ */
-.gantt-wrap{
-  position:relative;
-  background:#121212;
-  border:1px solid var(--border);
-  border-radius:var(--radius2);
-  overflow:hidden;
-}
-/* Este é o único elemento com overflow:auto */
-.gantt-outer{
-  overflow:auto;
-  max-height:80vh;
-  -webkit-overflow-scrolling:touch;
-  /* Garante que sticky funcione dentro de overflow:auto */
-  position:relative;
-}
-.gantt-table{
-  border-collapse:separate; /* CRÍTICO: collapse quebra sticky */
-  border-spacing:0;
-  font-size:13px;
-  /* Garante que a tabela não encolha */
-  width:max-content;
-  min-width:100%;
-}
-.gantt-table th,
-.gantt-table td{
-  border-right:1px solid #2a2a2a;
-  border-bottom:1px solid #2a2a2a;
-  padding:0;
-}
-
-/* Colunas fixas — sticky com z-index em camadas */
-/* z-index: header fixo > body fixo > header dia > body dia */
-
-/* Header dos dias (não fixos) */
+/* GANTT */
+.gantt-wrap{position:relative;background:#121212;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+.gantt-outer{overflow:auto;max-height:80vh;-webkit-overflow-scrolling:touch;position:relative;}
+.gantt-table{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%;}
+.gantt-table th,.gantt-table td{border-right:1px solid #2a2a2a;border-bottom:1px solid #2a2a2a;padding:0;}
 .gantt-header-row th{background:#1a1a1a;}
-.gantt-month-th{
-  text-align:center;
-  padding:7px 4px;
-  font-size:12px;
-  font-weight:700;
-  color:var(--text2);
-  white-space:nowrap;
-  letter-spacing:.5px;
-  background:#1a1a1a;
-  position:sticky;
-  top:0;
-  z-index:5;
-}
+.gantt-month-th{text-align:center;padding:7px 4px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;letter-spacing:.5px;background:#1a1a1a;position:sticky;top:0;z-index:5;}
 .gantt-month-th.cur{color:var(--gold);background:#1f1c10;}
-
-.gantt-day-th{
-  text-align:center;
-  padding:4px 0;
-  font-size:10px;
-  color:var(--dim2);
-  width:22px;
-  min-width:22px;
-  max-width:22px;
-  background:#1a1a1a;
-  position:sticky;
-  top:30px; /* abaixo do mês */
-  z-index:5;
-}
+.gantt-day-th{text-align:center;padding:4px 0;font-size:10px;color:var(--dim2);width:22px;min-width:22px;max-width:22px;background:#1a1a1a;position:sticky;top:30px;z-index:5;}
 .gantt-day-th.is-today{background:#2a2000;color:var(--gold);font-weight:700;}
 .gantt-day-th.is-we{color:var(--border3);background:#141414;}
-
-/* Células de cabeçalho fixas (nome/op/%) — z-index maior que tudo */
-.gantt-name-th{
-  padding:7px 8px 7px 12px;
-  font-size:11px;
-  font-weight:700;
-  color:var(--text3);
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  white-space:nowrap;
-  background:#1a1a1a;
-  border-right:1px solid #383838;
-  position:sticky;
-  top:0;
-  left:0;
-  z-index:20; /* mais alto — canto superior esquerdo */
-  user-select:none;
-}
-.gantt-op-th{
-  padding:7px 8px;
-  font-size:11px;
-  font-weight:700;
-  color:var(--text3);
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  background:#1a1a1a;
-  border-right:1px solid var(--border2);
-  position:sticky;
-  top:0;
-  z-index:19;
-}
-.gantt-pct-th{
-  padding:7px 4px;
-  font-size:11px;
-  font-weight:700;
-  color:var(--text3);
-  text-transform:uppercase;
-  text-align:center;
-  background:#1a1a1a;
-  position:sticky;
-  top:0;
-  z-index:19;
-}
-
-/* Handle de resize */
-.gantt-resize-handle{
-  position:absolute;
-  right:0;top:0;bottom:0;
-  width:6px;
-  cursor:col-resize;
-  background:transparent;
-  z-index:21;
-}
-.gantt-resize-handle:hover,
-.gantt-resize-handle.dragging{background:var(--gold);opacity:.5;}
-
-/* Células de dados fixas — position:sticky, background sólido obrigatório */
-.gantt-name-td{
-  padding:6px 12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  font-size:13px;
-  color:var(--text2);
-  background:#121212; /* sólido — nunca transparente */
-  border-right:1px solid #383838;
-  position:sticky;
-  left:0;
-  z-index:10;
-  display:table-cell; /* sobrepõe flex para sticky funcionar */
-  vertical-align:middle;
-  max-width:0; /* necessário para text-overflow em sticky */
-}
-.gantt-name-td .name-inner{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  overflow:hidden;
-}
-.gantt-name-td.is-order{
-  font-weight:700;
-  color:var(--accent2);
-  background:#161410;
-  font-size:13px;
-}
-.gantt-name-td.is-dept{
-  padding-left:20px;
-  font-size:12px;
-  color:var(--text3);
-  background:#0f0f0f;
-}
-.gantt-op-td{
-  padding:6px 8px;
-  font-size:11px;
-  font-family:'JetBrains Mono',monospace;
-  color:var(--gold);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  background:#121212;
-  border-right:1px solid var(--border2);
-  position:sticky;
-  z-index:9;
-}
+.gantt-name-th{padding:7px 8px 7px 12px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;background:#1a1a1a;border-right:1px solid #383838;position:sticky;top:0;left:0;z-index:20;user-select:none;}
+.gantt-op-th{padding:7px 8px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:#1a1a1a;border-right:1px solid var(--border2);position:sticky;top:0;z-index:19;}
+.gantt-pct-th{padding:7px 4px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;text-align:center;background:#1a1a1a;position:sticky;top:0;z-index:19;}
+.gantt-resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;background:transparent;z-index:21;}
+.gantt-resize-handle:hover,.gantt-resize-handle.dragging{background:var(--gold);opacity:.5;}
+.gantt-name-td{padding:6px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--text2);background:#121212;border-right:1px solid #383838;position:sticky;left:0;z-index:10;vertical-align:middle;}
+.gantt-name-td.is-order{font-weight:700;color:var(--accent2);background:#161410;font-size:13px;}
+.gantt-name-td.is-dept{padding-left:20px;font-size:12px;color:var(--text3);background:#0f0f0f;}
+.gantt-op-td{padding:6px 8px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#121212;border-right:1px solid var(--border2);position:sticky;z-index:9;}
 .gantt-op-td.is-order{background:#161410;}
 .gantt-op-td.is-dept{background:#0f0f0f;}
-.gantt-pct-td{
-  padding:4px;
-  text-align:center;
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;
-  font-weight:700;
-  background:#121212;
-  position:sticky;
-  z-index:9;
-  border-right:2px solid #484848 !important;
-}
+.gantt-pct-td{padding:4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:#121212;position:sticky;z-index:9;border-right:2px solid #484848 !important;}
 .gantt-pct-td.is-order{background:#161410;}
 .gantt-pct-td.is-dept{background:#0f0f0f;}
-
-/* Células de dias */
-.gantt-cell{
-  width:22px;min-width:22px;max-width:22px;
-  height:34px;
-  padding:0;
-  position:relative;
-  background:#121212;
-}
+.gantt-cell{width:22px;min-width:22px;max-width:22px;height:34px;padding:0;position:relative;background:#121212;}
 .gantt-cell.today-col{background:#1a1800;}
 .gantt-cell.we-col{background:#0f0f0f;}
 .gantt-row-order .gantt-cell{height:36px;background:#141414;}
 .gantt-row-order .gantt-cell.today-col{background:#1e1a00;}
 .gantt-row-order .gantt-cell.we-col{background:#111;}
 .gantt-row-dept .gantt-cell{height:30px;}
-
-/* Barras */
 .gantt-bar-seg{position:absolute;top:50%;transform:translateY(-50%);height:18px;background:var(--text3);}
 .gantt-bar-seg.order-bar{height:20px;border-radius:3px;}
 .gantt-bar-seg.dept-bar{height:10px;border-radius:2px;opacity:.9;}
@@ -470,13 +202,11 @@ input[type="file"]{display:none;}
 .gantt-bar-seg.s-done{background:#444;}
 .gantt-bar-seg.s-dept{background:#2e86ab;opacity:.6;}
 .gantt-today-vline{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--gold);opacity:.8;pointer-events:none;z-index:2;}
-
-/* Legenda */
 .gantt-legend{display:flex;gap:16px;padding:10px 14px;border-top:1px solid var(--border);background:#1a1a1a;flex-wrap:wrap;}
 .gantt-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);}
 .gantt-legend-dot{width:16px;height:8px;border-radius:2px;}
 
-/* PANEL / ADMIN */
+/* PANEL */
 .admin-grid{display:grid;grid-template-columns:300px 1fr;gap:16px;}
 .panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
 .panel-head{padding:17px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600;}
@@ -512,58 +242,34 @@ input[type="file"]{display:none;}
 .upload-icon{font-size:38px;margin-bottom:10px;}
 .upload-zone h4{font-size:16px;font-weight:600;margin-bottom:5px;}
 .upload-zone p{font-size:14px;color:var(--text3);}
- 
-/* ══════════════════════════════════════
-   CLIENT SCREEN
-   ══════════════════════════════════════ */
+
+/* IMPORT HISTORY */
+.import-history-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+.import-history-item:last-child{border-bottom:none;}
+
+/* CLIENT SCREEN */
 #screen-client{min-height:100vh;background:var(--bg);}
-.client-header-bar{
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  padding:10px 16px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  position:sticky;
-  top:0;
-  z-index:100;
-}
+.client-header-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
 .client-av-lg{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#000;flex-shrink:0;}
 .client-info-bar{flex:1;min-width:0;}
 .client-info-bar h2{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .client-info-bar p{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.client-nav{
-  display:flex;
-  gap:2px;
-  flex-shrink:0;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-}
+.client-nav{display:flex;gap:2px;flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .client-nav::-webkit-scrollbar{display:none;}
 .client-tab{padding:6px 14px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border:none;background:transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;min-height:34px;}
 .client-tab:hover{background:var(--bg3);color:var(--text);}
 .client-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
+/* Atualização badge para cliente */
+.update-badge{background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.25);border-radius:5px;padding:4px 10px;font-size:12px;color:var(--gold);white-space:nowrap;display:flex;align-items:center;gap:5px;}
 
-/* Client header mobile: duas linhas limpas */
 @media(max-width:600px){
-  .client-header-bar{
-    flex-wrap:wrap;
-    padding:8px 12px;
-    gap:6px;
-  }
-  /* Linha 1: avatar + info + botão sair */
+  .client-header-bar{flex-wrap:wrap;padding:8px 12px;gap:6px;}
   .client-av-lg{order:0;}
   .client-info-bar{order:1;flex:1;min-width:0;}
   .client-header-bar > .btn{order:2;flex-shrink:0;}
-  /* Linha 2: tabs ocupa largura toda */
-  .client-nav{
-    order:3;
-    width:100%;
-    flex:none;
-    padding-bottom:2px;
-  }
+  .client-nav{order:3;width:100%;flex:none;padding-bottom:2px;}
   .client-tab{font-size:12px;padding:5px 12px;}
+  .update-badge{display:none;}
 }
 .client-page{display:none;padding:20px;}
 .client-page.active{display:block;}
@@ -584,84 +290,62 @@ input[type="file"]{display:none;}
 .doc-card .dc-size{font-size:12px;color:var(--text3);}
 .doc-card .dc-dl{font-size:12px;color:var(--gold);font-weight:600;margin-top:2px;}
 .no-docs{font-size:14px;color:var(--text3);padding:12px 0;}
- 
+
 /* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:30px;width:520px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.7);max-height:90vh;overflow-y:auto;}
 .modal h3{font-size:18px;font-weight:600;margin-bottom:22px;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
- 
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 18px;font-size:15px;z-index:300;display:none;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.5);}
 .toast.show{display:flex;}
 .toast.ok{border-left:3px solid var(--green);}
 .toast.err{border-left:3px solid var(--red);}
- 
+
 /* EMPTY STATE */
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
 .empty-state .ei{font-size:42px;margin-bottom:12px;}
 .empty-state h3{font-size:17px;font-weight:500;margin-bottom:6px;color:var(--text2);}
 .empty-state p{font-size:14px;}
- 
-/* ADMIN ROLE BADGE */
+
+/* ROLE BADGES */
 .role-badge-master{background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--gold);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
 .role-badge-admin{background:rgba(240,240,240,.08);border:1px solid var(--border2);color:var(--text2);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
 .role-badge-client{background:rgba(92,184,92,.1);border:1px solid rgba(92,184,92,.2);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
- 
-/* STORAGE STATUS */
-.storage-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text3);margin-bottom:16px;}
-.storage-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
-.storage-dot.warn{background:var(--warn);}
 
-/* ══════════════════════════════════════
-   MOBILE RESPONSIVO
-   ══════════════════════════════════════ */
+/* READ-ONLY NOTICE */
+.readonly-notice{background:rgba(46,134,171,.08);border:1px solid rgba(46,134,171,.25);border-radius:var(--radius);padding:12px 14px;font-size:14px;color:#6ab0c8;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+/* MOBILE */
 @media(max-width:768px){
   .admin-grid{grid-template-columns:1fr;}
   .page{padding:12px;}
   .client-page{padding:12px;}
-
   .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
   .stat-val{font-size:28px;}
-
-  /* Order cards */
   .order-header{flex-wrap:wrap;gap:8px;padding:14px 14px;}
   .order-meta{display:flex;flex-wrap:wrap;gap:6px;width:100%;}
   .order-dates{display:none;}
   .order-name{font-size:14px;}
   .order-op{font-size:12px;}
-
-  /* Task rows */
   .task-row{flex-wrap:wrap;padding:10px 14px 10px 28px;gap:6px;}
   .task-dates{min-width:unset;font-size:12px;}
   .dept-header{padding:10px 14px 10px 22px;}
-
-  /* Client header */
-  .client-header-bar{padding:8px 12px;}
-
-  /* Gantt mobile */
   .gantt-outer{max-height:65vh;}
-
-  /* Filters */
   .filters{gap:8px;}
   .search-input{width:100%;}
-
-  /* Modals */
   .modal{padding:20px 14px;}
-
-  /* Toast */
   .toast{bottom:16px;right:10px;left:10px;font-size:14px;}
-
-  /* Login box compact */
   .login-box{padding:24px 20px;}
   .login-brand .wordmark{font-size:32px;}
 }
 </style>
 </head>
 <body>
- 
-<!-- LOGIN — ocupa o viewport exato -->
+
+<!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div class="login-brand">
     <div class="wordmark">CARTA<span>MAC</span></div>
@@ -685,7 +369,7 @@ input[type="file"]{display:none;}
     <a onclick="openAdminLogin()">🔧 Área do Desenvolvedor / Administrador</a>
   </div>
 </div>
- 
+
 <!-- ADMIN LOGIN OVERLAY -->
 <div id="adminLoginOverlay">
   <div class="admin-login-box">
@@ -706,7 +390,7 @@ input[type="file"]{display:none;}
     <div class="error-msg" id="adminLoginError" style="display:none;">Credenciais inválidas.</div>
   </div>
 </div>
- 
+
 <!-- DEV SCREEN -->
 <div class="screen" id="screen-dev">
   <header class="dev-header">
@@ -714,18 +398,17 @@ input[type="file"]{display:none;}
     <nav class="dev-nav">
       <button class="dev-tab active" onclick="switchDevTab('cronograma',this)">📋 Cronograma</button>
       <button class="dev-tab" onclick="switchDevTab('gantt',this)">📊 Gantt</button>
-      <button class="dev-tab" onclick="switchDevTab('clientes',this)">👥 Clientes</button>
-      <button class="dev-tab" onclick="switchDevTab('admins',this)">🔐 Admins</button>
-      <button class="dev-tab" onclick="switchDevTab('importar',this)">📂 Importar</button>
+      <button class="dev-tab" id="tabClientes" onclick="switchDevTab('clientes',this)">👥 Clientes</button>
+      <button class="dev-tab" id="tabAdmins" onclick="switchDevTab('admins',this)">🔐 Admins</button>
+      <button class="dev-tab" id="tabImportar" onclick="switchDevTab('importar',this)">📂 Importar</button>
     </nav>
     <div class="header-actions">
       <div class="admin-user-badge">👤 <strong id="adminNameBadge">Admin</strong></div>
       <span class="rev-badge" id="revBadge">REV.01</span>
-      <button class="btn btn-sm btn-gold" onclick="openRevModal()" title="Nova Revisão">✏️ <span class="btn-rev-label">Rev</span></button>
       <button class="btn btn-sm btn-ghost" onclick="backToLogin()" title="Sair">⬅ <span class="btn-sair-label">Sair</span></button>
     </div>
   </header>
- 
+
   <!-- CRONOGRAMA -->
   <div class="page active" id="page-cronograma">
     <div class="filters">
@@ -752,7 +435,7 @@ input[type="file"]{display:none;}
     <div class="stats-row" id="statsRow"></div>
     <div class="orders-list" id="ordersList"></div>
   </div>
- 
+
   <!-- GANTT -->
   <div class="page" id="page-gantt">
     <div class="filters" style="margin-bottom:16px;">
@@ -763,25 +446,25 @@ input[type="file"]{display:none;}
     </div>
     <div id="ganttContainer"></div>
   </div>
- 
+
   <!-- CLIENTES -->
   <div class="page" id="page-clientes">
     <div class="admin-grid">
       <div class="panel">
         <div class="panel-head">
           Clientes
-          <button class="btn btn-sm btn-gold" onclick="openAddUserModal()">+ Novo</button>
+          <button class="btn btn-sm btn-gold" id="btnNewClient" onclick="openAddUserModal()">+ Novo</button>
         </div>
         <div id="usersList"></div>
       </div>
       <div class="panel" id="userDetailPanel">
         <div class="user-detail">
-          <div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3><p>Escolha um cliente para editar</p></div>
+          <div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3><p>Escolha um cliente para visualizar</p></div>
         </div>
       </div>
     </div>
   </div>
- 
+
   <!-- ADMINISTRADORES -->
   <div class="page" id="page-admins">
     <div class="admin-grid">
@@ -794,34 +477,36 @@ input[type="file"]{display:none;}
       </div>
       <div class="panel" id="adminDetailPanel">
         <div class="user-detail">
-          <div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3><p>Escolha para editar ou remover</p></div>
+          <div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3><p>Escolha para visualizar</p></div>
         </div>
       </div>
     </div>
   </div>
- 
-  <!-- IMPORTAR -->
+
+  <!-- IMPORTAR (somente mestres) -->
   <div class="page" id="page-importar">
     <div class="import-box">
       <h3>📂 Importar Arquivo Microsoft Project (.XML)</h3>
       <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px;color:var(--text2);">
-        <strong style="color:var(--gold);">ℹ️ Sobre o banco de dados:</strong> Pedidos finalizados são preservados automaticamente — ao importar um novo arquivo, equipamentos concluídos que foram removidos do Project continuam visíveis para os clientes como "Arquivado", sem interferir no cronograma ativo.
+        <strong style="color:var(--gold);">ℹ️ Sobre o banco de dados:</strong> Ao importar, o cronograma é atualizado. Equipamentos concluídos são preservados automaticamente para os clientes como "Arquivado".
       </div>
       <div class="upload-zone" onclick="document.getElementById('xmlInput').click()">
         <div class="upload-icon">🗂️</div>
         <h4>Clique ou arraste o arquivo .XML aqui</h4>
-        <p>O sistema processa e atualiza o cronograma, preservando histórico</p>
+        <p>O sistema processa e atualiza o cronograma</p>
       </div>
       <input type="file" id="xmlInput" accept=".xml" onchange="importXML(event)">
       <div id="importStatus" style="font-size:15px;color:var(--text3);margin-top:14px;"></div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;">
-      <div class="section-title">📝 Histórico de Revisões e Importações</div>
-      <div id="revHistory"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;">📝 Histórico de Importações</div>
+      </div>
+      <div id="importHistory"></div>
     </div>
   </div>
 </div>
- 
+
 <!-- CLIENT SCREEN -->
 <div class="screen" id="screen-client">
   <header class="client-header-bar">
@@ -830,6 +515,7 @@ input[type="file"]{display:none;}
       <h2 id="clientName">—</h2>
       <p id="clientCompany">—</p>
     </div>
+    <div class="update-badge" id="clientUpdateBadge" title="Última atualização do cronograma">🔄 <span id="clientLastUpdate">—</span></div>
     <button class="btn btn-sm btn-ghost" onclick="backToLogin()" style="flex-shrink:0;">⬅ Sair</button>
     <nav class="client-nav">
       <button class="client-tab active" onclick="switchClientTab('cron',this)">📋 Cronograma</button>
@@ -843,21 +529,8 @@ input[type="file"]{display:none;}
     <div id="clientGanttContainer"></div>
   </div>
 </div>
- 
+
 <!-- MODALS -->
-<div class="modal-overlay" id="revModal">
-  <div class="modal">
-    <h3>📝 Registrar Nova Revisão</h3>
-    <div class="form-group"><label>Número</label><input type="text" id="newRevNum" placeholder="REV.02"></div>
-    <div class="form-group"><label>Descrição das alterações</label><textarea id="newRevDesc" placeholder="Descreva as mudanças..."></textarea></div>
-    <div class="form-group"><label>Data</label><input type="date" id="newRevDate"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('revModal')">Cancelar</button>
-      <button class="btn btn-gold" onclick="saveRevision()">Salvar</button>
-    </div>
-  </div>
-</div>
- 
 <div class="modal-overlay" id="addUserModal">
   <div class="modal">
     <h3>👤 Novo Cliente</h3>
@@ -871,23 +544,30 @@ input[type="file"]{display:none;}
     </div>
   </div>
 </div>
- 
+
 <div class="modal-overlay" id="addAdminModal">
   <div class="modal">
     <h3>🔐 Novo Administrador</h3>
     <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:14px;color:var(--text2);">
-      Administradores têm acesso total ao painel, exceto criar/remover outros admins (apenas o admin mestre pode fazer isso).
+      Defina se este admin será <strong>Mestre</strong> (acesso total) ou <strong>Visualizador</strong> (somente leitura).
     </div>
     <div class="form-group"><label>Nome completo *</label><input type="text" id="naName" placeholder="Ex: Fernanda Souza"></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="naEmail" placeholder="nome@cartamac.com"></div>
     <div class="form-group"><label>Senha *</label><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group">
+      <label>Nível de acesso *</label>
+      <select id="naRole">
+        <option value="viewer">Visualizador (somente leitura)</option>
+        <option value="master">Mestre (acesso total)</option>
+      </select>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('addAdminModal')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveNewAdmin()">Criar Administrador</button>
     </div>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
 
 <!-- Firebase SDK -->
@@ -909,14 +589,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const DB_REF = doc(db, "cartamac", "db");
 
-const TODAY = new Date('2026-06-17');
-const MASTER_EMAIL = 'murilo@cartamac.com';
-const MASTER_PASS = '123456';
-const MASTER_NAME = 'Murilo (Mestre)';
+// Mestres fixos (sempre têm acesso total, mesmo que o DB seja resetado)
+const MASTER_EMAILS = ['murilo@cartamac.com','lucas@cartamac.com','jaison@cartamac.com'];
 
 const DEFAULT_DB = {
   admins: [
-    { id: 'master', name: MASTER_NAME, email: MASTER_EMAIL, pass: MASTER_PASS, role: 'master' }
+    { id: 'master-murilo', name: 'Murilo', email: 'murilo@cartamac.com', pass: '123456', role: 'master' },
+    { id: 'master-lucas',  name: 'Lucas',  email: 'lucas@cartamac.com',  pass: '123456', role: 'master' },
+    { id: 'master-jaison', name: 'Jaison', email: 'jaison@cartamac.com', pass: '123456', role: 'master' }
   ],
   clients: [
     { id: 1, name: 'RBN Nordeste', company: 'RBN Papel e Celulose S.A.', email: 'cliente@rbn.com', pass: 'rbn2026', orders: [7,8,9], archivedOrders: [], color: '#c0c0c0' },
@@ -924,15 +604,25 @@ const DEFAULT_DB = {
     { id: 3, name: 'Demo Cliente', company: 'Empresa Demonstração',       email: 'demo',             pass: 'demo',       orders: [0,1,2,3,4], archivedOrders: [], color: '#d4a017' }
   ],
   orderFiles: {},
-  revisions: [{ num: 'REV.01', date: '2026-06-17', desc: 'Versão inicial do cronograma macro Cartamac.' }],
-  currentRev: 'REV.01',
-  archivedOrdersData: {}
+  importHistory: [],
+  lastImport: null,
+  archivedOrdersData: {},
+  // Os dados do Project ficam aqui, atualizados a cada importação
+  projectOrders: null
 };
 
 let DB = JSON.parse(JSON.stringify(DEFAULT_DB));
 let loggedUser = null;
 let selectedUserId = null;
 let selectedAdminId = null;
+
+// ORDERS: começa com os dados fixos, pode ser substituído pelo projectOrders do DB
+let ORDERS = getDefaultOrders();
+
+function isMaster(user) {
+  if(!user) return false;
+  return user.type === 'master' || MASTER_EMAILS.includes(user.ref?.email);
+}
 
 async function dbLoad() {
   try {
@@ -943,85 +633,84 @@ async function dbLoad() {
 }
 
 async function persist() {
-  try {
-    await setDoc(DB_REF, DB);
-  } catch(e) {
-    console.warn('Firebase save error:', e);
-    showToast('Erro ao salvar na nuvem','err');
-  }
+  try { await setDoc(DB_REF, DB); }
+  catch(e) { console.warn('Firebase save error:', e); showToast('Erro ao salvar na nuvem','err'); }
 }
 
-// ══ ORDERS DATA ══
-const ORDERS = [
-  { id:0, code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper 44'' BC", start:"2026-04-30", finish:"2026-08-25", pct:25, depts:[
-    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-30",finish:"2026-05-04",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-04",finish:"2026-05-05",pct:100}]},
-    {name:"ENGENHARIA",pct:46,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Modelos Fundidos",start:"2026-04-30",finish:"2026-05-01",pct:100},{name:"Detalhamento",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Embalagem/Manual",start:"2026-04-30",finish:"2026-06-02",pct:0}]},
-    {name:"PCP",pct:44,tasks:[{name:"Conferência de Estoque",start:"2026-05-13",finish:"2026-05-18",pct:0},{name:"Orçamento de Serviços",start:"2026-05-13",finish:"2026-05-19",pct:100},{name:"Lançamento",start:"2026-06-20",finish:"2026-06-23",pct:0}]},
-    {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2026-05-15",finish:"2026-06-03",pct:100},{name:"Compra de Serviços",start:"2026-05-19",finish:"2026-05-21",pct:100}]},
-    {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Fundição Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Fundição Facas do Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Pré Usinagem Rotor",start:"2026-07-13",finish:"2026-07-21",pct:0},{name:"Solda Revestimentos",start:"2026-07-21",finish:"2026-07-28",pct:0},{name:"Usinagem Final",start:"2026-07-28",finish:"2026-08-04",pct:0},{name:"Balanceamento Estático",start:"2026-08-04",finish:"2026-08-07",pct:0},{name:"Balanceamento Dinâmico",start:"2026-08-07",finish:"2026-08-17",pct:0},{name:"Acabamento e Pintura",start:"2026-08-17",finish:"2026-08-25",pct:0}]}
-  ]},
-  { id:1, code:"0135.6", op:"TPK0135-25", name:"Trommel 1850 X 3300", start:"2025-10-24", finish:"2026-08-03", pct:84, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Lista Multinível",start:"2025-10-24",finish:"2025-11-06",pct:100}]},
-    {name:"PCP",pct:100,tasks:[{name:"Lançamento",start:"2025-11-03",finish:"2025-11-06",pct:100},{name:"Conferência de Estoque",start:"2025-11-06",finish:"2025-11-11",pct:100},{name:"Orçamento de Chapas",start:"2025-11-06",finish:"2025-11-10",pct:100},{name:"Orçamento de Serviços",start:"2025-11-06",finish:"2025-11-12",pct:100}]},
-    {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2025-11-11",finish:"2025-11-25",pct:100},{name:"Compras Perfis Gerais",start:"2025-11-11",finish:"2025-11-20",pct:100},{name:"Compras Chapas Gerais",start:"2025-11-10",finish:"2025-11-24",pct:100},{name:"Compra de Serviços",start:"2025-11-12",finish:"2025-11-19",pct:100}]},
-    {name:"FABRICAÇÃO",pct:78,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-06-22",finish:"2026-06-22",pct:100,milestone:true},{name:"Caldeiraria Tambor",start:"2026-06-23",finish:"2026-06-25",pct:0},{name:"Solda Tambor",start:"2026-06-25",finish:"2026-07-06",pct:0},{name:"Usinagem Tambor",start:"2026-07-07",finish:"2026-07-16",pct:0},{name:"Pintura Tambor",start:"2026-07-16",finish:"2026-07-23",pct:0}]},
-    {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-23",finish:"2026-08-03",pct:0}]}
-  ]},
-  { id:2, code:"0152.26", op:"RBE0151-26", name:"Peças de Rep. DPH300 e DCP2", start:"2026-05-12", finish:"2026-10-05", pct:33, depts:[
-    {name:"COMERCIAL",pct:50,tasks:[{name:"Reunião",start:"2026-05-12",finish:"2026-05-13",pct:0},{name:"Lançamento Pedido de Venda",start:"2026-05-12",finish:"2026-05-13",pct:100}]},
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-13",finish:"2026-05-13",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Detalhamento",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Lista Multinível",start:"2026-05-12",finish:"2026-05-22",pct:100}]},
-    {name:"PCP",pct:96,tasks:[{name:"Lançamento",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Estoque",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Chapas",start:"2026-05-22",finish:"2026-05-27",pct:100},{name:"Orçamento de Serviços",start:"2026-05-26",finish:"2026-05-29",pct:90}]},
-    {name:"COMPRAS",pct:0,tasks:[{name:"Compra Cesto Peneira DPH300",start:"2026-05-22",finish:"2026-10-05",pct:0},{name:"Compra Comerciais",start:"2026-05-26",finish:"2026-06-12",pct:0},{name:"Compras Chapas Gerais",start:"2026-05-27",finish:"2026-06-09",pct:0},{name:"Compra de Serviços",start:"2026-05-29",finish:"2026-06-03",pct:0}]},
-    {name:"FABRICAÇÃO",pct:49,tasks:[{name:"Fundição DCP",start:"2026-06-03",finish:"2026-07-10",pct:100},{name:"Corte de Chapa",start:"2026-06-09",finish:"2026-06-15",pct:100},{name:"Corte de Perfil",start:"2026-06-04",finish:"2026-06-10",pct:100},{name:"Usinagem Faca e Rotor",start:"2026-06-10",finish:"2026-06-24",pct:0},{name:"Balanceamento Estático Rotor",start:"2026-06-25",finish:"2026-06-29",pct:0},{name:"Balanceamento Dinâmico Rotor",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-28",finish:"2026-07-29",pct:0}]}
-  ]},
-  { id:3, code:"0153.26", op:"MAR0153-26", name:"Caixa Formadora", start:"2026-04-28", finish:"2026-08-13", pct:9, depts:[
-    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-28",finish:"2026-04-30",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-04-28",finish:"2026-04-30",pct:100}]},
-    {name:"ENGENHARIA",pct:2,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-20",finish:"2026-06-12",pct:0},{name:"Detalhamento",start:"2026-04-30",finish:"2026-06-01",pct:0},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-26",pct:0}]},
-    {name:"PCP",pct:27,tasks:[{name:"Conferência de Chapas",start:"2026-05-26",finish:"2026-05-28",pct:100},{name:"Lançamento",start:"2026-06-01",finish:"2026-06-03",pct:0},{name:"Orçamento de Serviços",start:"2026-06-03",finish:"2026-06-09",pct:0}]},
-    {name:"COMPRAS",pct:28,tasks:[{name:"Compras Chapas Gerais",start:"2026-05-28",finish:"2026-06-10",pct:100},{name:"Compra Comerciais",start:"2026-05-27",finish:"2026-06-16",pct:0},{name:"Compra de Serviços",start:"2026-06-09",finish:"2026-06-11",pct:0}]},
-    {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Corte de Chapa",start:"2026-06-10",finish:"2026-06-23",pct:0},{name:"Dobra",start:"2026-06-23",finish:"2026-07-01",pct:0},{name:"Caldeiraria Corpo",start:"2026-07-07",finish:"2026-07-13",pct:0},{name:"Usinagem Corpo Caixa",start:"2026-07-13",finish:"2026-07-20",pct:0},{name:"Montagem Caixa Formadora",start:"2026-08-04",finish:"2026-08-13",pct:0}]}
-  ]},
-  { id:4, code:"0151.26", op:"RBE0151-26", name:"Válvula 20pol Carbono (Garantia)", start:"2026-05-01", finish:"2026-06-25", pct:84, depts:[
-    {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-05-01",finish:"2026-05-05",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-05",finish:"2026-05-06",pct:100}]},
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-01",finish:"2026-05-01",pct:100,milestone:true},{name:"Detalhamento",start:"2026-05-06",finish:"2026-05-19",pct:100},{name:"Lista Multinível",start:"2026-05-06",finish:"2026-05-13",pct:100}]},
-    {name:"FABRICAÇÃO",pct:62,tasks:[{name:"Corte de Chapa",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-01",finish:"2026-06-02",pct:100},{name:"Solda",start:"2026-06-02",finish:"2026-06-03",pct:100},{name:"Usinagem Corpo da Válvula",start:"2026-06-03",finish:"2026-06-10",pct:80},{name:"Jateamento",start:"2026-06-10",finish:"2026-06-17",pct:0},{name:"Pintura",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
-  ]},
-  { id:5, code:"PED.135", op:"HERGEN", name:"Rotor Descontaminador Mod. (Hergen)", start:"2026-03-10", finish:"2026-06-29", pct:94, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Detalhamento",start:"2026-03-10",finish:"2026-04-03",pct:100}]},
-    {name:"FABRICAÇÃO",pct:87,tasks:[{name:"Fundido",start:"2026-04-15",finish:"2026-05-18",pct:100},{name:"Pré-Usinagem",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Solda",start:"2026-05-25",finish:"2026-06-02",pct:100},{name:"Usinagem Final",start:"2026-06-02",finish:"2026-06-10",pct:100},{name:"Balanceamento Estático",start:"2026-06-16",finish:"2026-06-18",pct:100},{name:"Balanceamento Dinâmico",start:"2026-06-18",finish:"2026-06-29",pct:0}]}
-  ]},
-  { id:6, code:"PED.135", op:"M4C4", name:"Descontaminador M4C4", start:"2025-11-25", finish:"2026-07-28", pct:86, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
-    {name:"FABRICAÇÃO",pct:64,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-24",finish:"2026-03-16",pct:90},{name:"Caldeiraria",start:"2026-06-22",finish:"2026-06-29",pct:0},{name:"Solda",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Montagem",start:"2026-07-13",finish:"2026-07-22",pct:0},{name:"Pintura",start:"2026-07-22",finish:"2026-07-28",pct:0}]}
-  ]},
-  { id:7, code:"PED.135", op:"NORDESTE-HAC", name:"Hidrapulper de Alta — RBN Nordeste", start:"2025-11-25", finish:"2026-07-08", pct:93, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Modelos Fundidos",start:"2025-11-25",finish:"2025-11-26",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2025-12-15",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2025-12-15",pct:100}]},
-    {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição Rotor China",start:"2025-11-26",finish:"2026-06-25",pct:95},{name:"Fundição",start:"2026-01-30",finish:"2026-03-17",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-03-17",finish:"2026-04-06",pct:100},{name:"Calandragem",start:"2026-06-03",finish:"2026-06-08",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-12",pct:100},{name:"Solda",start:"2026-06-12",finish:"2026-06-25",pct:20},{name:"Pintura",start:"2026-06-25",finish:"2026-07-01",pct:0},{name:"Montagem",start:"2026-07-01",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-07",finish:"2026-07-08",pct:0}]}
-  ]},
-  { id:8, code:"PED.135", op:"CAPOTA-HAC15", name:"Capota Hidrapulper — RBN Nordeste", start:"2025-11-25", finish:"2026-07-14", pct:93, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-21",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-09",pct:100}]},
-    {name:"FABRICAÇÃO",pct:47,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-24",pct:100},{name:"Calandragem",start:"2026-06-12",finish:"2026-06-16",pct:100},{name:"Caldeiraria",start:"2026-06-16",finish:"2026-06-18",pct:20},{name:"Solda",start:"2026-06-30",finish:"2026-07-06",pct:0},{name:"Pintura",start:"2026-07-06",finish:"2026-07-13",pct:0},{name:"Expedição",start:"2026-07-13",finish:"2026-07-14",pct:0}]}
-  ]},
-  { id:9, code:"PED.135", op:"ESTEIRA-NE", name:"Esteira Transportadora — RBN Nordeste", start:"2025-11-25", finish:"2026-07-30", pct:86, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
-    {name:"FABRICAÇÃO",pct:68,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-19",finish:"2026-03-11",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-18",pct:90},{name:"Solda",start:"2026-06-18",finish:"2026-07-02",pct:0},{name:"Jateamento",start:"2026-07-02",finish:"2026-07-10",pct:0},{name:"Montagem",start:"2026-07-10",finish:"2026-07-23",pct:0},{name:"Pintura",start:"2026-07-23",finish:"2026-07-30",pct:0}]}
-  ]},
-  { id:10, code:"PED.135", op:"CONTAMINEX", name:"Contaminex", start:"2025-10-24", finish:"2026-06-29", pct:97, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-12-01",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-12-01",pct:100}]},
-    {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição",start:"2025-11-11",finish:"2026-01-15",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-01-15",finish:"2026-02-04",pct:100},{name:"Calandragem",start:"2026-05-05",finish:"2026-05-06",pct:100},{name:"Caldeiraria",start:"2026-05-06",finish:"2026-05-11",pct:100},{name:"Solda",start:"2026-06-17",finish:"2026-06-19",pct:100},{name:"Polimento",start:"2026-06-19",finish:"2026-06-22",pct:30},{name:"Jateamento e Pintura",start:"2026-06-19",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-29",pct:0}]}
-  ]},
-  { id:11, code:"PED.135", op:"JUNKOMAT2900", name:"Junkomat 2900", start:"2025-11-25", finish:"2026-06-25", pct:97, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-23",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-10",pct:100}]},
-    {name:"FABRICAÇÃO",pct:83,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-25",pct:100},{name:"Usinagem",start:"2026-02-25",finish:"2026-03-16",pct:100},{name:"Calandragem",start:"2026-05-12",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-15",finish:"2026-06-17",pct:50},{name:"Solda",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Polimento",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
-  ]},
-  { id:12, code:"PED.135", op:"TRC1850-PR", name:"Trommel TRC 1850 — RBN Paraná", start:"2025-10-24", finish:"2026-08-07", pct:87, depts:[
-    {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100}]},
-    {name:"FABRICAÇÃO",pct:84,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria Estrutura",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda Estrutura",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-05-11",finish:"2026-05-12",pct:100},{name:"Caldeiraria Tambor",start:"2026-05-12",finish:"2026-05-14",pct:100},{name:"Solda Tambor",start:"2026-05-28",finish:"2026-06-08",pct:60},{name:"Usinagem Tambor",start:"2026-06-09",finish:"2026-06-19",pct:0},{name:"Pintura Tambor",start:"2026-07-22",finish:"2026-07-29",pct:0}]},
-    {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-29",finish:"2026-08-07",pct:0}]}
-  ]}
-];
+// ── DEFAULT ORDERS ──
+function getDefaultOrders() {
+  return [
+    { id:0, code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper 44'' BC", start:"2026-04-30", finish:"2026-08-25", pct:25, depts:[
+      {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-30",finish:"2026-05-04",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-04",finish:"2026-05-05",pct:100}]},
+      {name:"ENGENHARIA",pct:46,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Modelos Fundidos",start:"2026-04-30",finish:"2026-05-01",pct:100},{name:"Detalhamento",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-13",pct:100},{name:"Embalagem/Manual",start:"2026-04-30",finish:"2026-06-02",pct:0}]},
+      {name:"PCP",pct:44,tasks:[{name:"Conferência de Estoque",start:"2026-05-13",finish:"2026-05-18",pct:0},{name:"Orçamento de Serviços",start:"2026-05-13",finish:"2026-05-19",pct:100},{name:"Lançamento",start:"2026-06-20",finish:"2026-06-23",pct:0}]},
+      {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2026-05-15",finish:"2026-06-03",pct:100},{name:"Compra de Serviços",start:"2026-05-19",finish:"2026-05-21",pct:100}]},
+      {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Fundição Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Fundição Facas do Rotor",start:"2026-05-21",finish:"2026-07-13",pct:0},{name:"Pré Usinagem Rotor",start:"2026-07-13",finish:"2026-07-21",pct:0},{name:"Solda Revestimentos",start:"2026-07-21",finish:"2026-07-28",pct:0},{name:"Usinagem Final",start:"2026-07-28",finish:"2026-08-04",pct:0},{name:"Balanceamento Estático",start:"2026-08-04",finish:"2026-08-07",pct:0},{name:"Balanceamento Dinâmico",start:"2026-08-07",finish:"2026-08-17",pct:0},{name:"Acabamento e Pintura",start:"2026-08-17",finish:"2026-08-25",pct:0}]}
+    ]},
+    { id:1, code:"0135.6", op:"TPK0135-25", name:"Trommel 1850 X 3300", start:"2025-10-24", finish:"2026-08-03", pct:84, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Lista Multinível",start:"2025-10-24",finish:"2025-11-06",pct:100}]},
+      {name:"PCP",pct:100,tasks:[{name:"Lançamento",start:"2025-11-03",finish:"2025-11-06",pct:100},{name:"Conferência de Estoque",start:"2025-11-06",finish:"2025-11-11",pct:100},{name:"Orçamento de Chapas",start:"2025-11-06",finish:"2025-11-10",pct:100},{name:"Orçamento de Serviços",start:"2025-11-06",finish:"2025-11-12",pct:100}]},
+      {name:"COMPRAS",pct:100,tasks:[{name:"Compra Comerciais",start:"2025-11-11",finish:"2025-11-25",pct:100},{name:"Compras Perfis Gerais",start:"2025-11-11",finish:"2025-11-20",pct:100},{name:"Compras Chapas Gerais",start:"2025-11-10",finish:"2025-11-24",pct:100},{name:"Compra de Serviços",start:"2025-11-12",finish:"2025-11-19",pct:100}]},
+      {name:"FABRICAÇÃO",pct:78,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-06-22",finish:"2026-06-22",pct:100,milestone:true},{name:"Caldeiraria Tambor",start:"2026-06-23",finish:"2026-06-25",pct:0},{name:"Solda Tambor",start:"2026-06-25",finish:"2026-07-06",pct:0},{name:"Usinagem Tambor",start:"2026-07-07",finish:"2026-07-16",pct:0},{name:"Pintura Tambor",start:"2026-07-16",finish:"2026-07-23",pct:0}]},
+      {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-23",finish:"2026-08-03",pct:0}]}
+    ]},
+    { id:2, code:"0152.26", op:"RBE0151-26", name:"Peças de Rep. DPH300 e DCP2", start:"2026-05-12", finish:"2026-10-05", pct:33, depts:[
+      {name:"COMERCIAL",pct:50,tasks:[{name:"Reunião",start:"2026-05-12",finish:"2026-05-13",pct:0},{name:"Lançamento Pedido de Venda",start:"2026-05-12",finish:"2026-05-13",pct:100}]},
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-13",finish:"2026-05-13",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Detalhamento",start:"2026-05-12",finish:"2026-05-22",pct:100},{name:"Lista Multinível",start:"2026-05-12",finish:"2026-05-22",pct:100}]},
+      {name:"PCP",pct:96,tasks:[{name:"Lançamento",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Estoque",start:"2026-05-22",finish:"2026-05-26",pct:100},{name:"Conferência de Chapas",start:"2026-05-22",finish:"2026-05-27",pct:100},{name:"Orçamento de Serviços",start:"2026-05-26",finish:"2026-05-29",pct:90}]},
+      {name:"COMPRAS",pct:0,tasks:[{name:"Compra Cesto Peneira DPH300",start:"2026-05-22",finish:"2026-10-05",pct:0},{name:"Compra Comerciais",start:"2026-05-26",finish:"2026-06-12",pct:0},{name:"Compras Chapas Gerais",start:"2026-05-27",finish:"2026-06-09",pct:0},{name:"Compra de Serviços",start:"2026-05-29",finish:"2026-06-03",pct:0}]},
+      {name:"FABRICAÇÃO",pct:49,tasks:[{name:"Fundição DCP",start:"2026-06-03",finish:"2026-07-10",pct:100},{name:"Corte de Chapa",start:"2026-06-09",finish:"2026-06-15",pct:100},{name:"Corte de Perfil",start:"2026-06-04",finish:"2026-06-10",pct:100},{name:"Usinagem Faca e Rotor",start:"2026-06-10",finish:"2026-06-24",pct:0},{name:"Balanceamento Estático Rotor",start:"2026-06-25",finish:"2026-06-29",pct:0},{name:"Balanceamento Dinâmico Rotor",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-28",finish:"2026-07-29",pct:0}]}
+    ]},
+    { id:3, code:"0153.26", op:"MAR0153-26", name:"Caixa Formadora", start:"2026-04-28", finish:"2026-08-13", pct:9, depts:[
+      {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-04-28",finish:"2026-04-30",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-04-28",finish:"2026-04-30",pct:100}]},
+      {name:"ENGENHARIA",pct:2,tasks:[{name:"Estudos/Levantamento",start:"2026-04-30",finish:"2026-04-30",pct:100,milestone:true},{name:"Plano de Corte",start:"2026-05-20",finish:"2026-06-12",pct:0},{name:"Detalhamento",start:"2026-04-30",finish:"2026-06-01",pct:0},{name:"Lista Multinível",start:"2026-04-30",finish:"2026-05-26",pct:0}]},
+      {name:"PCP",pct:27,tasks:[{name:"Conferência de Chapas",start:"2026-05-26",finish:"2026-05-28",pct:100},{name:"Lançamento",start:"2026-06-01",finish:"2026-06-03",pct:0},{name:"Orçamento de Serviços",start:"2026-06-03",finish:"2026-06-09",pct:0}]},
+      {name:"COMPRAS",pct:28,tasks:[{name:"Compras Chapas Gerais",start:"2026-05-28",finish:"2026-06-10",pct:100},{name:"Compra Comerciais",start:"2026-05-27",finish:"2026-06-16",pct:0},{name:"Compra de Serviços",start:"2026-06-09",finish:"2026-06-11",pct:0}]},
+      {name:"FABRICAÇÃO",pct:0,tasks:[{name:"Corte de Chapa",start:"2026-06-10",finish:"2026-06-23",pct:0},{name:"Dobra",start:"2026-06-23",finish:"2026-07-01",pct:0},{name:"Caldeiraria Corpo",start:"2026-07-07",finish:"2026-07-13",pct:0},{name:"Usinagem Corpo Caixa",start:"2026-07-13",finish:"2026-07-20",pct:0},{name:"Montagem Caixa Formadora",start:"2026-08-04",finish:"2026-08-13",pct:0}]}
+    ]},
+    { id:4, code:"0151.26", op:"RBE0151-26", name:"Válvula 20pol Carbono (Garantia)", start:"2026-05-01", finish:"2026-06-25", pct:84, depts:[
+      {name:"COMERCIAL",pct:100,tasks:[{name:"Reunião",start:"2026-05-01",finish:"2026-05-05",pct:100},{name:"Lançamento Pedido de Venda",start:"2026-05-05",finish:"2026-05-06",pct:100}]},
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-05-01",finish:"2026-05-01",pct:100,milestone:true},{name:"Detalhamento",start:"2026-05-06",finish:"2026-05-19",pct:100},{name:"Lista Multinível",start:"2026-05-06",finish:"2026-05-13",pct:100}]},
+      {name:"FABRICAÇÃO",pct:62,tasks:[{name:"Corte de Chapa",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-01",finish:"2026-06-02",pct:100},{name:"Solda",start:"2026-06-02",finish:"2026-06-03",pct:100},{name:"Usinagem Corpo da Válvula",start:"2026-06-03",finish:"2026-06-10",pct:80},{name:"Jateamento",start:"2026-06-10",finish:"2026-06-17",pct:0},{name:"Pintura",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
+    ]},
+    { id:5, code:"PED.135", op:"HERGEN", name:"Rotor Descontaminador Mod. (Hergen)", start:"2026-03-10", finish:"2026-06-29", pct:94, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Detalhamento",start:"2026-03-10",finish:"2026-04-03",pct:100}]},
+      {name:"FABRICAÇÃO",pct:87,tasks:[{name:"Fundido",start:"2026-04-15",finish:"2026-05-18",pct:100},{name:"Pré-Usinagem",start:"2026-05-18",finish:"2026-05-25",pct:100},{name:"Solda",start:"2026-05-25",finish:"2026-06-02",pct:100},{name:"Usinagem Final",start:"2026-06-02",finish:"2026-06-10",pct:100},{name:"Balanceamento Estático",start:"2026-06-16",finish:"2026-06-18",pct:100},{name:"Balanceamento Dinâmico",start:"2026-06-18",finish:"2026-06-29",pct:0}]}
+    ]},
+    { id:6, code:"PED.135", op:"M4C4", name:"Descontaminador M4C4", start:"2025-11-25", finish:"2026-07-28", pct:86, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
+      {name:"FABRICAÇÃO",pct:64,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-24",finish:"2026-03-16",pct:90},{name:"Caldeiraria",start:"2026-06-22",finish:"2026-06-29",pct:0},{name:"Solda",start:"2026-06-29",finish:"2026-07-07",pct:0},{name:"Montagem",start:"2026-07-13",finish:"2026-07-22",pct:0},{name:"Pintura",start:"2026-07-22",finish:"2026-07-28",pct:0}]}
+    ]},
+    { id:7, code:"PED.135", op:"NORDESTE-HAC", name:"Hidrapulper de Alta — RBN Nordeste", start:"2025-11-25", finish:"2026-07-08", pct:93, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Modelos Fundidos",start:"2025-11-25",finish:"2025-11-26",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2025-12-15",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2025-12-15",pct:100}]},
+      {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição Rotor China",start:"2025-11-26",finish:"2026-06-25",pct:95},{name:"Fundição",start:"2026-01-30",finish:"2026-03-17",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-03-17",finish:"2026-04-06",pct:100},{name:"Calandragem",start:"2026-06-03",finish:"2026-06-08",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-12",pct:100},{name:"Solda",start:"2026-06-12",finish:"2026-06-25",pct:20},{name:"Pintura",start:"2026-06-25",finish:"2026-07-01",pct:0},{name:"Montagem",start:"2026-07-01",finish:"2026-07-07",pct:0},{name:"Expedição",start:"2026-07-07",finish:"2026-07-08",pct:0}]}
+    ]},
+    { id:8, code:"PED.135", op:"CAPOTA-HAC15", name:"Capota Hidrapulper — RBN Nordeste", start:"2025-11-25", finish:"2026-07-14", pct:93, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-21",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-09",pct:100}]},
+      {name:"FABRICAÇÃO",pct:47,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-24",pct:100},{name:"Calandragem",start:"2026-06-12",finish:"2026-06-16",pct:100},{name:"Caldeiraria",start:"2026-06-16",finish:"2026-06-18",pct:20},{name:"Solda",start:"2026-06-30",finish:"2026-07-06",pct:0},{name:"Pintura",start:"2026-07-06",finish:"2026-07-13",pct:0},{name:"Expedição",start:"2026-07-13",finish:"2026-07-14",pct:0}]}
+    ]},
+    { id:9, code:"PED.135", op:"ESTEIRA-NE", name:"Esteira Transportadora — RBN Nordeste", start:"2025-11-25", finish:"2026-07-30", pct:86, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-12",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-04",pct:100}]},
+      {name:"FABRICAÇÃO",pct:68,tasks:[{name:"Corte de Chapa",start:"2026-01-29",finish:"2026-02-11",pct:100},{name:"Dobra",start:"2026-02-11",finish:"2026-02-26",pct:100},{name:"Usinagem",start:"2026-02-19",finish:"2026-03-11",pct:100},{name:"Caldeiraria",start:"2026-06-08",finish:"2026-06-18",pct:90},{name:"Solda",start:"2026-06-18",finish:"2026-07-02",pct:0},{name:"Jateamento",start:"2026-07-02",finish:"2026-07-10",pct:0},{name:"Montagem",start:"2026-07-10",finish:"2026-07-23",pct:0},{name:"Pintura",start:"2026-07-23",finish:"2026-07-30",pct:0}]}
+    ]},
+    { id:10, code:"PED.135", op:"CONTAMINEX", name:"Contaminex", start:"2025-10-24", finish:"2026-06-29", pct:97, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-12-01",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-12-01",pct:100}]},
+      {name:"FABRICAÇÃO",pct:91,tasks:[{name:"Fundição",start:"2025-11-11",finish:"2026-01-15",pct:100},{name:"Usinagem Fundidos/Geral",start:"2026-01-15",finish:"2026-02-04",pct:100},{name:"Calandragem",start:"2026-05-05",finish:"2026-05-06",pct:100},{name:"Caldeiraria",start:"2026-05-06",finish:"2026-05-11",pct:100},{name:"Solda",start:"2026-06-17",finish:"2026-06-19",pct:100},{name:"Polimento",start:"2026-06-19",finish:"2026-06-22",pct:30},{name:"Jateamento e Pintura",start:"2026-06-19",finish:"2026-06-22",pct:0},{name:"Montagem",start:"2026-06-22",finish:"2026-06-29",pct:0}]}
+    ]},
+    { id:11, code:"PED.135", op:"JUNKOMAT2900", name:"Junkomat 2900", start:"2025-11-25", finish:"2026-06-25", pct:97, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-11-25",finish:"2026-01-23",pct:100},{name:"Plano de Corte",start:"2025-11-25",finish:"2026-01-26",pct:100},{name:"Detalhamento",start:"2025-11-25",finish:"2026-02-10",pct:100}]},
+      {name:"FABRICAÇÃO",pct:83,tasks:[{name:"Corte de Chapa",start:"2026-02-11",finish:"2026-02-25",pct:100},{name:"Usinagem",start:"2026-02-25",finish:"2026-03-16",pct:100},{name:"Calandragem",start:"2026-05-12",finish:"2026-05-25",pct:100},{name:"Caldeiraria",start:"2026-06-15",finish:"2026-06-17",pct:50},{name:"Solda",start:"2026-06-17",finish:"2026-06-22",pct:0},{name:"Polimento",start:"2026-06-22",finish:"2026-06-25",pct:0}]}
+    ]},
+    { id:12, code:"PED.135", op:"TRC1850-PR", name:"Trommel TRC 1850 — RBN Paraná", start:"2025-10-24", finish:"2026-08-07", pct:87, depts:[
+      {name:"ENGENHARIA",pct:100,tasks:[{name:"Estudos/Levantamento",start:"2025-10-24",finish:"2025-10-29",pct:100},{name:"Modelo",start:"2025-10-24",finish:"2025-11-03",pct:100},{name:"Plano de Corte",start:"2025-10-24",finish:"2025-11-06",pct:100},{name:"Detalhamento",start:"2025-10-24",finish:"2025-11-03",pct:100}]},
+      {name:"FABRICAÇÃO",pct:84,tasks:[{name:"Corte de Chapa",start:"2025-11-21",finish:"2025-12-04",pct:100},{name:"Corte de Perfil",start:"2025-11-19",finish:"2025-11-21",pct:100},{name:"Dobra",start:"2025-12-04",finish:"2025-12-11",pct:100},{name:"Usinagem",start:"2025-12-04",finish:"2026-01-14",pct:100},{name:"Caldeiraria Estrutura",start:"2025-12-10",finish:"2026-02-13",pct:100},{name:"Solda Estrutura",start:"2026-02-13",finish:"2026-02-25",pct:100},{name:"Jateamento",start:"2026-03-03",finish:"2026-03-10",pct:100},{name:"Pintura Estrutura",start:"2026-03-10",finish:"2026-03-16",pct:100},{name:"Calandragem Tambor",start:"2026-05-11",finish:"2026-05-12",pct:100},{name:"Caldeiraria Tambor",start:"2026-05-12",finish:"2026-05-14",pct:100},{name:"Solda Tambor",start:"2026-05-28",finish:"2026-06-08",pct:60},{name:"Usinagem Tambor",start:"2026-06-09",finish:"2026-06-19",pct:0},{name:"Pintura Tambor",start:"2026-07-22",finish:"2026-07-29",pct:0}]},
+      {name:"MONTAGEM GERAL",pct:0,tasks:[{name:"Montagem Geral Trommel",start:"2026-07-29",finish:"2026-08-07",pct:0}]}
+    ]}
+  ];
+}
 
 // ── UTILS ──
+const TODAY = new Date();
 const fmtDate = d => { if(!d) return ''; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 const daysDiff = d => Math.floor((new Date(d) - TODAY) / 86400000);
 function getStatus(o) {
@@ -1051,43 +740,24 @@ function showToast(msg,type='ok'){
   t.className=`toast ${type} show`;
   setTimeout(()=>t.className='toast',3500);
 }
-
-// FIX: showScreen rola para o topo e troca a tela sem scroll perceptível
 function showScreen(id){
   window.scrollTo(0,0);
-  document.querySelectorAll('.screen').forEach(s=>{
-    s.classList.remove('active');
-    s.style.display='none';
-  });
-  const target = document.getElementById('screen-'+id);
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const target=document.getElementById('screen-'+id);
   target.style.display='block';
-  // Força reflow antes de adicionar active para evitar flash
-  requestAnimationFrame(()=>{
-    target.classList.add('active');
-  });
+  requestAnimationFrame(()=>target.classList.add('active'));
 }
-
 function backToLogin(){
   loggedUser=null;
-  // Reset login form
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
   document.getElementById('loginError').style.display='none';
   showScreen('login');
 }
-
-// ── LOADING OVERLAY ──
 function showLoading(msg='Carregando...'){
   let el=document.getElementById('_loadingOverlay');
-  if(!el){
-    el=document.createElement('div');
-    el.id='_loadingOverlay';
-    el.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    el.innerHTML='<div style="width:40px;height:40px;border:3px solid #333;border-top-color:#c8a84b;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="color:#888;font-size:15px;" id="_loadingMsg"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
-    document.body.appendChild(el);
-  }
-  document.getElementById('_loadingMsg').textContent=msg;
-  el.style.display='flex';
+  if(!el){el=document.createElement('div');el.id='_loadingOverlay';el.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';el.innerHTML='<div style="width:40px;height:40px;border:3px solid #333;border-top-color:#c8a84b;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="color:#888;font-size:15px;" id="_loadingMsg"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';document.body.appendChild(el);}
+  document.getElementById('_loadingMsg').textContent=msg;el.style.display='flex';
 }
 function hideLoading(){const el=document.getElementById('_loadingOverlay');if(el)el.style.display='none';}
 
@@ -1103,36 +773,40 @@ function closeAdminLogin(){document.getElementById('adminLoginOverlay').classLis
 document.getElementById('adminLoginOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminLogin();});
 
 function doAdminLogin(){
-  const email = document.getElementById('adminEmail').value.trim();
-  const pass  = document.getElementById('adminPass').value;
-  const admin = DB.admins.find(a => a.email===email && a.pass===pass);
-  if(!admin){
-    document.getElementById('adminLoginError').style.display='block';
-    return;
-  }
+  const email=document.getElementById('adminEmail').value.trim();
+  const pass=document.getElementById('adminPass').value;
+  const admin=DB.admins.find(a=>a.email===email&&a.pass===pass);
+  if(!admin){document.getElementById('adminLoginError').style.display='block';return;}
   closeAdminLogin();
-  loggedUser = { type: admin.role==='master'?'master':'admin', ref: admin };
-  document.getElementById('adminNameBadge').textContent = admin.name;
-  document.getElementById('btnNewAdmin').style.display = admin.role==='master'?'':'none';
+  // Força role=master para os emails mestres
+  const role = MASTER_EMAILS.includes(admin.email) ? 'master' : (admin.role||'viewer');
+  loggedUser={type:role,ref:admin};
+  document.getElementById('adminNameBadge').textContent=admin.name;
+  // Controla visibilidade dos botões e abas conforme permissão
+  const master = isMaster(loggedUser);
+  document.getElementById('btnNewAdmin').style.display=master?'':'none';
+  document.getElementById('btnNewClient').style.display=master?'':'none';
+  document.getElementById('tabImportar').style.display=master?'':'none';
   showScreen('dev');
   renderDevAll();
   showToast(`Bem-vindo, ${admin.name}!`);
 }
 
-// ── CLIENT LOGIN ──
 function doLogin(){
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  const c = DB.clients.find(x=>x.email===u && x.pass===p);
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const c=DB.clients.find(x=>x.email===u&&x.pass===p);
   if(!c){document.getElementById('loginError').style.display='block';return;}
   document.getElementById('loginError').style.display='none';
-  loggedUser = { type:'client', ref: c };
+  loggedUser={type:'client',ref:c};
   showScreen('client');
   renderClientScreen();
 }
 
 // ── DEV TABS ──
 function switchDevTab(id,btn){
+  // Bloqueia aba importar para não-mestres
+  if(id==='importar'&&!isMaster(loggedUser)){showToast('Acesso restrito a administradores mestres','err');return;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -1140,7 +814,7 @@ function switchDevTab(id,btn){
   if(id==='gantt') renderGantt();
   if(id==='clientes') renderClientsPanel();
   if(id==='admins') renderAdminsPanel();
-  if(id==='importar') renderRevHistory();
+  if(id==='importar') renderImportHistory();
 }
 function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
 
@@ -1158,62 +832,29 @@ function renderStats(){
 function buildOrderCard(order, isClient=false){
   const s=getStatus(order);
   const sc=s==='delayed'?'delayed':s==='at_risk'?'at-risk':'on-track';
-  const sbadge=s==='delayed'?'<span class="status-badge badge-delayed">ATRASADO</span>':
-               s==='at_risk'?'<span class="status-badge badge-risk">EM RISCO</span>':
-               s==='done'?'<span class="status-badge badge-done">CONCLUÍDO</span>':
-               '<span class="status-badge badge-ok">NO PRAZO</span>';
+  const sbadge=s==='delayed'?'<span class="status-badge badge-delayed">ATRASADO</span>':s==='at_risk'?'<span class="status-badge badge-risk">EM RISCO</span>':s==='done'?'<span class="status-badge badge-done">CONCLUÍDO</span>':'<span class="status-badge badge-ok">NO PRAZO</span>';
   const diff=daysDiff(order.finish);
-  const diffTxt=order.pct>=100?'':diff<0?`<span style="color:var(--red);font-size:14px;font-weight:600;">${Math.abs(diff)}d atrasado</span>`:
-               diff<30?`<span style="color:var(--warn);font-size:14px;">${diff}d restantes</span>`:'';
-  const archived = order._archived ? '<span style="font-size:12px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">📦 Arquivado</span>' : '';
+  const diffTxt=order.pct>=100?'':diff<0?`<span style="color:var(--red);font-size:14px;font-weight:600;">${Math.abs(diff)}d atrasado</span>`:diff<30?`<span style="color:var(--warn);font-size:14px;">${diff}d restantes</span>`:'';
+  const archived=order._archived?'<span style="font-size:12px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">📦 Arquivado</span>':'';
   const deptsHTML=order.depts.map(d=>{
     const tasksHTML=d.tasks.map(t=>{
       const ts=taskStatus(t);
       const cls={done:'s-done',delayed:'s-delayed',active:'s-active',pending:'s-pending'}[ts];
       const lbl={done:'Concluído',delayed:'Atrasado',active:'Em Andamento',pending:'Pendente'}[ts];
-      return`<div class="task-row">
-        ${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:18px;display:inline-block"></span>'}
-        <span class="task-name">${t.name}</span>
-        <span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span>
-        <span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span>
-        <span class="task-status ${cls}">${lbl}</span>
-      </div>`;
+      return`<div class="task-row">${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:18px;display:inline-block"></span>'}<span class="task-name">${t.name}</span><span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span><span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span><span class="task-status ${cls}">${lbl}</span></div>`;
     }).join('');
     return`<div class="dept-header">${d.name}<span class="dept-pct">${d.pct}%</span></div>${tasksHTML}`;
   }).join('');
-
   let filesHTML='';
   if(isClient){
     const files=DB.orderFiles[order.id]||[];
-    const docsGrid=files.length===0
-      ?'<div class="no-docs">Nenhum documento anexado para este equipamento.</div>'
-      :`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" title="${f.name}" onclick="downloadOrderFile(${order.id},${fi})"><div class="dc-icon">${getFileIcon(f.name)}</div><div class="dc-name">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
+    const docsGrid=files.length===0?'<div class="no-docs">Nenhum documento anexado para este equipamento.</div>':`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" title="${f.name}" onclick="downloadOrderFile(${order.id},${fi})"><div class="dc-icon">${getFileIcon(f.name)}</div><div class="dc-name">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
     filesHTML=`<div class="docs-section"><div class="section-title">📎 Documentos &amp; Arquivos</div>${docsGrid}</div>`;
   }
-
   const cc=isClient?'client-order-card':'order-card';
   const ch=isClient?'client-order-head':'order-header';
   const ct=isClient?'client-order-tasks':'order-tasks';
-  return`<div class="${cc} ${sc}" id="card-${order.id}">
-    <div class="${ch}" onclick="this.parentElement.classList.toggle('open')">
-      <span class="status-dot" style="background:${statusColor(s)}"></span>
-      <span class="order-code">${order.code}</span>
-      <div class="order-info">
-        <div class="order-name">${order.name}</div>
-        <div class="order-op">OP: ${order.op}</div>
-      </div>
-      <div class="order-meta">
-        ${archived}${diffTxt}${sbadge}
-        <span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>
-        <div class="pct-wrap">
-          <div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div>
-          <span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span>
-        </div>
-      </div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="${ct}">${deptsHTML}${filesHTML}</div>
-  </div>`;
+  return`<div class="${cc} ${sc}" id="card-${order.id}"><div class="${ch}" onclick="this.parentElement.classList.toggle('open')"><span class="status-dot" style="background:${statusColor(s)}"></span><span class="order-code">${order.code}</span><div class="order-info"><div class="order-name">${order.name}</div><div class="order-op">OP: ${order.op}</div></div><div class="order-meta">${archived}${diffTxt}${sbadge}<span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div><span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span></div></div><span class="chevron">▾</span></div><div class="${ct}">${deptsHTML}${filesHTML}</div></div>`;
 }
 
 function renderOrders(filtered){
@@ -1240,206 +881,76 @@ function filterOrders(){
 function collapseAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.remove('open'));}
 function expandAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.add('open'));}
 
-// ══════════════════════════════════════
-// GANTT — colunas sticky corrigidas
-// left calculado em JS e passado inline
-// ══════════════════════════════════════
+// ── GANTT ──
 function populateGanttFilter(){
   const sel=document.getElementById('ganttFilter');
-  sel.innerHTML='<option value="">Todos os pedidos</option>'+
-    ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,45)}</option>`).join('');
+  sel.innerHTML='<option value="">Todos os pedidos</option>'+ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,45)}</option>`).join('');
 }
-
-let ganttNameW = 180;
-
-function buildGantt(orders, containerId){
-  const DAY_W = 22;
-  const OW = 80;   // largura coluna OP
-  const PW = 44;   // largura coluna %
-  const NW = ganttNameW;
-
-  // Calcula intervalo de datas
-  const allD = orders.flatMap(o => [new Date(o.start), new Date(o.finish)]);
-  let minDate = new Date(Math.min(...allD));
-  let maxDate = new Date(Math.max(...allD));
-  minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-  maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 0);
-
-  const days = [];
-  let cur = new Date(minDate);
-  while(cur <= maxDate){ days.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
-
-  const months = [];
-  days.forEach((d) => {
-    const key = d.getFullYear()+'-'+d.getMonth();
-    if(!months.length || months[months.length-1].key!==key){
-      const isCur = d.getMonth()===TODAY.getMonth() && d.getFullYear()===TODAY.getFullYear();
-      months.push({key, label: d.toLocaleString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(), isCur, count:0});
-    }
-    months[months.length-1].count++;
-  });
-
-  const todayStr = TODAY.toISOString().slice(0,10);
-  function dayIdx(dateStr){ const d=new Date(dateStr); return Math.round((d-minDate)/86400000); }
-
-  // ── THEAD ──
-  // Linha 1: mês headers + colunas fixas com rowspan=2
-  let theadRow1 = '<tr class="gantt-header-row">';
-  // Col Nome: sticky top:0 left:0 z-index:20
-  theadRow1 += `<th class="gantt-name-th" rowspan="2" style="position:sticky;top:0;left:0;z-index:20;width:${NW}px;min-width:${NW}px;">
-    Pedido / Área
-    <div class="gantt-resize-handle" id="ganttResizeHandle" title="Arraste para ajustar"></div>
-  </th>`;
-  // Col OP: sticky top:0 left:NW z-index:19
-  theadRow1 += `<th class="gantt-op-th" rowspan="2" style="position:sticky;top:0;left:${NW}px;z-index:19;width:${OW}px;min-width:${OW}px;">OP</th>`;
-  // Col %: sticky top:0 left:NW+OW z-index:19
-  theadRow1 += `<th class="gantt-pct-th" rowspan="2" style="position:sticky;top:0;left:${NW+OW}px;z-index:19;width:${PW}px;min-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
-  // Meses
-  months.forEach(m => {
-    theadRow1 += `<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}" style="position:sticky;top:0;z-index:4;">${m.label}</th>`;
-  });
-  theadRow1 += '</tr>';
-
-  // Linha 2: dias
-  let theadRow2 = '<tr class="gantt-header-row">';
-  days.forEach(d => {
-    const ds = d.toISOString().slice(0,10);
-    const isToday = ds===todayStr;
-    const dow = d.getDay();
-    const isWe = dow===0||dow===6;
-    theadRow2 += `<th class="gantt-day-th${isToday?' is-today':isWe?' is-we':''}" style="position:sticky;top:30px;z-index:4;">${d.getDate()}</th>`;
-  });
-  theadRow2 += '</tr>';
-
-  // ── TBODY ──
-  let bodyHTML = '';
-  orders.forEach(order => {
-    const s = getStatus(order);
-    const barCls = s==='delayed'?'s-delayed':s==='at_risk'?'s-risk':s==='done'?'s-done':'s-ok';
-    const pc = pctColor(order.pct);
-    const sIdx = dayIdx(order.start);
-    const eIdx = dayIdx(order.finish);
-
-    // Linha do pedido
-    bodyHTML += `<tr class="gantt-row-order">
-      <td class="gantt-name-td is-order" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
-        <span style="font-size:10px;font-family:monospace;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:3px;margin-right:4px;flex-shrink:0;">${order.code}</span><span style="overflow:hidden;text-overflow:ellipsis;">${order.name}</span>
-      </td>
-      <td class="gantt-op-td is-order" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">${order.op}</td>
-      <td class="gantt-pct-td is-order" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${pc};border-right:2px solid #484848 !important;">${order.pct}%</td>`;
-
-    days.forEach((d,i) => {
-      const ds=d.toISOString().slice(0,10);
-      const isToday=ds===todayStr;
-      const dow=d.getDay();
-      const isWe=dow===0||dow===6;
-      const inBar=i>=sIdx&&i<=eIdx;
-      const isStart=i===sIdx;
-      const isEnd=i===eIdx;
-      let c='';
-      if(inBar){
-        let br=isStart&&isEnd?'border-radius:3px;':isStart?'border-radius:3px 0 0 3px;':isEnd?'border-radius:0 3px 3px 0;':'';
-        c=`<div class="gantt-bar-seg order-bar ${barCls}" style="left:1px;right:1px;${br}"></div>`;
-      }
-      if(isToday) c+='<div class="gantt-today-vline"></div>';
-      bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;
-    });
+let ganttNameW=180;
+function buildGantt(orders,containerId){
+  const DAY_W=22,OW=80,PW=44,NW=ganttNameW;
+  const allD=orders.flatMap(o=>[new Date(o.start),new Date(o.finish)]);
+  let minDate=new Date(Math.min(...allD));let maxDate=new Date(Math.max(...allD));
+  minDate=new Date(minDate.getFullYear(),minDate.getMonth(),1);
+  maxDate=new Date(maxDate.getFullYear(),maxDate.getMonth()+1,0);
+  const days=[];let cur=new Date(minDate);
+  while(cur<=maxDate){days.push(new Date(cur));cur.setDate(cur.getDate()+1);}
+  const months=[];
+  days.forEach(d=>{const key=d.getFullYear()+'-'+d.getMonth();if(!months.length||months[months.length-1].key!==key){const isCur=d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();months.push({key,label:d.toLocaleString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(),isCur,count:0});}months[months.length-1].count++;});
+  const todayStr=TODAY.toISOString().slice(0,10);
+  function dayIdx(dateStr){const d=new Date(dateStr);return Math.round((d-minDate)/86400000);}
+  let theadRow1='<tr class="gantt-header-row">';
+  theadRow1+=`<th class="gantt-name-th" rowspan="2" style="position:sticky;top:0;left:0;z-index:20;width:${NW}px;min-width:${NW}px;">Pedido / Área<div class="gantt-resize-handle" id="ganttResizeHandle" title="Arraste para ajustar"></div></th>`;
+  theadRow1+=`<th class="gantt-op-th" rowspan="2" style="position:sticky;top:0;left:${NW}px;z-index:19;width:${OW}px;min-width:${OW}px;">OP</th>`;
+  theadRow1+=`<th class="gantt-pct-th" rowspan="2" style="position:sticky;top:0;left:${NW+OW}px;z-index:19;width:${PW}px;min-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
+  months.forEach(m=>{theadRow1+=`<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}" style="position:sticky;top:0;z-index:4;">${m.label}</th>`;});
+  theadRow1+='</tr>';
+  let theadRow2='<tr class="gantt-header-row">';
+  days.forEach(d=>{const ds=d.toISOString().slice(0,10);const isToday=ds===todayStr;const dow=d.getDay();const isWe=dow===0||dow===6;theadRow2+=`<th class="gantt-day-th${isToday?' is-today':isWe?' is-we':''}" style="position:sticky;top:30px;z-index:4;">${d.getDate()}</th>`;});
+  theadRow2+='</tr>';
+  let bodyHTML='';
+  orders.forEach(order=>{
+    const s=getStatus(order);const barCls=s==='delayed'?'s-delayed':s==='at_risk'?'s-risk':s==='done'?'s-done':'s-ok';const pc=pctColor(order.pct);const sIdx=dayIdx(order.start);const eIdx=dayIdx(order.finish);
+    bodyHTML+=`<tr class="gantt-row-order"><td class="gantt-name-td is-order" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"><span style="font-size:10px;font-family:monospace;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:3px;margin-right:4px;">${order.code}</span><span>${order.name}</span></td><td class="gantt-op-td is-order" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">${order.op}</td><td class="gantt-pct-td is-order" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${pc};border-right:2px solid #484848 !important;">${order.pct}%</td>`;
+    days.forEach((d,i)=>{const ds=d.toISOString().slice(0,10);const isToday=ds===todayStr;const dow=d.getDay();const isWe=dow===0||dow===6;const inBar=i>=sIdx&&i<=eIdx;const isStart=i===sIdx;const isEnd=i===eIdx;let c='';if(inBar){let br=isStart&&isEnd?'border-radius:3px;':isStart?'border-radius:3px 0 0 3px;':isEnd?'border-radius:0 3px 3px 0;':'';c=`<div class="gantt-bar-seg order-bar ${barCls}" style="left:1px;right:1px;${br}"></div>`;}if(isToday)c+='<div class="gantt-today-vline"></div>';bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;});
     bodyHTML+='</tr>';
-
-    // Linhas dos departamentos
-    order.depts.forEach(dept => {
-      const dDates=dept.tasks.flatMap(t=>[new Date(t.start),new Date(t.finish)]);
-      const dSIdx=dayIdx(new Date(Math.min(...dDates)).toISOString().slice(0,10));
-      const dEIdx=dayIdx(new Date(Math.max(...dDates)).toISOString().slice(0,10));
-      const dpc=pctColor(dept.pct);
-
-      bodyHTML+=`<tr class="gantt-row-dept">
-        <td class="gantt-name-td is-dept" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${dept.name}</td>
-        <td class="gantt-op-td is-dept" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;"></td>
-        <td class="gantt-pct-td is-dept" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${dpc};font-size:10px;border-right:2px solid #484848 !important;">${dept.pct}%</td>`;
-
-      days.forEach((d,i)=>{
-        const ds=d.toISOString().slice(0,10);
-        const isToday=ds===todayStr;
-        const dow=d.getDay();
-        const isWe=dow===0||dow===6;
-        const inBar=i>=dSIdx&&i<=dEIdx;
-        const isS=i===dSIdx;
-        const isE=i===dEIdx;
-        let c='';
-        if(inBar){
-          let br=isS&&isE?'border-radius:2px;':isS?'border-radius:2px 0 0 2px;':isE?'border-radius:0 2px 2px 0;':'';
-          c=`<div class="gantt-bar-seg dept-bar s-dept" style="left:1px;right:1px;${br}"></div>`;
-        }
-        if(isToday) c+='<div class="gantt-today-vline"></div>';
-        bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;
-      });
+    order.depts.forEach(dept=>{
+      const dDates=dept.tasks.flatMap(t=>[new Date(t.start),new Date(t.finish)]);const dSIdx=dayIdx(new Date(Math.min(...dDates)).toISOString().slice(0,10));const dEIdx=dayIdx(new Date(Math.max(...dDates)).toISOString().slice(0,10));const dpc=pctColor(dept.pct);
+      bodyHTML+=`<tr class="gantt-row-dept"><td class="gantt-name-td is-dept" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${dept.name}</td><td class="gantt-op-td is-dept" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;"></td><td class="gantt-pct-td is-dept" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${dpc};font-size:10px;border-right:2px solid #484848 !important;">${dept.pct}%</td>`;
+      days.forEach((d,i)=>{const ds=d.toISOString().slice(0,10);const isToday=ds===todayStr;const dow=d.getDay();const isWe=dow===0||dow===6;const inBar=i>=dSIdx&&i<=dEIdx;const isS=i===dSIdx;const isE=i===dEIdx;let c='';if(inBar){let br=isS&&isE?'border-radius:2px;':isS?'border-radius:2px 0 0 2px;':isE?'border-radius:0 2px 2px 0;':'';c=`<div class="gantt-bar-seg dept-bar s-dept" style="left:1px;right:1px;${br}"></div>`;}if(isToday)c+='<div class="gantt-today-vline"></div>';bodyHTML+=`<td class="gantt-cell${isToday?' today-col':isWe?' we-col':''}">${c}</td>`;});
       bodyHTML+='</tr>';
     });
   });
-
-  const container = document.getElementById(containerId);
-  container.innerHTML = `<div class="gantt-wrap">
-    <div class="gantt-outer" id="${containerId}-outer">
-      <table class="gantt-table">
-        <thead>${theadRow1}${theadRow2}</thead>
-        <tbody>${bodyHTML}</tbody>
-      </table>
-    </div>
-    <div class="gantt-legend">
-      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#2e86ab"></div>No Prazo</div>
-      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--warn)"></div>Em Risco</div>
-      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--red)"></div>Atrasado</div>
-      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#444"></div>Concluído</div>
-    </div>
-  </div>`;
-
-  // Scroll para hoje
-  const outer = document.getElementById(containerId+'-outer');
-  if(outer){
-    const todayI = days.findIndex(d=>d.toISOString().slice(0,10)===todayStr);
-    if(todayI>=0){
-      setTimeout(()=>{ outer.scrollLeft=Math.max(0,(todayI*DAY_W)-(NW+OW+PW+120)); },80);
-    }
-  }
+  const container=document.getElementById(containerId);
+  container.innerHTML=`<div class="gantt-wrap"><div class="gantt-outer" id="${containerId}-outer"><table class="gantt-table"><thead>${theadRow1}${theadRow2}</thead><tbody>${bodyHTML}</tbody></table></div><div class="gantt-legend"><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#2e86ab"></div>No Prazo</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--warn)"></div>Em Risco</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--red)"></div>Atrasado</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#444"></div>Concluído</div></div></div>`;
+  const outer=document.getElementById(containerId+'-outer');
+  if(outer){const todayI=days.findIndex(d=>d.toISOString().slice(0,10)===todayStr);if(todayI>=0){setTimeout(()=>{outer.scrollLeft=Math.max(0,(todayI*DAY_W)-(NW+OW+PW+120));},80);}}
 }
-
 function renderGantt(){
-  const f = document.getElementById('ganttFilter').value;
-  const orders = f ? [ORDERS[parseInt(f)]] : ORDERS;
+  const f=document.getElementById('ganttFilter').value;
+  const orders=f?[ORDERS[parseInt(f)]]:ORDERS;
   buildGantt(orders,'ganttContainer');
-  initGanttResize('ganttContainer', orders);
+  initGanttResize('ganttContainer',orders);
 }
-
-function initGanttResize(containerId, orders){
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  const handle = container.querySelector('#ganttResizeHandle');
-  if(!handle) return;
-  let startX=0, startW=0, dragging=false;
-  function onStart(clientX){ dragging=true; startX=clientX; startW=ganttNameW; handle.classList.add('dragging'); document.body.style.cursor='col-resize'; document.body.style.userSelect='none'; }
-  function onMove(clientX){
-    if(!dragging) return;
-    ganttNameW = Math.max(80, Math.min(420, startW+(clientX-startX)));
-    const scrollL = document.getElementById(containerId+'-outer')?.scrollLeft||0;
-    buildGantt(orders||ORDERS, containerId);
-    const el = document.getElementById(containerId+'-outer');
-    if(el) el.scrollLeft=scrollL;
-    initGanttResize(containerId, orders);
-  }
-  function onEnd(){ if(!dragging) return; dragging=false; document.body.style.cursor=''; document.body.style.userSelect=''; }
-  handle.addEventListener('mousedown', e=>{ e.preventDefault(); onStart(e.clientX); });
-  document.addEventListener('mousemove', e=>onMove(e.clientX));
-  document.addEventListener('mouseup', onEnd);
-  handle.addEventListener('touchstart', e=>{ onStart(e.touches[0].clientX); }, {passive:true});
-  document.addEventListener('touchmove', e=>{ if(dragging){ e.preventDefault(); onMove(e.touches[0].clientX); } }, {passive:false});
-  document.addEventListener('touchend', onEnd);
+function initGanttResize(containerId,orders){
+  const container=document.getElementById(containerId);if(!container)return;
+  const handle=container.querySelector('#ganttResizeHandle');if(!handle)return;
+  let startX=0,startW=0,dragging=false;
+  function onStart(clientX){dragging=true;startX=clientX;startW=ganttNameW;handle.classList.add('dragging');document.body.style.cursor='col-resize';document.body.style.userSelect='none';}
+  function onMove(clientX){if(!dragging)return;ganttNameW=Math.max(80,Math.min(420,startW+(clientX-startX)));const scrollL=document.getElementById(containerId+'-outer')?.scrollLeft||0;buildGantt(orders||ORDERS,containerId);const el=document.getElementById(containerId+'-outer');if(el)el.scrollLeft=scrollL;initGanttResize(containerId,orders);}
+  function onEnd(){if(!dragging)return;dragging=false;document.body.style.cursor='';document.body.style.userSelect='';}
+  handle.addEventListener('mousedown',e=>{e.preventDefault();onStart(e.clientX);});
+  document.addEventListener('mousemove',e=>onMove(e.clientX));
+  document.addEventListener('mouseup',onEnd);
+  handle.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX);},{passive:true});
+  document.addEventListener('touchmove',e=>{if(dragging){e.preventDefault();onMove(e.touches[0].clientX);}},{passive:false});
+  document.addEventListener('touchend',onEnd);
 }
 
 // ── CLIENTS PANEL ──
 const PALETTE=['#c8a84b','#a0a0a0','#888888','#c0c0c0','#d4922a','#bbb','#999'];
 function renderClientsPanel(){
-  document.getElementById('usersList').innerHTML = DB.clients.map(c=>`
+  document.getElementById('usersList').innerHTML=DB.clients.map(c=>`
     <div class="user-item ${selectedUserId===c.id?'active':''}" onclick="selectUser(${c.id})">
       <div class="user-av" style="background:${c.color||'#888'}">${getInitials(c.name)}</div>
       <div><div class="uname">${c.name}</div><div class="uemail">${c.email}</div></div>
@@ -1447,53 +958,56 @@ function renderClientsPanel(){
     </div>`).join('');
 }
 function selectUser(id){
-  selectedUserId = id;
-  const c = DB.clients.find(x=>x.id===id);
+  selectedUserId=id;
+  const c=DB.clients.find(x=>x.id===id);
   renderClientsPanel();
-  const orderOptions = ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,35)}</option>`).join('');
-  const orderTagsHTML = (c.orders||[]).map(i=>`<span class="tag">${ORDERS[i]?.code||''} · ${(ORDERS[i]?.name||'').slice(0,28)}<span class="rm" onclick="removeOrderFromUser(${c.id},${i})">✕</span></span>`).join('');
-  const archivedTagsHTML = (c.archivedOrders||[]).map(oid=>{ const arc = DB.archivedOrdersData[oid]; return arc?`<span class="tag" style="opacity:.7;">📦 ${arc.code} · ${arc.name.slice(0,22)} <span style="font-size:11px;color:var(--text3);">(arquivado)</span></span>`:''; }).join('');
-  const orderFileSections = (c.orders||[]).map(oidx=>{
-    const o=ORDERS[oidx]; if(!o) return '';
+  const master=isMaster(loggedUser);
+  const orderOptions=ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,35)}</option>`).join('');
+  const orderTagsHTML=(c.orders||[]).map(i=>`<span class="tag">${ORDERS[i]?.code||''} · ${(ORDERS[i]?.name||'').slice(0,28)}${master?`<span class="rm" onclick="removeOrderFromUser(${c.id},${i})">✕</span>`:''}</span>`).join('');
+  const archivedTagsHTML=(c.archivedOrders||[]).map(oid=>{const arc=DB.archivedOrdersData[oid];return arc?`<span class="tag" style="opacity:.7;">📦 ${arc.code} · ${arc.name.slice(0,22)}</span>`:''}).join('');
+  const orderFileSections=(c.orders||[]).map(oidx=>{
+    const o=ORDERS[oidx];if(!o)return'';
     const files=DB.orderFiles[oidx]||[];
-    const filesHTML=files.length===0?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>':
-      `<div class="file-list">${files.map((f,fi)=>`<div class="file-item"><span class="fi-icon">${getFileIcon(f.name)}</span><span class="fi-name">${f.name}</span><span class="fi-size">${fmtSize(f.size)}</span><span class="fi-del" onclick="removeOrderFile(${oidx},${fi})">✕</span></div>`).join('')}</div>`;
-    return`<div class="order-files-block"><div class="order-files-title">📦 ${o.code} — ${o.name}</div><div class="drop-area" onclick="triggerFileUpload(${oidx})" ondrop="handleDropAdmin(event,${oidx})" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">📎 Clique ou arraste arquivos para este equipamento</div><input type="file" id="fu-${oidx}" multiple onchange="handleFileAdmin(event,${oidx})" style="display:none;">${filesHTML}</div>`;
+    const filesHTML=files.length===0?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>':`<div class="file-list">${files.map((f,fi)=>`<div class="file-item"><span class="fi-icon">${getFileIcon(f.name)}</span><span class="fi-name">${f.name}</span><span class="fi-size">${fmtSize(f.size)}</span>${master?`<span class="fi-del" onclick="removeOrderFile(${oidx},${fi})">✕</span>`:''}</div>`).join('')}</div>`;
+    const uploadArea=master?`<div class="drop-area" onclick="triggerFileUpload(${oidx})" ondrop="handleDropAdmin(event,${oidx})" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">📎 Clique ou arraste arquivos</div><input type="file" id="fu-${oidx}" multiple onchange="handleFileAdmin(event,${oidx})" style="display:none;">`:'';
+    return`<div class="order-files-block"><div class="order-files-title">📦 ${o.code} — ${o.name}</div>${uploadArea}${filesHTML}</div>`;
   }).join('');
-  document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail">
-    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>
+
+  const editFields=master?`
     <div class="form-group"><label>Nome</label><input type="text" value="${c.name}" onchange="updateUser(${c.id},'name',this.value)"></div>
     <div class="form-group"><label>Empresa</label><input type="text" value="${c.company}" onchange="updateUser(${c.id},'company',this.value)"></div>
     <div class="form-group"><label>E-mail / Login</label><input type="email" value="${c.email}" onchange="updateUser(${c.id},'email',this.value)"></div>
-    <div class="form-group"><label>Senha</label><input type="password" value="${c.pass}" onchange="updateUser(${c.id},'pass',this.value)"></div>
+    <div class="form-group"><label>Senha</label><input type="password" value="${c.pass}" onchange="updateUser(${c.id},'pass',this.value)"></div>`
+    :`<div style="padding:8px 0;"><b>${c.name}</b> — ${c.company}<br><span style="font-size:13px;color:var(--text3);">${c.email}</span></div>`;
+
+  document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>
+    ${!master?'<div class="readonly-notice">👁 Modo visualização — somente mestres podem editar</div>':''}
+    ${editFields}
     <div class="divider"></div>
-    <div class="section-title">Pedidos Ativos Vinculados</div>
+    <div class="section-title">Pedidos Ativos</div>
     <div class="tag-list">${orderTagsHTML}</div>
-    <div style="margin-top:12px;"><select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''"><option value="">+ Adicionar pedido...</option>${orderOptions}</select></div>
-    ${archivedTagsHTML?`<div class="divider"></div><div class="section-title">Pedidos Arquivados</div><div class="tag-list">${archivedTagsHTML}</div>`:''}
+    ${master?`<div style="margin-top:12px;"><select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''"><option value="">+ Adicionar pedido...</option>${orderOptions}</select></div>`:''}
+    ${archivedTagsHTML?`<div class="divider"></div><div class="section-title">Arquivados</div><div class="tag-list">${archivedTagsHTML}</div>`:''}
     <div class="divider"></div>
     <div class="section-title">📎 Arquivos por Equipamento</div>
-    ${(c.orders||[]).length===0?'<div style="font-size:14px;color:var(--text3);">Vincule pedidos para gerenciar arquivos.</div>':orderFileSections}
-    <div class="divider"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-gold btn-sm" onclick="saveUserChanges()">💾 Salvar Alterações</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteUser(${c.id})">Excluir cliente</button>
-    </div>
+    ${(c.orders||[]).length===0?'<div style="font-size:14px;color:var(--text3);">Nenhum pedido vinculado.</div>':orderFileSections}
+    ${master?`<div class="divider"></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="saveUserChanges()">💾 Salvar Alterações</button><button class="btn btn-danger btn-sm" onclick="deleteUser(${c.id})">Excluir cliente</button></div>`:''}
   </div>`;
 }
-function saveUserChanges(){persist();showToast('Cliente salvo com sucesso!');}
+function saveUserChanges(){persist();showToast('Cliente salvo!');}
 function triggerFileUpload(oidx){document.getElementById('fu-'+oidx).click();}
 function handleFileAdmin(e,oidx){addOrderFiles(oidx,Array.from(e.target.files));}
 function handleDropAdmin(e,oidx){e.preventDefault();e.currentTarget.classList.remove('over');addOrderFiles(oidx,Array.from(e.dataTransfer.files));}
 function addOrderFiles(oidx,files){
-  if(!DB.orderFiles[oidx]) DB.orderFiles[oidx]=[];
-  let pending = files.length;
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
+  if(!DB.orderFiles[oidx])DB.orderFiles[oidx]=[];
+  let pending=files.length;
   files.forEach(f=>{
-    const reader = new FileReader();
-    reader.onload = ev => {
+    const reader=new FileReader();
+    reader.onload=ev=>{
       DB.orderFiles[oidx].push({name:f.name,size:f.size,date:new Date().toLocaleDateString('pt-BR'),data:ev.target.result});
-      pending--;
-      if(pending===0){ persist(); selectUser(selectedUserId); showToast(`${files.length} arquivo(s) adicionado(s)`); }
+      pending--;if(pending===0){persist();selectUser(selectedUserId);showToast(`${files.length} arquivo(s) adicionado(s)`);}
     };
     reader.readAsDataURL(f);
   });
@@ -1501,22 +1015,23 @@ function addOrderFiles(oidx,files){
 function downloadOrderFile(oidx,fi){
   const f=(DB.orderFiles[oidx]||[])[fi];
   if(!f){showToast('Arquivo não encontrado','err');return;}
-  if(f.data){ const a=document.createElement('a');a.href=f.data;a.download=f.name;document.body.appendChild(a);a.click();document.body.removeChild(a); }
-  else { showToast('Arquivo sem dados. Faça o upload novamente.','err'); }
+  if(f.data){const a=document.createElement('a');a.href=f.data;a.download=f.name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+  else{showToast('Arquivo sem dados','err');}
 }
-function removeOrderFile(oidx,fi){DB.orderFiles[oidx].splice(fi,1);persist();selectUser(selectedUserId);}
-function updateUser(id,field,val){const c=DB.clients.find(x=>x.id===id);if(c)c[field]=val;}
-function addOrderToUser(id,oidx){const c=DB.clients.find(x=>x.id===id);if(c&&!c.orders.includes(oidx)){c.orders.push(oidx);persist();selectUser(id);}}
-function removeOrderFromUser(id,oidx){const c=DB.clients.find(x=>x.id===id);if(c){c.orders=c.orders.filter(i=>i!==oidx);persist();selectUser(id);}}
+function removeOrderFile(oidx,fi){if(!isMaster(loggedUser))return;DB.orderFiles[oidx].splice(fi,1);persist();selectUser(selectedUserId);}
+function updateUser(id,field,val){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c)c[field]=val;}
+function addOrderToUser(id,oidx){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c&&!c.orders.includes(oidx)){c.orders.push(oidx);persist();selectUser(id);}}
+function removeOrderFromUser(id,oidx){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c){c.orders=c.orders.filter(i=>i!==oidx);persist();selectUser(id);}}
 function deleteUser(id){
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   if(!confirm('Excluir este cliente?'))return;
-  DB.clients=DB.clients.filter(c=>c.id!==id);
-  persist(); selectedUserId=null;
+  DB.clients=DB.clients.filter(c=>c.id!==id);persist();selectedUserId=null;
   document.getElementById('userDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3></div></div>';
-  renderClientsPanel(); showToast('Cliente excluído');
+  renderClientsPanel();showToast('Cliente excluído');
 }
-function openAddUserModal(){document.getElementById('addUserModal').classList.add('open');}
+function openAddUserModal(){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}document.getElementById('addUserModal').classList.add('open');}
 function saveNewUser(){
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   const name=document.getElementById('nuName').value.trim();
   const company=document.getElementById('nuCompany').value.trim();
   const email=document.getElementById('nuEmail').value.trim();
@@ -1525,84 +1040,96 @@ function saveNewUser(){
   if(DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
   const newId=Math.max(0,...DB.clients.map(c=>c.id))+1;
   DB.clients.push({id:newId,name,company,email,pass,orders:[],archivedOrders:[],color:PALETTE[DB.clients.length%PALETTE.length]});
-  persist(); closeModal('addUserModal'); renderClientsPanel(); showToast(`Cliente "${name}" criado!`);
+  persist();closeModal('addUserModal');renderClientsPanel();showToast(`Cliente "${name}" criado!`);
   ['nuName','nuCompany','nuEmail','nuPass'].forEach(id=>document.getElementById(id).value='');
 }
 
 // ── ADMINS PANEL ──
 function renderAdminsPanel(){
-  document.getElementById('adminsList').innerHTML = DB.admins.map(a=>`
+  document.getElementById('adminsList').innerHTML=DB.admins.map(a=>`
     <div class="user-item ${selectedAdminId===a.id?'active':''}" onclick="selectAdmin('${a.id}')">
       <div class="user-av" style="background:#555;">${getInitials(a.name)}</div>
       <div><div class="uname">${a.name}</div><div class="uemail">${a.email}</div></div>
-      <span class="${a.role==='master'?'role-badge-master':'role-badge-admin'}" style="margin-left:auto;">${a.role==='master'?'MESTRE':'ADMIN'}</span>
+      <span class="${a.role==='master'?'role-badge-master':'role-badge-admin'}" style="margin-left:auto;">${a.role==='master'?'MESTRE':'VISUALIZADOR'}</span>
     </div>`).join('');
 }
 function selectAdmin(id){
-  selectedAdminId = id;
-  const a = DB.admins.find(x=>x.id===id);
+  selectedAdminId=id;
+  const a=DB.admins.find(x=>x.id===id);
   renderAdminsPanel();
-  const isMaster = a.role==='master';
-  const canEdit = loggedUser.type==='master';
-  const isCurrentUser = loggedUser.ref.id === id;
+  const isMasterUser=MASTER_EMAILS.includes(a.email)||a.role==='master';
+  const canEdit=isMaster(loggedUser);
+  const isCurrentUser=loggedUser.ref.id===id;
   document.getElementById('adminDetailPanel').innerHTML=`<div class="user-detail">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div class="user-av" style="background:#555;width:50px;height:50px;font-size:18px;">${getInitials(a.name)}</div>
-      <div><div style="font-size:18px;font-weight:700;">${a.name}</div><span class="${isMaster?'role-badge-master':'role-badge-admin'}">${isMaster?'ADMINISTRADOR MESTRE':'ADMINISTRADOR'}</span></div>
+      <div><div style="font-size:18px;font-weight:700;">${a.name}</div><span class="${isMasterUser?'role-badge-master':'role-badge-admin'}">${isMasterUser?'ADMINISTRADOR MESTRE':'VISUALIZADOR'}</span></div>
     </div>
-    ${isMaster&&!isCurrentUser?'<div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px;font-size:14px;color:var(--text2);margin-bottom:16px;">O admin mestre não pode ser editado ou excluído.</div>':''}
-    <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
-    <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
-    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMaster&&!isCurrentUser?'disabled':''}></div>
+    ${!canEdit?'<div class="readonly-notice">👁 Modo visualização</div>':''}
+    ${isMasterUser&&!isCurrentUser&&canEdit?'<div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px;font-size:14px;color:var(--text2);margin-bottom:16px;">Admin mestre — edição restrita.</div>':''}
+    <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMasterUser&&!isCurrentUser?'disabled':''}></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMasterUser&&!isCurrentUser?'disabled':''}></div>
+    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMasterUser&&!isCurrentUser?'disabled':''}></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      ${canEdit&&(!isMaster||isCurrentUser)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
-      ${canEdit&&!isMaster?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
+      ${canEdit&&(!isMasterUser||isCurrentUser)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
+      ${canEdit&&!isMasterUser?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
     </div>
   </div>`;
 }
 function saveAdminChanges(id){
-  const a=DB.admins.find(x=>x.id===id); if(!a)return;
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
+  const a=DB.admins.find(x=>x.id===id);if(!a)return;
   const name=document.getElementById('ea-name').value.trim();
   const email=document.getElementById('ea-email').value.trim();
   const pass=document.getElementById('ea-pass').value;
-  if(!name||!email){showToast('Nome e e-mail são obrigatórios','err');return;}
-  a.name=name; a.email=email;
-  if(pass.length>=6) a.pass=pass;
-  else if(pass.length>0&&pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','err');return;}
-  persist(); document.getElementById('adminNameBadge').textContent=loggedUser.ref.name; renderAdminsPanel(); showToast('Administrador atualizado!');
+  if(!name||!email){showToast('Nome e e-mail obrigatórios','err');return;}
+  a.name=name;a.email=email;
+  if(pass.length>=6)a.pass=pass;
+  else if(pass.length>0&&pass.length<6){showToast('Senha mínimo 6 caracteres','err');return;}
+  persist();document.getElementById('adminNameBadge').textContent=loggedUser.ref.name;renderAdminsPanel();showToast('Administrador atualizado!');
 }
 function deleteAdmin(id){
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   const a=DB.admins.find(x=>x.id===id);
-  if(!a||a.role==='master'){showToast('Não é possível excluir o admin mestre','err');return;}
-  if(!confirm(`Excluir o administrador "${a.name}"?`))return;
-  DB.admins=DB.admins.filter(x=>x.id!==id); persist(); selectedAdminId=null;
+  if(!a||MASTER_EMAILS.includes(a.email)||a.role==='master'){showToast('Não é possível excluir admin mestre','err');return;}
+  if(!confirm(`Excluir "${a.name}"?`))return;
+  DB.admins=DB.admins.filter(x=>x.id!==id);persist();selectedAdminId=null;
   document.getElementById('adminDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3></div></div>';
-  renderAdminsPanel(); showToast('Administrador excluído');
+  renderAdminsPanel();showToast('Administrador excluído');
 }
 function openAddAdminModal(){
-  if(loggedUser.type!=='master'){showToast('Somente o admin mestre pode criar administradores','err');return;}
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   document.getElementById('addAdminModal').classList.add('open');
 }
 function saveNewAdmin(){
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   const name=document.getElementById('naName').value.trim();
   const email=document.getElementById('naEmail').value.trim();
   const pass=document.getElementById('naPass').value;
+  const role=document.getElementById('naRole').value;
   if(!name||!email||!pass){showToast('Preencha todos os campos','err');return;}
-  if(pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','err');return;}
-  if(DB.admins.find(a=>a.email===email)||DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado no sistema','err');return;}
-  const newId = 'admin_'+Date.now();
-  DB.admins.push({id:newId,name,email,pass,role:'admin'});
-  persist(); closeModal('addAdminModal'); renderAdminsPanel(); showToast(`Administrador "${name}" criado!`);
+  if(pass.length<6){showToast('Senha mínimo 6 caracteres','err');return;}
+  if(DB.admins.find(a=>a.email===email)||DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
+  const newId='admin_'+Date.now();
+  DB.admins.push({id:newId,name,email,pass,role});
+  persist();closeModal('addAdminModal');renderAdminsPanel();showToast(`Admin "${name}" criado!`);
   ['naName','naEmail','naPass'].forEach(id=>document.getElementById(id).value='');
 }
 
 // ── CLIENT SCREEN ──
 function renderClientScreen(){
-  const c = loggedUser.ref;
+  const c=loggedUser.ref;
   document.getElementById('clientAv').textContent=getInitials(c.name);
   document.getElementById('clientAv').style.background=c.color||'#888';
   document.getElementById('clientName').textContent=c.name;
   document.getElementById('clientCompany').textContent=c.company;
+  // Mostra data da última importação para o cliente
+  if(DB.lastImport){
+    document.getElementById('clientLastUpdate').textContent='Atualizado em '+DB.lastImport;
+    document.getElementById('clientUpdateBadge').style.display='flex';
+  } else {
+    document.getElementById('clientUpdateBadge').style.display='none';
+  }
   renderClientOrders();
   renderClientGantt();
 }
@@ -1613,39 +1140,106 @@ function switchClientTab(id,btn){
   btn.classList.add('active');
 }
 function renderClientOrders(){
-  const c = loggedUser.ref;
-  const activeOrders = (c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
-  const archivedOrders = (c.archivedOrders||[]).map(oid=>{ const arc = DB.archivedOrdersData[oid]; return arc ? {...arc, _archived:true} : null; }).filter(Boolean);
-  const all = [...activeOrders, ...archivedOrders];
-  document.getElementById('clientOrdersList').innerHTML = all.length
-    ? all.map(o=>buildOrderCard(o,true)).join('')
-    : '<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
+  const c=loggedUser.ref;
+  const activeOrders=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
+  const archivedOrders=(c.archivedOrders||[]).map(oid=>{const arc=DB.archivedOrdersData[oid];return arc?{...arc,_archived:true}:null;}).filter(Boolean);
+  const all=[...activeOrders,...archivedOrders];
+  document.getElementById('clientOrdersList').innerHTML=all.length?all.map(o=>buildOrderCard(o,true)).join(''):'<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
 }
 function renderClientGantt(){
-  const c = loggedUser.ref;
-  const orders = (c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
-  const el = document.getElementById('clientGanttContainer');
+  const c=loggedUser.ref;
+  const orders=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
+  const el=document.getElementById('clientGanttContainer');
   if(!orders.length){el.innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum pedido ativo vinculado</h3></div>';return;}
   buildGantt(orders,'clientGanttContainer');
-  initGanttResize('clientGanttContainer', orders);
+  initGanttResize('clientGanttContainer',orders);
 }
 
-// ── IMPORT / ARCHIVE ──
+// ── IMPORTAR (XML do Project) ──
+// Lê XML do MS Project e extrai pedidos estruturados
+function parseProjectXML(xmlDoc) {
+  const tasks = Array.from(xmlDoc.querySelectorAll('Task'));
+  // Agrupa por WBS: tarefas de nível 1 são pedidos, nível 2+ são departamentos/tarefas
+  const orders = [];
+  let currentOrder = null;
+  let currentDept = null;
+  let orderIdx = ORDERS.length; // continua numeração
+
+  tasks.forEach(task => {
+    const uid = task.querySelector('UID')?.textContent;
+    if(uid === '0') return; // tarefa raiz
+    const name = task.querySelector('Name')?.textContent || '';
+    const wbs = task.querySelector('WBS')?.textContent || '';
+    const outlineLevel = parseInt(task.querySelector('OutlineLevel')?.textContent||'1');
+    const start = task.querySelector('Start')?.textContent?.slice(0,10) || '';
+    const finish = task.querySelector('Finish')?.textContent?.slice(0,10) || '';
+    const pctStr = task.querySelector('PercentComplete')?.textContent || '0';
+    const pct = parseInt(pctStr);
+    const isMilestone = task.querySelector('Milestone')?.textContent === '1';
+
+    if(outlineLevel === 1) {
+      // Pedido / equipamento
+      currentOrder = {
+        id: orderIdx++,
+        code: wbs,
+        op: wbs,
+        name,
+        start,
+        finish,
+        pct,
+        depts: []
+      };
+      orders.push(currentOrder);
+      currentDept = null;
+    } else if(outlineLevel === 2 && currentOrder) {
+      // Departamento / fase
+      currentDept = { name, pct, tasks: [] };
+      currentOrder.depts.push(currentDept);
+    } else if(outlineLevel >= 3 && currentDept) {
+      // Tarefa
+      currentDept.tasks.push({ name, start, finish, pct, milestone: isMilestone });
+    }
+  });
+
+  return orders.filter(o => o.depts.length > 0 || o.name);
+}
+
 function importXML(e){
-  const file=e.target.files[0]; if(!file) return;
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
+  const file=e.target.files[0];if(!file)return;
   document.getElementById('importStatus').textContent=`⏳ Processando ${file.name}...`;
   const r=new FileReader();
   r.onload=ev=>{
     try{
       const xml=new DOMParser().parseFromString(ev.target.result,'text/xml');
-      const tasks=xml.querySelectorAll('Task');
-      const n=tasks.length;
+      const parsedErr=xml.querySelector('parsererror');
+      if(parsedErr)throw new Error('XML inválido');
+
+      // Tenta extrair pedidos estruturados
+      const extracted=parseProjectXML(xml);
+      let finalOrders;
+      if(extracted.length > 0){
+        finalOrders = extracted;
+      } else {
+        // fallback: mantém ORDERS atual mas registra a importação
+        finalOrders = ORDERS;
+      }
+
+      // Conta tarefas totais
+      const allTasks=xml.querySelectorAll('Task');
+      const n=allTasks.length;
+
+      // Atualiza ORDERS globalmente
+      ORDERS = finalOrders;
+      DB.projectOrders = finalOrders;
+
+      // Arquiva pedidos concluídos
       let archivedCount=0;
       ORDERS.forEach(o=>{
         if(o.pct>=100){
           DB.clients.forEach(c=>{
             if((c.orders||[]).includes(o.id)){
-              if(!c.archivedOrders) c.archivedOrders=[];
+              if(!c.archivedOrders)c.archivedOrders=[];
               if(!c.archivedOrders.includes(o.id)){
                 c.archivedOrders.push(o.id);
                 DB.archivedOrdersData[o.id]=JSON.parse(JSON.stringify(o));
@@ -1655,113 +1249,103 @@ function importXML(e){
           });
         }
       });
+
+      // Registra no histórico
+      const now=new Date();
+      const dateStr=now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      if(!DB.importHistory)DB.importHistory=[];
+      DB.importHistory.unshift({id:'imp_'+Date.now(),file:file.name,date:dateStr,tasks:n,orders:ORDERS.length,archivedCount});
+      DB.lastImport=dateStr;
+
       persist();
-      const archMsg=archivedCount>0?` ${archivedCount} equipamento(s) concluído(s) arquivados automaticamente.`:'';
-      document.getElementById('importStatus').innerHTML=`✅ <strong>${file.name}</strong> processado — <strong>${n}</strong> tarefas encontradas.${archMsg}`;
-      const revNum=`REV.${String(DB.revisions.length+1).padStart(2,'0')}`;
-      DB.revisions.push({num:revNum,date:TODAY.toISOString().slice(0,10),desc:`Importação: ${file.name} (${n} tarefas)`});
-      DB.currentRev=revNum;
-      document.getElementById('revBadge').textContent=revNum;
-      persist(); renderRevHistory(); showToast(`${n} tarefas importadas!`);
-    }catch{
+      renderDevAll();
+      renderImportHistory();
+
+      const archMsg=archivedCount>0?` ${archivedCount} equipamento(s) arquivado(s).`:'';
+      document.getElementById('importStatus').innerHTML=`✅ <strong>${file.name}</strong> importado — <strong>${ORDERS.length}</strong> pedidos / <strong>${n}</strong> tarefas.${archMsg}`;
+      showToast('Cronograma atualizado!');
+    }catch(err){
+      console.error(err);
       document.getElementById('importStatus').textContent='❌ Erro ao processar o arquivo XML.';
       showToast('Erro ao importar','err');
     }
+    // Limpa o input para permitir reimportar o mesmo arquivo
+    e.target.value='';
   };
   r.readAsText(file);
 }
-function openRevModal(){
-  const last=parseInt(DB.currentRev.replace('REV.',''))||1;
-  document.getElementById('newRevNum').value=`REV.${String(last+1).padStart(2,'0')}`;
-  document.getElementById('newRevDate').value=TODAY.toISOString().slice(0,10);
-  document.getElementById('revModal').classList.add('open');
+
+function deleteImport(impId){
+  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
+  if(!confirm('Excluir este registro de importação?'))return;
+  DB.importHistory=DB.importHistory.filter(i=>i.id!==impId);
+  if(DB.importHistory.length>0) DB.lastImport=DB.importHistory[0].date;
+  else DB.lastImport=null;
+  persist();renderImportHistory();showToast('Registro excluído');
 }
-function saveRevision(){
-  const num=document.getElementById('newRevNum').value.trim()||DB.currentRev;
-  const desc=document.getElementById('newRevDesc').value.trim();
-  const date=document.getElementById('newRevDate').value;
-  DB.revisions.push({num,desc,date}); DB.currentRev=num;
-  document.getElementById('revBadge').textContent=num;
-  persist(); closeModal('revModal'); renderRevHistory(); showToast(`Revisão ${num} registrada!`);
-}
-function renderRevHistory(){
-  document.getElementById('revHistory').innerHTML=DB.revisions.slice().reverse().map(r=>`
-    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
-      <span style="font-family:monospace;font-size:14px;color:var(--gold);font-weight:600;min-width:64px;">${r.num}</span>
-      <span style="font-size:14px;color:var(--text3);min-width:100px;">${r.date}</span>
-      <span style="font-size:15px;color:var(--text2);">${r.desc||'—'}</span>
+
+function renderImportHistory(){
+  const el=document.getElementById('importHistory');
+  if(!DB.importHistory||!DB.importHistory.length){
+    el.innerHTML='<div style="font-size:14px;color:var(--text3);padding:12px 0;">Nenhuma importação registrada.</div>';
+    return;
+  }
+  el.innerHTML=DB.importHistory.map(imp=>`
+    <div class="import-history-item">
+      <div style="font-size:20px;">🗂️</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:14px;color:var(--text);">${imp.file}</div>
+        <div style="font-size:13px;color:var(--text3);">${imp.orders||'?'} pedidos · ${imp.tasks} tarefas${imp.archivedCount?` · ${imp.archivedCount} arquivados`:''}</div>
+      </div>
+      <div style="font-family:monospace;font-size:13px;color:var(--gold);white-space:nowrap;">${imp.date}</div>
+      ${isMaster(loggedUser)?`<button class="btn btn-danger btn-sm" onclick="deleteImport('${imp.id}')" title="Excluir registro">🗑</button>`:''}
     </div>`).join('');
 }
 
 // ── MODALS ──
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-overlay').forEach(m=>{
-  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
-});
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 
 // ── INIT ──
-// Inicializa: esconde screens por CSS mas mantém login visível
-document.querySelectorAll('.screen').forEach(s=>{
-  if(!s.classList.contains('active')) s.style.display='none';
-});
+document.querySelectorAll('.screen').forEach(s=>{if(!s.classList.contains('active'))s.style.display='none';});
 
 showLoading('Conectando ao servidor...');
-dbLoad().then(data => {
-  if(data) {
-    DB = data;
-    DB.admins = DB.admins || DEFAULT_DB.admins;
-    DB.archivedOrdersData = DB.archivedOrdersData || {};
-    DB.clients.forEach(c => { if(!c.archivedOrders) c.archivedOrders = []; });
+dbLoad().then(data=>{
+  if(data){
+    DB=data;
+    DB.admins=DB.admins||DEFAULT_DB.admins;
+    DB.archivedOrdersData=DB.archivedOrdersData||{};
+    DB.importHistory=DB.importHistory||[];
+    DB.clients.forEach(c=>{if(!c.archivedOrders)c.archivedOrders=[];});
+    // Garante que os 3 mestres sempre existam
+    MASTER_EMAILS.forEach((email,i)=>{
+      if(!DB.admins.find(a=>a.email===email)){
+        const names=['Murilo','Lucas','Jaison'];
+        DB.admins.unshift({id:'master-'+email.split('@')[0],name:names[i],email,pass:'123456',role:'master'});
+      } else {
+        // Força role=master para eles
+        const adm=DB.admins.find(a=>a.email===email);
+        if(adm)adm.role='master';
+      }
+    });
+    // Se há projectOrders salvos, usa-os
+    if(DB.projectOrders&&DB.projectOrders.length>0){
+      ORDERS=DB.projectOrders;
+    }
   } else {
     persist();
   }
-  document.getElementById('revBadge').textContent = DB.currentRev || 'REV.01';
-  renderStats();
-  renderOrders();
-  populateGanttFilter();
+  document.getElementById('revBadge').textContent=DB.lastImport?'📂 Atualizado':'REV.01';
+  renderStats();renderOrders();populateGanttFilter();
   hideLoading();
-}).catch(err => {
-  console.error('Erro ao carregar Firebase:', err);
+}).catch(err=>{
+  console.error('Firebase error:',err);
   hideLoading();
   showToast('Erro ao conectar. Verifique sua conexão.','err');
 });
 
-// Expõe funções globalmente
-window.doLogin=doLogin;
-window.openAdminLogin=openAdminLogin;
-window.doAdminLogin=doAdminLogin;
-window.backToLogin=backToLogin;
-window.switchDevTab=switchDevTab;
-window.switchClientTab=switchClientTab;
-window.filterOrders=filterOrders;
-window.collapseAll=collapseAll;
-window.expandAll=expandAll;
-window.toggleChip=toggleChip;
-window.renderGantt=renderGantt;
-window.openAddUserModal=openAddUserModal;
-window.saveNewUser=saveNewUser;
-window.selectUser=selectUser;
-window.saveUserChanges=saveUserChanges;
-window.updateUser=updateUser;
-window.addOrderToUser=addOrderToUser;
-window.removeOrderFromUser=removeOrderFromUser;
-window.deleteUser=deleteUser;
-window.triggerFileUpload=triggerFileUpload;
-window.handleFileAdmin=handleFileAdmin;
-window.handleDropAdmin=handleDropAdmin;
-window.removeOrderFile=removeOrderFile;
-window.downloadOrderFile=downloadOrderFile;
-window.openAddAdminModal=openAddAdminModal;
-window.saveNewAdmin=saveNewAdmin;
-window.selectAdmin=selectAdmin;
-window.saveAdminChanges=saveAdminChanges;
-window.deleteAdmin=deleteAdmin;
-window.openRevModal=openRevModal;
-window.saveRevision=saveRevision;
-window.importXML=importXML;
-window.closeModal=closeModal;
-window.closeAdminLogin=closeAdminLogin;
-
+// Expõe funções globais
+window.doLogin=doLogin;window.openAdminLogin=openAdminLogin;window.doAdminLogin=doAdminLogin;window.backToLogin=backToLogin;window.switchDevTab=switchDevTab;window.switchClientTab=switchClientTab;window.filterOrders=filterOrders;window.collapseAll=collapseAll;window.expandAll=expandAll;window.toggleChip=toggleChip;window.renderGantt=renderGantt;window.openAddUserModal=openAddUserModal;window.saveNewUser=saveNewUser;window.selectUser=selectUser;window.saveUserChanges=saveUserChanges;window.updateUser=updateUser;window.addOrderToUser=addOrderToUser;window.removeOrderFromUser=removeOrderFromUser;window.deleteUser=deleteUser;window.triggerFileUpload=triggerFileUpload;window.handleFileAdmin=handleFileAdmin;window.handleDropAdmin=handleDropAdmin;window.removeOrderFile=removeOrderFile;window.downloadOrderFile=downloadOrderFile;window.openAddAdminModal=openAddAdminModal;window.saveNewAdmin=saveNewAdmin;window.selectAdmin=selectAdmin;window.saveAdminChanges=saveAdminChanges;window.deleteAdmin=deleteAdmin;window.importXML=importXML;window.deleteImport=deleteImport;window.closeModal=closeModal;window.closeAdminLogin=closeAdminLogin;
 </script>
 </body>
 </html>
