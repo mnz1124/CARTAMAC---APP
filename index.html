@@ -1,4 +1,15 @@
-<!DOCTYPE html>
+bash
+
+
+python3 << 'PYEOF'
+import base64
+
+with open('/home/claude/FUNDO.txt', 'r') as f:
+    FUNDO = f.read().strip()
+with open('/home/claude/SIM.txt', 'r') as f:
+    SIM = f.read().strip()
+
+html = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1154,4 +1165,11 @@ Object.assign(window,{
 });
 </script>
 </body>
-</html>
+</html>"""
+
+with open('/mnt/user-data/outputs/cartamac.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+size = len(html)
+print(f"Arquivo gerado: {size} bytes ({size/1024:.1f} KB)")
+PYEOF
