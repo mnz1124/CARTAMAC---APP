@@ -1,10 +1,23 @@
-<!DOCTYPE html>
+bash
+
+python3 << 'PYEOF'
+import base64
+
+with open('/mnt/user-data/uploads/SIMBOLO_PRETO.jpg', 'rb') as f:
+    simbolo_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+with open('/mnt/user-data/uploads/Plano_de_fundo.png', 'rb') as f:
+    fundo_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+SIM = f"data:image/jpeg;base64,{simbolo_b64}"
+FUNDO = f"data:image/png;base64,{fundo_b64}"
+
+html = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cartamac — Sistema de Cronogramas</title>
-<meta name="theme-color" content="#c8a84b">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{
@@ -25,12 +38,23 @@ html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
 input[type="file"]{display:none;}
 
 /* LOGIN */
-#screen-login{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:24px;overflow:hidden;}
-.login-brand{text-align:center;margin-bottom:32px;}
-.login-brand .wordmark{font-size:40px;font-weight:800;letter-spacing:-1px;color:var(--accent2);}
-.login-brand .wordmark span{color:var(--gold);}
-.login-brand .tagline{font-size:14px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
-.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:36px 40px;width:100%;max-width:420px;box-shadow:var(--shadow);}
+#screen-login{
+  height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#0a0a0a;padding:24px;overflow:hidden;position:relative;
+}
+.login-bg{
+  position:absolute;inset:0;
+  background-image:url('""" + FUNDO + """');
+  background-size:cover;background-position:center;
+  opacity:0.08;pointer-events:none;
+}
+.login-brand{text-align:center;margin-bottom:32px;position:relative;z-index:1;}
+.login-logo-img{
+  height:110px;width:auto;display:block;margin:0 auto 8px;
+  mix-blend-mode:screen;filter:brightness(1.2);
+}
+.login-brand .tagline{font-size:13px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:36px 40px;width:100%;max-width:420px;box-shadow:var(--shadow);position:relative;z-index:1;}
 .login-box h2{font-size:21px;font-weight:600;margin-bottom:6px;}
 .login-box p{font-size:15px;color:var(--text3);margin-bottom:28px;}
 .form-group{margin-bottom:18px;}
@@ -50,7 +74,7 @@ input[type="file"]{display:none;}
 .btn-gold:hover{background:var(--gold2);}
 .btn-full{width:100%;}
 .btn-sm{padding:8px 14px;font-size:13px;}
-.dev-link{margin-top:24px;text-align:center;font-size:14px;color:var(--text3);}
+.dev-link{margin-top:24px;text-align:center;font-size:14px;color:var(--text3);position:relative;z-index:1;}
 .dev-link a{color:var(--dim);text-decoration:none;border-bottom:1px dashed var(--border3);cursor:pointer;transition:color .15s;}
 .dev-link a:hover{color:var(--text2);}
 .error-msg{background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3);color:var(--red);padding:11px 14px;border-radius:var(--radius);font-size:14px;margin-top:14px;display:none;}
@@ -66,8 +90,9 @@ input[type="file"]{display:none;}
 /* DEV HEADER */
 #screen-dev{min-height:100vh;}
 .dev-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;gap:8px;}
-.dev-wordmark{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--accent2);flex-shrink:0;}
-.dev-wordmark span{color:var(--gold);}
+.dev-logo{display:flex;align-items:center;gap:8px;flex-shrink:0;text-decoration:none;}
+.dev-logo-img{height:30px;width:auto;mix-blend-mode:screen;filter:brightness(1.2);}
+.dev-wordmark{font-size:20px;font-weight:800;letter-spacing:-.5px;color:#ffffff;}
 .dev-nav{display:flex;gap:2px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0;}
 .dev-nav::-webkit-scrollbar{display:none;}
 .dev-tab{padding:6px 12px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border:none;background:transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;min-height:36px;display:flex;align-items:center;}
@@ -79,7 +104,9 @@ input[type="file"]{display:none;}
 .admin-user-badge strong{color:var(--gold);}
 @media(max-width:640px){
   .dev-header{height:auto;flex-wrap:wrap;padding:8px 12px;gap:6px;}
-  .dev-wordmark{font-size:20px;order:0;}
+  .dev-logo{order:0;}
+  .dev-logo-img{height:26px;}
+  .dev-wordmark{font-size:18px;}
   .header-actions{order:1;margin-left:auto;}
   .dev-nav{order:2;width:100%;flex:none;padding-bottom:2px;}
   .dev-tab{font-size:12px;padding:5px 10px;min-height:34px;}
@@ -91,9 +118,7 @@ input[type="file"]{display:none;}
 /* PAGES */
 .page{display:none;padding:28px;}
 .page.active{display:block;}
-@media(max-width:768px){
-  .page{padding:12px;}
-}
+@media(max-width:768px){.page{padding:12px;}}
 
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
@@ -113,69 +138,19 @@ input[type="file"]{display:none;}
 .filter-chip.active{background:rgba(200,168,75,.1);border-color:var(--gold);color:var(--gold);}
 .filter-chip input{display:none;}
 
-/* ═══════════════════════════════════════════
-   ORDER CARDS — DESKTOP
-═══════════════════════════════════════════ */
+/* ORDER CARDS */
 .orders-list{display:flex;flex-direction:column;gap:10px;}
 .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s;}
 .order-card:hover{border-color:var(--border3);}
 .order-card.delayed{border-left:3px solid var(--red);}
 .order-card.at-risk{border-left:3px solid var(--warn);}
 .order-card.on-track{border-left:3px solid var(--green);}
-
-/* Header do card — desktop */
-.order-header{
-  display:flex;
-  align-items:center;
-  padding:16px 18px;
-  cursor:pointer;
-  gap:12px;
-  flex-wrap:nowrap;
-}
-.order-code{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12px;
-  font-weight:700;
-  color:var(--gold);
-  background:rgba(200,168,75,.1);
-  border:1px solid rgba(200,168,75,.2);
-  padding:4px 8px;
-  border-radius:4px;
-  white-space:nowrap;
-  flex-shrink:0;
-  min-width:0;
-  max-width:130px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.order-info{
-  flex:1;
-  min-width:0;
-}
-.order-name{
-  font-weight:600;
-  font-size:15px;
-  margin-bottom:2px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  color:var(--text);
-}
-.order-op{
-  font-size:12px;
-  color:var(--text3);
-  font-family:'JetBrains Mono',monospace;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.order-meta{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-shrink:0;
-  flex-wrap:nowrap;
-}
+.order-header{display:flex;align-items:center;padding:16px 18px;cursor:pointer;gap:12px;flex-wrap:nowrap;}
+.order-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.2);padding:4px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;min-width:0;max-width:130px;overflow:hidden;text-overflow:ellipsis;}
+.order-info{flex:1;min-width:0;}
+.order-name{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.order-op{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.order-meta{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:nowrap;}
 .order-dates{font-size:12px;color:var(--text3);white-space:nowrap;}
 .status-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
 .badge-delayed{background:rgba(224,82,82,.15);color:var(--red);}
@@ -194,67 +169,16 @@ input[type="file"]{display:none;}
 .order-card.open .chevron{transform:rotate(180deg);}
 .order-tasks{display:none;border-top:1px solid var(--border);}
 .order-card.open .order-tasks{display:block;}
-
-/* ═══════════════════════════════════════════
-   ORDER CARDS — MOBILE (≤640px)
-   Layout de 2 linhas para melhor leitura
-═══════════════════════════════════════════ */
 @media(max-width:640px){
-  .order-header{
-    flex-wrap:wrap;
-    padding:14px 14px 12px 14px;
-    gap:8px;
-    align-items:flex-start;
-  }
-
-  /* Linha 1: dot + code + name + chevron */
-  .order-header > .status-dot{
-    order:0;
-    margin-top:3px;
-  }
-  .order-header > .order-code{
-    order:1;
-    font-size:11px;
-    padding:3px 7px;
-    max-width:110px;
-  }
-  .order-header > .order-info{
-    order:2;
-    flex:1;
-    min-width:0;
-  }
-  .order-name{
-    font-size:14px;
-    white-space:normal;
-    line-height:1.3;
-    word-break:break-word;
-  }
-  .order-op{
-    font-size:11px;
-    margin-top:2px;
-  }
-  .order-header > .chevron{
-    order:3;
-    margin-left:auto;
-    align-self:flex-start;
-    margin-top:2px;
-  }
-
-  /* Linha 2: meta (status + progresso) — ocupa toda a largura */
-  .order-header > .order-meta{
-    order:4;
-    width:100%;
-    flex-wrap:wrap;
-    gap:8px;
-    padding-top:4px;
-    padding-left:17px; /* alinha com o nome (dot + gap) */
-    justify-content:flex-start;
-  }
-
-  /* Datas ficam ocultas no mobile para não poluir */
+  .order-header{flex-wrap:wrap;padding:14px 14px 12px 14px;gap:8px;align-items:flex-start;}
+  .order-header > .status-dot{order:0;margin-top:3px;}
+  .order-header > .order-code{order:1;font-size:11px;padding:3px 7px;max-width:110px;}
+  .order-header > .order-info{order:2;flex:1;min-width:0;}
+  .order-name{font-size:14px;white-space:normal;line-height:1.3;word-break:break-word;}
+  .order-op{font-size:11px;margin-top:2px;}
+  .order-header > .chevron{order:3;margin-left:auto;align-self:flex-start;margin-top:2px;}
+  .order-header > .order-meta{order:4;width:100%;flex-wrap:wrap;gap:8px;padding-top:4px;padding-left:17px;justify-content:flex-start;}
   .order-dates{display:none;}
-
-  /* Barra de progresso um pouco menor */
   .pct-bar{width:60px;}
   .pct-text{font-size:12px;min-width:30px;}
   .status-badge{font-size:10px;padding:3px 7px;}
@@ -275,7 +199,6 @@ input[type="file"]{display:none;}
 .s-active{background:rgba(240,240,240,.08);color:var(--accent);}
 .s-delayed{background:rgba(224,82,82,.12);color:var(--red);}
 .s-pending{background:rgba(120,120,120,.1);color:var(--text3);}
-
 @media(max-width:640px){
   .dept-header{padding:10px 14px 10px 14px;font-size:12px;}
   .task-row{flex-wrap:wrap;padding:10px 14px;gap:6px;}
@@ -376,10 +299,13 @@ input[type="file"]{display:none;}
 /* CLIENT SCREEN */
 #screen-client{min-height:100vh;background:var(--bg);}
 .client-header-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
-.client-av-lg{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#000;flex-shrink:0;}
+.client-logo{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.client-logo-img{height:26px;width:auto;mix-blend-mode:screen;filter:brightness(1.2);}
+.client-logo-text{font-size:17px;font-weight:800;letter-spacing:-.5px;color:#ffffff;}
 .client-info-bar{flex:1;min-width:0;}
 .client-info-bar h2{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .client-info-bar p{font-size:12px;color:var(--text3);}
+.client-av-lg{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#000;flex-shrink:0;}
 .client-nav{display:flex;gap:2px;flex-shrink:0;}
 .client-tab{padding:6px 14px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border:none;background:transparent;transition:all .15s;white-space:nowrap;min-height:34px;}
 .client-tab:hover{background:var(--bg3);color:var(--text);}
@@ -390,11 +316,13 @@ input[type="file"]{display:none;}
   .client-nav{order:3;width:100%;}
   .update-badge{display:none;}
   .admin-grid{grid-template-columns:1fr;}
+  .client-logo-text{font-size:15px;}
+  .client-logo-img{height:22px;}
 }
 .client-page{display:none;padding:16px;}
 .client-page.active{display:block;}
 
-/* CLIENT ORDER CARDS — usa as mesmas classes do admin com ajustes */
+/* CLIENT ORDER CARDS */
 .client-order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:12px;overflow:hidden;}
 .client-order-card.delayed{border-left:3px solid var(--red);}
 .client-order-card.at-risk{border-left:3px solid var(--warn);}
@@ -403,7 +331,6 @@ input[type="file"]{display:none;}
 .client-order-card.open .chevron{transform:rotate(180deg);}
 .client-order-tasks{display:none;border-top:1px solid var(--border);}
 .client-order-card.open .client-order-tasks{display:block;}
-
 @media(max-width:640px){
   .client-order-head{flex-wrap:wrap;padding:14px 14px 12px;gap:8px;align-items:flex-start;}
   .client-order-head > .status-dot{order:0;margin-top:3px;}
@@ -412,7 +339,6 @@ input[type="file"]{display:none;}
   .client-order-head > .chevron{order:3;margin-left:auto;align-self:flex-start;}
   .client-order-head > .order-meta{order:4;width:100%;padding-top:4px;padding-left:17px;justify-content:flex-start;}
 }
-
 .docs-section{background:var(--bg3);border-radius:var(--radius);padding:16px 20px;}
 .docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px;}
 .doc-card{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;cursor:pointer;transition:border-color .15s;}
@@ -448,7 +374,6 @@ input[type="file"]{display:none;}
 .role-badge-client{background:rgba(92,184,92,.1);border:1px solid rgba(92,184,92,.2);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
 .readonly-notice{background:rgba(46,134,171,.08);border:1px solid rgba(46,134,171,.25);border-radius:var(--radius);padding:12px 14px;font-size:14px;color:#6ab0c8;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
-/* STATS mobile */
 @media(max-width:640px){
   .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
   .stat-card{padding:16px;}
@@ -466,8 +391,9 @@ input[type="file"]{display:none;}
 
 <!-- LOGIN -->
 <div class="screen active" id="screen-login">
+  <div class="login-bg"></div>
   <div class="login-brand">
-    <div class="wordmark">CARTA<span>MAC</span></div>
+    <img class="login-logo-img" src=\"""" + SIM + """\" alt="Cartamac Logo">
     <div class="tagline">Papel &amp; Celulose · Sistema de Cronogramas</div>
   </div>
   <div class="login-box">
@@ -511,7 +437,10 @@ input[type="file"]{display:none;}
 <!-- DEV SCREEN -->
 <div class="screen" id="screen-dev">
   <header class="dev-header">
-    <div class="dev-wordmark">CARTA<span>MAC</span></div>
+    <div class="dev-logo">
+      <img class="dev-logo-img" src=\"""" + SIM + """\" alt="C">
+      <span class="dev-wordmark">CARTAMAC</span>
+    </div>
     <nav class="dev-nav">
       <button class="dev-tab active" onclick="switchDevTab('cronograma',this)">📋 Cronograma</button>
       <button class="dev-tab" onclick="switchDevTab('gantt',this)">📊 Gantt</button>
@@ -526,7 +455,6 @@ input[type="file"]{display:none;}
     </div>
   </header>
 
-  <!-- CRONOGRAMA -->
   <div class="page active" id="page-cronograma">
     <div class="filters">
       <input type="text" class="search-input" placeholder="🔍  Buscar pedido, código, OP..." id="searchInput" oninput="filterOrders()">
@@ -553,7 +481,6 @@ input[type="file"]{display:none;}
     <div class="orders-list" id="ordersList"></div>
   </div>
 
-  <!-- GANTT -->
   <div class="page" id="page-gantt">
     <div class="filters" style="margin-bottom:16px;">
       <select class="filter-select" id="ganttFilter" onchange="renderGantt()">
@@ -564,7 +491,6 @@ input[type="file"]{display:none;}
     <div id="ganttContainer"></div>
   </div>
 
-  <!-- CLIENTES -->
   <div class="page" id="page-clientes">
     <div class="admin-grid">
       <div class="panel">
@@ -577,7 +503,6 @@ input[type="file"]{display:none;}
     </div>
   </div>
 
-  <!-- ADMINISTRADORES -->
   <div class="page" id="page-admins">
     <div class="admin-grid">
       <div class="panel">
@@ -585,17 +510,16 @@ input[type="file"]{display:none;}
         <div id="adminsList"></div>
       </div>
       <div class="panel" id="adminDetailPanel">
-        <div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3><p>Escolha para visualizar</p></div></div>
+        <div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3></div></div>
       </div>
     </div>
   </div>
 
-  <!-- IMPORTAR -->
   <div class="page" id="page-importar">
     <div class="import-box">
       <h3>📂 Importar Arquivo Microsoft Project (.XML)</h3>
       <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px;color:var(--text2);">
-        <strong style="color:var(--gold);">ℹ️ Como exportar do MS Project:</strong> Arquivo → Salvar como → XML. O sistema lê OutlineLevel para identificar pedidos (nível 1), departamentos (nível 2) e tarefas (nível 3+). O código e a OP são extraídos automaticamente do nome da tarefa pai (formato: <code style="color:var(--gold);background:rgba(200,168,75,.1);padding:1px 5px;border-radius:3px;">CÓDIGO · OP · Nome do Pedido</code>). Pedidos com 100% são arquivados automaticamente mantendo todos os documentos.
+        <strong style="color:var(--gold);">ℹ️ Como exportar do MS Project:</strong> Arquivo → Salvar como → XML. O sistema lê OutlineLevel para identificar pedidos (nível 1), departamentos (nível 2) e tarefas (nível 3+).
       </div>
       <div class="upload-zone" onclick="document.getElementById('xmlInput').click()" ondrop="handleXMLDrop(event)" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''">
         <div class="upload-icon">🗂️</div>
@@ -615,6 +539,10 @@ input[type="file"]{display:none;}
 <!-- CLIENT SCREEN -->
 <div class="screen" id="screen-client">
   <header class="client-header-bar">
+    <div class="client-logo">
+      <img class="client-logo-img" src=\"""" + SIM + """\" alt="C">
+      <span class="client-logo-text">CARTAMAC</span>
+    </div>
     <div class="client-av-lg" id="clientAv">?</div>
     <div class="client-info-bar">
       <h2 id="clientName">—</h2>
@@ -649,9 +577,6 @@ input[type="file"]{display:none;}
 <div class="modal-overlay" id="addAdminModal">
   <div class="modal">
     <h3>🔐 Novo Administrador</h3>
-    <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:14px;color:var(--text2);">
-      <strong>Mestre</strong> tem acesso total. <strong>Visualizador</strong> só leitura.
-    </div>
     <div class="form-group"><label>Nome completo *</label><input type="text" id="naName" placeholder="Ex: Fernanda Souza"></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="naEmail" placeholder="nome@cartamac.com"></div>
     <div class="form-group"><label>Senha *</label><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"></div>
@@ -702,29 +627,22 @@ const DEFAULT_DB = {
     {id:2, name:'Rio Bonito - Paraná',   company:'Rio Bonito Embalagens PR', email:'riobonitop@cartamac.com',  pass:'rbpr2026', orders:[], archivedOrders:[], color:'#a0a0a0'},
     {id:3, name:'Marombas',              company:'Marombas Celulose',        email:'marombas@cartamac.com',    pass:'marombas2026', orders:[], archivedOrders:[], color:'#d4a017'}
   ],
-  importHistory:    [],
-  lastImport:       null,
-  archivedOrdersData: {},
-  projectOrders:    null
+  importHistory:[], lastImport:null, archivedOrdersData:{}, projectOrders:null
 };
 
 let DB = JSON.parse(JSON.stringify(DEFAULT_DB));
 let FILE_STORE = {};
-
-let loggedUser     = null;
-let selectedUserId = null;
-let selectedAdminId = null;
+let loggedUser = null, selectedUserId = null, selectedAdminId = null;
 let ORDERS = getDefaultOrders();
 
-// ─────────── HELPERS ───────────
 const isMaster = u => u && (u.type==='master' || MASTER_EMAILS.includes(u.ref?.email));
-const TODAY    = new Date();
-const fmtDate  = d => { if(!d) return '—'; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
+const TODAY = new Date();
+const fmtDate = d => { if(!d) return '—'; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 const daysDiff = d => Math.floor((new Date(d) - TODAY) / 86400000);
 function getStatus(o){
   if(o.pct>=100) return 'done';
   const d=daysDiff(o.finish);
-  if(d<0)  return 'delayed';
+  if(d<0) return 'delayed';
   if(d<30) return 'at_risk';
   return 'on_track';
 }
@@ -777,27 +695,19 @@ function showLoading(msg='Carregando...'){
 }
 function hideLoading(){const el=document.getElementById('_lo');if(el)el.style.display='none';}
 
-// ─────────── FIREBASE ───────────
 async function dbLoad(){
-  try{const s=await getDoc(DB_REF);if(s.exists())return s.data();}
-  catch(e){console.warn('DB load:',e);}
-  return null;
+  try{const s=await getDoc(DB_REF);if(s.exists())return s.data();}catch(e){console.warn('DB load:',e);}return null;
 }
 async function filesLoad(){
-  try{const s=await getDoc(FILE_REF);if(s.exists())return s.data().files||{};}
-  catch(e){console.warn('Files load:',e);}
-  return {};
+  try{const s=await getDoc(FILE_REF);if(s.exists())return s.data().files||{};}catch(e){console.warn('Files load:',e);}return {};
 }
 async function persist(){
-  try{await setDoc(DB_REF,DB);}
-  catch(e){console.warn('DB save:',e);showToast('Erro ao salvar dados','err');}
+  try{await setDoc(DB_REF,DB);}catch(e){console.warn('DB save:',e);showToast('Erro ao salvar dados','err');}
 }
 async function persistFiles(){
-  try{await setDoc(FILE_REF,{files:FILE_STORE});}
-  catch(e){console.warn('Files save:',e);showToast('Erro ao salvar arquivos','err');}
+  try{await setDoc(FILE_REF,{files:FILE_STORE});}catch(e){console.warn('Files save:',e);showToast('Erro ao salvar arquivos','err');}
 }
 
-// ─────────── DEFAULT ORDERS ───────────
 function getDefaultOrders(){
   return [
     {id:0,code:"0150.26",op:"RBE0150-26",name:"Rotor Hidrapulper 44'' BC",start:"2026-04-30",finish:"2026-08-25",pct:25,depts:[
@@ -869,7 +779,6 @@ function getDefaultOrders(){
   ];
 }
 
-// ─────────── LOGIN ───────────
 function openAdminLogin(){
   document.getElementById('adminLoginError').style.display='none';
   document.getElementById('adminEmail').value='';
@@ -893,9 +802,7 @@ function doAdminLogin(){
   document.getElementById('btnNewAdmin').style.display=master?'':'none';
   document.getElementById('btnNewClient').style.display=master?'':'none';
   document.getElementById('tabImportar').style.display=master?'':'none';
-  showScreen('dev');
-  renderDevAll();
-  showToast(`Bem-vindo, ${admin.name}!`);
+  showScreen('dev');renderDevAll();showToast(`Bem-vindo, ${admin.name}!`);
 }
 function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
@@ -903,26 +810,21 @@ function doLogin(){
   const c=DB.clients.find(x=>x.email===u&&x.pass===p);
   if(!c){document.getElementById('loginError').style.display='block';return;}
   document.getElementById('loginError').style.display='none';
-  loggedUser={type:'client',ref:c};
-  showScreen('client');
-  renderClientScreen();
+  loggedUser={type:'client',ref:c};showScreen('client');renderClientScreen();
 }
 
-// ─────────── DEV TABS ───────────
 function switchDevTab(id,btn){
   if(id==='importar'&&!isMaster(loggedUser)){showToast('Acesso restrito a administradores mestres','err');return;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  btn.classList.add('active');
-  if(id==='gantt')     renderGantt();
-  if(id==='clientes')  renderClientsPanel();
-  if(id==='admins')    renderAdminsPanel();
-  if(id==='importar')  renderImportHistory();
+  document.getElementById('page-'+id).classList.add('active');btn.classList.add('active');
+  if(id==='gantt') renderGantt();
+  if(id==='clientes') renderClientsPanel();
+  if(id==='admins') renderAdminsPanel();
+  if(id==='importar') renderImportHistory();
 }
 function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
 
-// ─────────── CRONOGRAMA ───────────
 function renderStats(){
   let tot=ORDERS.length,del=0,rsk=0,dn=0,ok=0;
   ORDERS.forEach(o=>{const s=getStatus(o);if(s==='delayed')del++;else if(s==='at_risk')rsk++;else if(s==='done')dn++;else ok++;});
@@ -933,91 +835,38 @@ function renderStats(){
     <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
 }
 
-// ── Constrói o card de pedido (admin e cliente compartilham estrutura) ──
 function buildOrderCard(order,isClient=false){
   const s=getStatus(order);
   const sc=s==='delayed'?'delayed':s==='at_risk'?'at-risk':'on-track';
-  const sbadge=s==='delayed'
-    ?'<span class="status-badge badge-delayed">ATRASADO</span>'
-    :s==='at_risk'
-    ?'<span class="status-badge badge-risk">EM RISCO</span>'
-    :s==='done'
-    ?'<span class="status-badge badge-done">CONCLUÍDO</span>'
-    :'<span class="status-badge badge-ok">NO PRAZO</span>';
-
+  const sbadge=s==='delayed'?'<span class="status-badge badge-delayed">ATRASADO</span>':s==='at_risk'?'<span class="status-badge badge-risk">EM RISCO</span>':s==='done'?'<span class="status-badge badge-done">CONCLUÍDO</span>':'<span class="status-badge badge-ok">NO PRAZO</span>';
   const diff=daysDiff(order.finish);
-  const diffTxt=order.pct>=100
-    ?''
-    :diff<0
-    ?`<span style="color:var(--red);font-size:12px;font-weight:700;">${Math.abs(diff)}d atraso</span>`
-    :diff<30
-    ?`<span style="color:var(--warn);font-size:12px;">${diff}d restantes</span>`
-    :'';
-
-  const archived=order._archived
-    ?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">📦 Arquivado</span>'
-    :'';
-
+  const diffTxt=order.pct>=100?'':diff<0?`<span style="color:var(--red);font-size:12px;font-weight:700;">${Math.abs(diff)}d atraso</span>`:diff<30?`<span style="color:var(--warn);font-size:12px;">${diff}d restantes</span>`:'';
+  const archived=order._archived?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">📦 Arquivado</span>':'';
   const deptsHTML=order.depts.map(d=>{
     const tasksHTML=d.tasks.map(t=>{
       const ts=taskStatus(t);
       const cls={done:'s-done',delayed:'s-delayed',active:'s-active',pending:'s-pending'}[ts];
       const lbl={done:'Concluído',delayed:'Atrasado',active:'Em Andamento',pending:'Pendente'}[ts];
-      return `<div class="task-row">
-        ${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:16px;display:inline-block;flex-shrink:0;"></span>'}
-        <span class="task-name" title="${t.name}">${t.name}</span>
-        <span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span>
-        <span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span>
-        <span class="task-status ${cls}">${lbl}</span>
-      </div>`;
+      return `<div class="task-row"><span class="${t.milestone?'milestone-icon':''}"> ${t.milestone?'◆':' '}</span><span class="task-name" title="${t.name}">${t.name}</span><span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span><span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span><span class="task-status ${cls}">${lbl}</span></div>`;
     }).join('');
     return `<div class="dept-header">${d.name}<span class="dept-pct">${d.pct}%</span></div>${tasksHTML}`;
   }).join('');
-
   let filesHTML='';
   if(isClient){
-    const fk=fileKey(order.id);
-    const files=FILE_STORE[fk]||[];
-    const docsGrid=files.length===0
-      ?'<div class="no-docs">Nenhum documento anexado para este equipamento.</div>'
-      :`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" onclick="downloadOrderFile('${fk}',${fi})"><div class="dc-icon">${fileIcon(f.name)}</div><div class="dc-name" title="${f.name}">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
+    const fk=fileKey(order.id);const files=FILE_STORE[fk]||[];
+    const docsGrid=files.length===0?'<div class="no-docs">Nenhum documento anexado.</div>':`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" onclick="downloadOrderFile('${fk}',${fi})"><div class="dc-icon">${fileIcon(f.name)}</div><div class="dc-name" title="${f.name}">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
     filesHTML=`<div class="docs-section"><div class="section-title" style="margin-bottom:8px;">📎 Documentos &amp; Arquivos</div>${docsGrid}</div>`;
   }
-
-  // Classes e elementos de cabeçalho variam entre admin e client
-  const cc  = isClient ? 'client-order-card' : 'order-card';
-  const ch  = isClient ? 'client-order-head'  : 'order-header';
-  const ct  = isClient ? 'client-order-tasks'  : 'order-tasks';
-
-  // Exibe code e op: se a OP for diferente do code, mostra ambos; senão só o code
-  const codeLabel = order.code || '—';
-  const opLabel   = (order.op && order.op !== order.code) ? order.op : '';
-
-  return `<div class="${cc} ${sc}" id="card-${order.id}">
-    <div class="${ch}" onclick="this.parentElement.classList.toggle('open')">
-      <span class="status-dot" style="background:${sColor(s)}"></span>
-      <span class="order-code" title="${codeLabel}">${codeLabel}</span>
-      <div class="order-info">
-        <div class="order-name" title="${order.name}">${order.name}</div>
-        ${opLabel ? `<div class="order-op">OP: ${opLabel}</div>` : ''}
-      </div>
-      <div class="order-meta">
-        ${archived}${diffTxt}${sbadge}
-        <span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>
-        <div class="pct-wrap">
-          <div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div>
-          <span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span>
-        </div>
-      </div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="${ct}">${deptsHTML}${filesHTML}</div>
-  </div>`;
+  const cc=isClient?'client-order-card':'order-card';
+  const ch=isClient?'client-order-head':'order-header';
+  const ct=isClient?'client-order-tasks':'order-tasks';
+  const codeLabel=order.code||'—';
+  const opLabel=(order.op&&order.op!==order.code)?order.op:'';
+  return `<div class="${cc} ${sc}" id="card-${order.id}"><div class="${ch}" onclick="this.parentElement.classList.toggle('open')"><span class="status-dot" style="background:${sColor(s)}"></span><span class="order-code" title="${codeLabel}">${codeLabel}</span><div class="order-info"><div class="order-name" title="${order.name}">${order.name}</div>${opLabel?`<div class="order-op">OP: ${opLabel}</div>`:''}</div><div class="order-meta">${archived}${diffTxt}${sbadge}<span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div><span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span></div></div><span class="chevron">▾</span></div><div class="${ct}">${deptsHTML}${filesHTML}</div></div>`;
 }
 
 function renderOrders(filtered){
-  const list=filtered||ORDERS;
-  const c=document.getElementById('ordersList');
+  const list=filtered||ORDERS;const c=document.getElementById('ordersList');
   if(!list.length){c.innerHTML=`<div class="empty-state"><div class="ei">🔍</div><h3>Nenhum pedido encontrado</h3><p>Ajuste os filtros</p></div>`;return;}
   c.innerHTML=list.map(o=>buildOrderCard(o)).join('');
 }
@@ -1039,27 +888,17 @@ function filterOrders(){
 function collapseAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.remove('open'));}
 function expandAll(){document.querySelectorAll('.order-card').forEach(c=>c.classList.add('open'));}
 
-// ─────────── GANTT ───────────
 function populateGanttFilter(){
-  const sel=document.getElementById('ganttFilter');
-  if(!sel)return;
+  const sel=document.getElementById('ganttFilter');if(!sel)return;
   sel.innerHTML='<option value="">Todos os pedidos</option>'+ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,50)}</option>`).join('');
 }
 let ganttNameW=190;
 function buildGantt(orders,containerId){
-  const container=document.getElementById(containerId);
-  if(!container)return;
+  const container=document.getElementById(containerId);if(!container)return;
   const valid=orders.filter(o=>o&&o.start&&o.finish&&o.depts&&o.depts.length>0);
-  if(!valid.length){
-    container.innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum dado para exibir</h3><p>Verifique se há pedidos vinculados ou importe um arquivo XML.</p></div>';
-    return;
-  }
+  if(!valid.length){container.innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum dado para exibir</h3></div>';return;}
   const DAY_W=22,OW=80,PW=44,NW=ganttNameW;
-  const allD=valid.flatMap(o=>{
-    const ds=[new Date(o.start),new Date(o.finish)];
-    o.depts.forEach(d=>d.tasks.forEach(t=>{if(t.start)ds.push(new Date(t.start));if(t.finish)ds.push(new Date(t.finish));}));
-    return ds.filter(d=>!isNaN(d));
-  });
+  const allD=valid.flatMap(o=>{const ds=[new Date(o.start),new Date(o.finish)];o.depts.forEach(d=>d.tasks.forEach(t=>{if(t.start)ds.push(new Date(t.start));if(t.finish)ds.push(new Date(t.finish));}));return ds.filter(d=>!isNaN(d));});
   if(!allD.length){container.innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Datas inválidas</h3></div>';return;}
   let minD=new Date(Math.min(...allD)),maxD=new Date(Math.max(...allD));
   minD=new Date(minD.getFullYear(),minD.getMonth(),1);
@@ -1067,57 +906,24 @@ function buildGantt(orders,containerId){
   const days=[];let cur=new Date(minD);
   while(cur<=maxD){days.push(new Date(cur));cur.setDate(cur.getDate()+1);}
   const months=[];
-  days.forEach(d=>{
-    const k=d.getFullYear()+'-'+d.getMonth();
-    if(!months.length||months[months.length-1].key!==k){
-      const isCur=d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();
-      months.push({key:k,label:d.toLocaleString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(),isCur,count:0});
-    }
-    months[months.length-1].count++;
-  });
+  days.forEach(d=>{const k=d.getFullYear()+'-'+d.getMonth();if(!months.length||months[months.length-1].key!==k){const isCur=d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();months.push({key:k,label:d.toLocaleString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(),isCur,count:0});}months[months.length-1].count++;});
   const todayStr=TODAY.toISOString().slice(0,10);
   const dayIdx=ds=>{if(!ds)return 0;const d=new Date(ds);return isNaN(d)?0:Math.max(0,Math.round((d-minD)/86400000));};
   let r1=`<tr class="gantt-header-row"><th class="gantt-name-th" rowspan="2" style="position:sticky;top:0;left:0;z-index:20;width:${NW}px;min-width:${NW}px;">Pedido / Área<div class="gantt-resize-handle" id="grh_${containerId}"></div></th><th class="gantt-op-th" rowspan="2" style="position:sticky;top:0;left:${NW}px;z-index:19;width:${OW}px;min-width:${OW}px;">OP</th><th class="gantt-pct-th" rowspan="2" style="position:sticky;top:0;left:${NW+OW}px;z-index:19;width:${PW}px;min-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
   months.forEach(m=>{r1+=`<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}" style="position:sticky;top:0;z-index:4;">${m.label}</th>`;});
   r1+='</tr>';
   let r2='<tr class="gantt-header-row">';
-  days.forEach(d=>{
-    const ds=d.toISOString().slice(0,10);
-    const iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;
-    r2+=`<th class="gantt-day-th${iT?' is-today':iWe?' is-we':''}" style="position:sticky;top:30px;z-index:4;">${d.getDate()}</th>`;
-  });
+  days.forEach(d=>{const ds=d.toISOString().slice(0,10);const iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;r2+=`<th class="gantt-day-th${iT?' is-today':iWe?' is-we':''}" style="position:sticky;top:30px;z-index:4;">${d.getDate()}</th>`;});
   r2+='</tr>';
   let body='';
   valid.forEach(order=>{
-    const s=getStatus(order);
-    const barCls=s==='delayed'?'s-delayed':s==='at_risk'?'s-risk':s==='done'?'s-done':'s-ok';
-    const pc=pctColor(order.pct);
-    const sI=dayIdx(order.start),eI=dayIdx(order.finish);
+    const s=getStatus(order);const barCls=s==='delayed'?'s-delayed':s==='at_risk'?'s-risk':s==='done'?'s-done':'s-ok';const pc=pctColor(order.pct);const sI=dayIdx(order.start),eI=dayIdx(order.finish);
     body+=`<tr class="gantt-row-order"><td class="gantt-name-td is-order" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;" title="${order.name}"><span style="font-size:10px;font-family:monospace;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:3px;margin-right:4px;">${order.code}</span>${order.name}</td><td class="gantt-op-td is-order" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;">${order.op||''}</td><td class="gantt-pct-td is-order" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${pc};border-right:2px solid #484848 !important;">${order.pct}%</td>`;
-    days.forEach((d,i)=>{
-      const ds=d.toISOString().slice(0,10),iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;
-      const inBar=i>=sI&&i<=eI,isS=i===sI,isE=i===eI;
-      let c='';
-      if(inBar){let br=isS&&isE?'border-radius:3px;':isS?'border-radius:3px 0 0 3px;':isE?'border-radius:0 3px 3px 0;':'';c=`<div class="gantt-bar-seg order-bar ${barCls}" style="left:1px;right:1px;${br}"></div>`;}
-      if(iT)c+='<div class="gantt-today-vline"></div>';
-      body+=`<td class="gantt-cell${iT?' today-col':iWe?' we-col':''}">${c}</td>`;
-    });
+    days.forEach((d,i)=>{const ds=d.toISOString().slice(0,10),iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;const inBar=i>=sI&&i<=eI,isS=i===sI,isE=i===eI;let c='';if(inBar){let br=isS&&isE?'border-radius:3px;':isS?'border-radius:3px 0 0 3px;':isE?'border-radius:0 3px 3px 0;':'';c=`<div class="gantt-bar-seg order-bar ${barCls}" style="left:1px;right:1px;${br}"></div>`;}if(iT)c+='<div class="gantt-today-vline"></div>';body+=`<td class="gantt-cell${iT?' today-col':iWe?' we-col':''}">${c}</td>`;});
     body+='</tr>';
-    order.depts.forEach(dept=>{
-      const dD=dept.tasks.flatMap(t=>[t.start,t.finish].filter(Boolean).map(s=>new Date(s))).filter(d=>!isNaN(d));
-      if(!dD.length)return;
-      const dSI=dayIdx(new Date(Math.min(...dD)).toISOString().slice(0,10));
-      const dEI=dayIdx(new Date(Math.max(...dD)).toISOString().slice(0,10));
-      const dpc=pctColor(dept.pct);
+    order.depts.forEach(dept=>{const dD=dept.tasks.flatMap(t=>[t.start,t.finish].filter(Boolean).map(s=>new Date(s))).filter(d=>!isNaN(d));if(!dD.length)return;const dSI=dayIdx(new Date(Math.min(...dD)).toISOString().slice(0,10));const dEI=dayIdx(new Date(Math.max(...dD)).toISOString().slice(0,10));const dpc=pctColor(dept.pct);
       body+=`<tr class="gantt-row-dept"><td class="gantt-name-td is-dept" style="position:sticky;left:0;z-index:10;width:${NW}px;min-width:${NW}px;max-width:${NW}px;">${dept.name}</td><td class="gantt-op-td is-dept" style="position:sticky;left:${NW}px;z-index:9;width:${OW}px;min-width:${OW}px;max-width:${OW}px;"></td><td class="gantt-pct-td is-dept" style="position:sticky;left:${NW+OW}px;z-index:9;width:${PW}px;min-width:${PW}px;max-width:${PW}px;color:${dpc};font-size:10px;border-right:2px solid #484848 !important;">${dept.pct}%</td>`;
-      days.forEach((d,i)=>{
-        const ds=d.toISOString().slice(0,10),iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;
-        const inBar=i>=dSI&&i<=dEI,isS=i===dSI,isE=i===dEI;
-        let c='';
-        if(inBar){let br=isS&&isE?'border-radius:2px;':isS?'border-radius:2px 0 0 2px;':isE?'border-radius:0 2px 2px 0;':'';c=`<div class="gantt-bar-seg dept-bar s-dept" style="left:1px;right:1px;${br}"></div>`;}
-        if(iT)c+='<div class="gantt-today-vline"></div>';
-        body+=`<td class="gantt-cell${iT?' today-col':iWe?' we-col':''}">${c}</td>`;
-      });
+      days.forEach((d,i)=>{const ds=d.toISOString().slice(0,10),iT=ds===todayStr,dow=d.getDay(),iWe=dow===0||dow===6;const inBar=i>=dSI&&i<=dEI,isS=i===dSI,isE=i===dEI;let c='';if(inBar){let br=isS&&isE?'border-radius:2px;':isS?'border-radius:2px 0 0 2px;':isE?'border-radius:0 2px 2px 0;':'';c=`<div class="gantt-bar-seg dept-bar s-dept" style="left:1px;right:1px;${br}"></div>`;}if(iT)c+='<div class="gantt-today-vline"></div>';body+=`<td class="gantt-cell${iT?' today-col':iWe?' we-col':''}">${c}</td>`;});
       body+='</tr>';
     });
   });
@@ -1126,11 +932,7 @@ function buildGantt(orders,containerId){
   if(outer){const tI=days.findIndex(d=>d.toISOString().slice(0,10)===todayStr);if(tI>=0)setTimeout(()=>{outer.scrollLeft=Math.max(0,(tI*DAY_W)-(NW+OW+PW+140));},80);}
   initGanttResize(containerId,valid);
 }
-function renderGantt(){
-  const f=document.getElementById('ganttFilter').value;
-  const orders=f?[ORDERS[parseInt(f)]]:ORDERS;
-  buildGantt(orders.filter(Boolean),'ganttContainer');
-}
+function renderGantt(){const f=document.getElementById('ganttFilter').value;const orders=f?[ORDERS[parseInt(f)]]:ORDERS;buildGantt(orders.filter(Boolean),'ganttContainer');}
 function initGanttResize(cid,orders){
   const container=document.getElementById(cid);if(!container)return;
   const handle=container.querySelector('#grh_'+cid);if(!handle)return;
@@ -1147,7 +949,6 @@ function initGanttResize(cid,orders){
   document.addEventListener('touchend',onE);
 }
 
-// ─────────── CLIENTES ───────────
 const PALETTE=['#c8a84b','#a0a0a0','#888888','#c0c0c0','#d4922a','#bbb','#999'];
 function renderClientsPanel(){
   document.getElementById('usersList').innerHTML=DB.clients.map(c=>`
@@ -1157,149 +958,61 @@ function renderClientsPanel(){
       <div class="user-badge-wrap"><span class="role-badge-client">Cliente</span></div>
     </div>`).join('');
 }
-
 function selectUser(id){
-  selectedUserId=id;
-  const c=DB.clients.find(x=>x.id===id);
-  renderClientsPanel();
+  selectedUserId=id;const c=DB.clients.find(x=>x.id===id);renderClientsPanel();
   const master=isMaster(loggedUser);
   const orderOptions=ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,40)}</option>`).join('');
-
-  const activeTagsHTML=(c.orders||[]).map(i=>{
-    const o=ORDERS[i];if(!o)return'';
-    return `<span class="tag">${o.code} · ${o.name.slice(0,30)}${master?`<span class="rm" onclick="removeOrderFromUser(${c.id},${i})" title="Remover pedido">✕</span>`:''}</span>`;
-  }).join('');
-
-  const archTagsHTML=(c.archivedOrders||[]).map(oid=>{
-    const arc=DB.archivedOrdersData[oid];if(!arc)return'';
-    return `<span class="tag-archived">📦 ${arc.code} · ${arc.name.slice(0,25)}${master?`<span class="rm-arch" onclick="removeArchivedOrder(${c.id},${oid})" title="Excluir arquivado">🗑</span>`:''}</span>`;
-  }).join('');
-
-  const activeIdxs=c.orders||[];
-  const archIds=c.archivedOrders||[];
-  const allFileSections=[
-    ...activeIdxs.map(oidx=>{const o=ORDERS[oidx];return o?buildAdminFileSection(o.id,o.code,o.name,master):'';}),
-    ...archIds.map(oid=>{const arc=DB.archivedOrdersData[oid];return arc?buildAdminFileSection(arc.id,arc.code,arc.name+' 📦',master):'';}),
-  ].join('');
-
-  const editFields=master?`
-    <div class="form-group"><label>Nome</label><input type="text" value="${c.name}" onchange="updateUser(${c.id},'name',this.value)"></div>
-    <div class="form-group"><label>Empresa</label><input type="text" value="${c.company}" onchange="updateUser(${c.id},'company',this.value)"></div>
-    <div class="form-group"><label>E-mail / Login</label><input type="email" value="${c.email}" onchange="updateUser(${c.id},'email',this.value)"></div>
-    <div class="form-group"><label>Senha</label><input type="password" value="${c.pass}" onchange="updateUser(${c.id},'pass',this.value)"></div>`
-    :`<div style="padding:8px 0;"><b>${c.name}</b> — ${c.company}<br><span style="font-size:13px;color:var(--text3);">${c.email}</span></div>`;
-
-  document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail">
-    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>
-    ${!master?'<div class="readonly-notice">👁 Modo visualização — somente mestres podem editar</div>':''}
-    ${editFields}
-    <div class="divider"></div>
-    <div class="section-title">Pedidos Ativos</div>
-    <div class="tag-list">${activeTagsHTML||'<span style="font-size:14px;color:var(--text3);">Nenhum pedido vinculado.</span>'}</div>
-    ${master?`<div style="margin-top:12px;"><select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''"><option value="">+ Adicionar pedido...</option>${orderOptions}</select></div>`:''}
-    ${archTagsHTML?`<div class="divider"></div><div class="section-title">Arquivados ${master?'<span style="font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">(🗑 para excluir)</span>':''}</div><div class="tag-list">${archTagsHTML}</div>`:''}
-    <div class="divider"></div>
-    <div class="section-title">📎 Arquivos por Equipamento</div>
-    ${(activeIdxs.length===0&&archIds.length===0)?'<div style="font-size:14px;color:var(--text3);">Nenhum pedido vinculado.</div>':allFileSections}
-    ${master?`<div class="divider"></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="saveUserChanges()">💾 Salvar Alterações</button><button class="btn btn-danger btn-sm" onclick="deleteUser(${c.id})">Excluir cliente</button></div>`:''}
-  </div>`;
+  const activeTagsHTML=(c.orders||[]).map(i=>{const o=ORDERS[i];if(!o)return'';return `<span class="tag">${o.code} · ${o.name.slice(0,30)}${master?`<span class="rm" onclick="removeOrderFromUser(${c.id},${i})" title="Remover">✕</span>`:''}</span>`;}).join('');
+  const archTagsHTML=(c.archivedOrders||[]).map(oid=>{const arc=DB.archivedOrdersData[oid];if(!arc)return'';return `<span class="tag-archived">📦 ${arc.code} · ${arc.name.slice(0,25)}${master?`<span class="rm-arch" onclick="removeArchivedOrder(${c.id},${oid})" title="Excluir arquivado">🗑</span>`:''}</span>`;}).join('');
+  const activeIdxs=c.orders||[];const archIds=c.archivedOrders||[];
+  const allFileSections=[...activeIdxs.map(oidx=>{const o=ORDERS[oidx];return o?buildAdminFileSection(o.id,o.code,o.name,master):'';}),...archIds.map(oid=>{const arc=DB.archivedOrdersData[oid];return arc?buildAdminFileSection(arc.id,arc.code,arc.name+' 📦',master):'';})].join('');
+  const editFields=master?`<div class="form-group"><label>Nome</label><input type="text" value="${c.name}" onchange="updateUser(${c.id},'name',this.value)"></div><div class="form-group"><label>Empresa</label><input type="text" value="${c.company}" onchange="updateUser(${c.id},'company',this.value)"></div><div class="form-group"><label>E-mail / Login</label><input type="email" value="${c.email}" onchange="updateUser(${c.id},'email',this.value)"></div><div class="form-group"><label>Senha</label><input type="password" value="${c.pass}" onchange="updateUser(${c.id},'pass',this.value)"></div>`:`<div style="padding:8px 0;"><b>${c.name}</b> — ${c.company}<br><span style="font-size:13px;color:var(--text3);">${c.email}</span></div>`;
+  document.getElementById('userDetailPanel').innerHTML=`<div class="user-detail"><h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">${c.name}</h3>${!master?'<div class="readonly-notice">👁 Modo visualização — somente mestres podem editar</div>':''}${editFields}<div class="divider"></div><div class="section-title">Pedidos Ativos</div><div class="tag-list">${activeTagsHTML||'<span style="font-size:14px;color:var(--text3);">Nenhum pedido vinculado.</span>'}</div>${master?`<div style="margin-top:12px;"><select class="filter-select" onchange="addOrderToUser(${c.id},parseInt(this.value));this.value=''"><option value="">+ Adicionar pedido...</option>${orderOptions}</select></div>`:''}<div class="divider"></div><div class="section-title">📎 Arquivos por Equipamento</div>${(activeIdxs.length===0&&archIds.length===0)?'<div style="font-size:14px;color:var(--text3);">Nenhum pedido vinculado.</div>':allFileSections}${master?`<div class="divider"></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="saveUserChanges()">💾 Salvar Alterações</button><button class="btn btn-danger btn-sm" onclick="deleteUser(${c.id})">Excluir cliente</button></div>`:''}</div>`;
 }
-
 function removeArchivedOrder(clientId,orderId){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  if(!confirm(`Excluir o pedido arquivado e seus documentos? Esta ação não pode ser desfeita.`))return;
+  if(!confirm('Excluir o pedido arquivado e seus documentos?'))return;
   const c=DB.clients.find(x=>x.id===clientId);if(!c)return;
   c.archivedOrders=(c.archivedOrders||[]).filter(id=>id!==orderId);
   const stillUsed=DB.clients.some(cl=>(cl.archivedOrders||[]).includes(orderId));
-  if(!stillUsed){
-    delete DB.archivedOrdersData[orderId];
-    const fk=fileKey(orderId);
-    if(FILE_STORE[fk]){delete FILE_STORE[fk];persistFiles();}
-  }
+  if(!stillUsed){delete DB.archivedOrdersData[orderId];const fk=fileKey(orderId);if(FILE_STORE[fk]){delete FILE_STORE[fk];persistFiles();}}
   persist().then(()=>{selectUser(clientId);showToast('Pedido arquivado excluído');});
 }
-
 function buildAdminFileSection(orderId,code,name,master){
-  const fk=fileKey(orderId);
-  const files=FILE_STORE[fk]||[];
-  const filesHTML=files.length===0
-    ?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>'
-    :`<div class="file-list">${files.map((f,fi)=>`<div class="file-item"><span class="fi-icon">${fileIcon(f.name)}</span><span class="fi-name" title="${f.name}">${f.name}</span><span class="fi-size">${fmtSize(f.size)}</span>${master?`<span class="fi-del" onclick="removeOrderFile('${fk}',${fi})" title="Remover">✕</span>`:''}</div>`).join('')}</div>`;
-  const uploadArea=master
-    ?`<div class="drop-area" onclick="triggerFileUpload('${fk}')" ondrop="handleDropAdmin(event,'${fk}')" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">📎 Clique ou arraste arquivos aqui</div><input type="file" id="fu-${fk}" multiple onchange="handleFileAdmin(event,'${fk}')" style="display:none;">`
-    :'';
+  const fk=fileKey(orderId);const files=FILE_STORE[fk]||[];
+  const filesHTML=files.length===0?'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Nenhum arquivo.</div>':`<div class="file-list">${files.map((f,fi)=>`<div class="file-item"><span class="fi-icon">${fileIcon(f.name)}</span><span class="fi-name" title="${f.name}">${f.name}</span><span class="fi-size">${fmtSize(f.size)}</span>${master?`<span class="fi-del" onclick="removeOrderFile('${fk}',${fi})" title="Remover">✕</span>`:''}</div>`).join('')}</div>`;
+  const uploadArea=master?`<div class="drop-area" onclick="triggerFileUpload('${fk}')" ondrop="handleDropAdmin(event,'${fk}')" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">📎 Clique ou arraste arquivos aqui</div><input type="file" id="fu-${fk}" multiple onchange="handleFileAdmin(event,'${fk}')" style="display:none;">`:'';
   return `<div class="order-files-block"><div class="order-files-title">📦 ${code} — ${name}</div>${uploadArea}${filesHTML}</div>`;
 }
-
-function saveUserChanges(){persist();showToast('Cliente salvo com sucesso!');}
+function saveUserChanges(){persist();showToast('Cliente salvo!');}
 function triggerFileUpload(fk){document.getElementById('fu-'+fk)?.click();}
 function handleFileAdmin(e,fk){addOrderFiles(fk,Array.from(e.target.files));e.target.value='';}
 function handleDropAdmin(e,fk){e.preventDefault();e.currentTarget.classList.remove('over');addOrderFiles(fk,Array.from(e.dataTransfer.files));}
-
 function addOrderFiles(fk,files){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   if(!files.length)return;
   if(!FILE_STORE[fk])FILE_STORE[fk]=[];
   showToast('Enviando arquivos...');
   let pending=files.length;
-  files.forEach(f=>{
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      FILE_STORE[fk].push({name:f.name,size:f.size,date:new Date().toLocaleDateString('pt-BR'),data:ev.target.result});
-      if(--pending===0){
-        persistFiles().then(()=>{selectUser(selectedUserId);showToast(`${files.length} arquivo(s) salvo(s)!`);});
-      }
-    };
-    reader.onerror=()=>{pending--;showToast('Erro ao ler: '+f.name,'err');};
-    reader.readAsDataURL(f);
-  });
+  files.forEach(f=>{const reader=new FileReader();reader.onload=ev=>{FILE_STORE[fk].push({name:f.name,size:f.size,date:new Date().toLocaleDateString('pt-BR'),data:ev.target.result});if(--pending===0){persistFiles().then(()=>{selectUser(selectedUserId);showToast(`${files.length} arquivo(s) salvo(s)!`);});}};reader.onerror=()=>{pending--;showToast('Erro ao ler: '+f.name,'err');};reader.readAsDataURL(f);});
 }
-function downloadOrderFile(fk,fi){
-  const f=(FILE_STORE[fk]||[])[fi];
-  if(!f?.data){showToast('Arquivo indisponível','err');return;}
-  const a=document.createElement('a');a.href=f.data;a.download=f.name;document.body.appendChild(a);a.click();document.body.removeChild(a);
-}
-function removeOrderFile(fk,fi){
-  if(!isMaster(loggedUser))return;
-  if(!FILE_STORE[fk])return;
-  FILE_STORE[fk].splice(fi,1);
-  persistFiles().then(()=>{selectUser(selectedUserId);showToast('Arquivo removido');});
-}
+function downloadOrderFile(fk,fi){const f=(FILE_STORE[fk]||[])[fi];if(!f?.data){showToast('Arquivo indisponível','err');return;}const a=document.createElement('a');a.href=f.data;a.download=f.name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function removeOrderFile(fk,fi){if(!isMaster(loggedUser))return;if(!FILE_STORE[fk])return;FILE_STORE[fk].splice(fi,1);persistFiles().then(()=>{selectUser(selectedUserId);showToast('Arquivo removido');});}
 function updateUser(id,field,val){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c)c[field]=val;}
-function addOrderToUser(id,oidx){
-  if(!isMaster(loggedUser))return;
-  const c=DB.clients.find(x=>x.id===id);
-  if(c&&!isNaN(oidx)&&!c.orders.includes(oidx)){c.orders.push(oidx);persist();selectUser(id);}
-}
-function removeOrderFromUser(id,oidx){
-  if(!isMaster(loggedUser))return;
-  const c=DB.clients.find(x=>x.id===id);
-  if(c){c.orders=c.orders.filter(i=>i!==oidx);persist();selectUser(id);}
-}
-function deleteUser(id){
-  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  if(!confirm('Excluir este cliente permanentemente?'))return;
-  DB.clients=DB.clients.filter(c=>c.id!==id);
-  persist();selectedUserId=null;
-  document.getElementById('userDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3></div></div>';
-  renderClientsPanel();showToast('Cliente excluído');
-}
+function addOrderToUser(id,oidx){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c&&!isNaN(oidx)&&!c.orders.includes(oidx)){c.orders.push(oidx);persist();selectUser(id);}}
+function removeOrderFromUser(id,oidx){if(!isMaster(loggedUser))return;const c=DB.clients.find(x=>x.id===id);if(c){c.orders=c.orders.filter(i=>i!==oidx);persist();selectUser(id);}}
+function deleteUser(id){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}if(!confirm('Excluir este cliente permanentemente?'))return;DB.clients=DB.clients.filter(c=>c.id!==id);persist();selectedUserId=null;document.getElementById('userDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">👤</div><h3>Selecione um cliente</h3></div></div>';renderClientsPanel();showToast('Cliente excluído');}
 function openAddUserModal(){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}document.getElementById('addUserModal').classList.add('open');}
 function saveNewUser(){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  const name=document.getElementById('nuName').value.trim();
-  const company=document.getElementById('nuCompany').value.trim();
-  const email=document.getElementById('nuEmail').value.trim();
-  const pass=document.getElementById('nuPass').value;
-  if(!name||!email||!pass){showToast('Preencha todos os campos obrigatórios','err');return;}
+  const name=document.getElementById('nuName').value.trim();const company=document.getElementById('nuCompany').value.trim();const email=document.getElementById('nuEmail').value.trim();const pass=document.getElementById('nuPass').value;
+  if(!name||!email||!pass){showToast('Preencha todos os campos','err');return;}
   if(DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
   const newId=Math.max(0,...DB.clients.map(c=>c.id))+1;
   DB.clients.push({id:newId,name,company,email,pass,orders:[],archivedOrders:[],color:PALETTE[DB.clients.length%PALETTE.length]});
   persist();closeModal('addUserModal');renderClientsPanel();showToast(`Cliente "${name}" criado!`);
   ['nuName','nuCompany','nuEmail','nuPass'].forEach(i=>document.getElementById(i).value='');
 }
-
-// ─────────── ADMINS ───────────
 function renderAdminsPanel(){
   document.getElementById('adminsList').innerHTML=DB.admins.map(a=>`
     <div class="user-item ${selectedAdminId===a.id?'active':''}" onclick="selectAdmin('${a.id}')">
@@ -1309,56 +1022,30 @@ function renderAdminsPanel(){
     </div>`).join('');
 }
 function selectAdmin(id){
-  selectedAdminId=id;
-  const a=DB.admins.find(x=>x.id===id);
-  renderAdminsPanel();
-  const isMU=MASTER_EMAILS.includes(a.email)||a.role==='master';
-  const canEdit=isMaster(loggedUser);
-  const isSelf=loggedUser.ref.id===id;
-  document.getElementById('adminDetailPanel').innerHTML=`<div class="user-detail">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <div class="user-av" style="background:#555;width:50px;height:50px;font-size:18px;">${getInit(a.name)}</div>
-      <div><div style="font-size:18px;font-weight:700;">${a.name}</div><span class="${isMU?'role-badge-master':'role-badge-admin'}">${isMU?'ADMINISTRADOR MESTRE':'VISUALIZADOR'}</span></div>
-    </div>
-    ${!canEdit?'<div class="readonly-notice">👁 Modo visualização</div>':''}
-    <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
-    <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
-    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      ${canEdit&&(!isMU||isSelf)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
-      ${canEdit&&!isMU?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
-    </div>
-  </div>`;
+  selectedAdminId=id;const a=DB.admins.find(x=>x.id===id);renderAdminsPanel();
+  const isMU=MASTER_EMAILS.includes(a.email)||a.role==='master';const canEdit=isMaster(loggedUser);const isSelf=loggedUser.ref.id===id;
+  document.getElementById('adminDetailPanel').innerHTML=`<div class="user-detail"><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;"><div class="user-av" style="background:#555;width:50px;height:50px;font-size:18px;">${getInit(a.name)}</div><div><div style="font-size:18px;font-weight:700;">${a.name}</div><span class="${isMU?'role-badge-master':'role-badge-admin'}">${isMU?'ADMINISTRADOR MESTRE':'VISUALIZADOR'}</span></div></div>${!canEdit?'<div class="readonly-notice">👁 Modo visualização</div>':''}<div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div><div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div><div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}></div><div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">${canEdit&&(!isMU||isSelf)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}${canEdit&&!isMU?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}</div></div>`;
 }
 function saveAdminChanges(id){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   const a=DB.admins.find(x=>x.id===id);if(!a)return;
-  const name=document.getElementById('ea-name').value.trim();
-  const email=document.getElementById('ea-email').value.trim();
-  const pass=document.getElementById('ea-pass').value;
+  const name=document.getElementById('ea-name').value.trim();const email=document.getElementById('ea-email').value.trim();const pass=document.getElementById('ea-pass').value;
   if(!name||!email){showToast('Nome e e-mail obrigatórios','err');return;}
-  a.name=name;a.email=email;
-  if(pass.length>=6)a.pass=pass;
-  else if(pass.length>0){showToast('Senha mínimo 6 caracteres','err');return;}
+  a.name=name;a.email=email;if(pass.length>=6)a.pass=pass;else if(pass.length>0){showToast('Senha mínimo 6 caracteres','err');return;}
   persist();document.getElementById('adminNameBadge').textContent=loggedUser.ref.name;renderAdminsPanel();showToast('Administrador atualizado!');
 }
 function deleteAdmin(id){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  const a=DB.admins.find(x=>x.id===id);
-  if(!a||MASTER_EMAILS.includes(a.email)||a.role==='master'){showToast('Não é possível excluir admin mestre','err');return;}
+  const a=DB.admins.find(x=>x.id===id);if(!a||MASTER_EMAILS.includes(a.email)||a.role==='master'){showToast('Não é possível excluir admin mestre','err');return;}
   if(!confirm(`Excluir "${a.name}"?`))return;
-  DB.admins=DB.admins.filter(x=>x.id!==id);
-  persist();selectedAdminId=null;
+  DB.admins=DB.admins.filter(x=>x.id!==id);persist();selectedAdminId=null;
   document.getElementById('adminDetailPanel').innerHTML='<div class="user-detail"><div class="empty-state"><div class="ei">🔐</div><h3>Selecione um administrador</h3></div></div>';
   renderAdminsPanel();showToast('Administrador excluído');
 }
 function openAddAdminModal(){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}document.getElementById('addAdminModal').classList.add('open');}
 function saveNewAdmin(){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  const name=document.getElementById('naName').value.trim();
-  const email=document.getElementById('naEmail').value.trim();
-  const pass=document.getElementById('naPass').value;
-  const role=document.getElementById('naRole').value;
+  const name=document.getElementById('naName').value.trim();const email=document.getElementById('naEmail').value.trim();const pass=document.getElementById('naPass').value;const role=document.getElementById('naRole').value;
   if(!name||!email||!pass){showToast('Preencha todos os campos','err');return;}
   if(pass.length<6){showToast('Senha mínimo 6 caracteres','err');return;}
   if(DB.admins.find(a=>a.email===email)||DB.clients.find(c=>c.email===email)){showToast('E-mail já cadastrado','err');return;}
@@ -1367,59 +1054,36 @@ function saveNewAdmin(){
   ['naName','naEmail','naPass'].forEach(i=>document.getElementById(i).value='');
 }
 
-// ─────────── CLIENT SCREEN ───────────
 function renderClientScreen(){
   const c=loggedUser.ref;
   document.getElementById('clientAv').textContent=getInit(c.name);
   document.getElementById('clientAv').style.background=c.color||'#888';
   document.getElementById('clientName').textContent=c.name;
   document.getElementById('clientCompany').textContent=c.company;
-  if(DB.lastImport){
-    document.getElementById('clientLastUpdate').textContent='Atualizado em '+DB.lastImport;
-    document.getElementById('clientUpdateBadge').style.display='flex';
-  } else {
-    document.getElementById('clientUpdateBadge').style.display='none';
-  }
-  renderClientOrders();
-  renderClientGantt();
+  if(DB.lastImport){document.getElementById('clientLastUpdate').textContent='Atualizado em '+DB.lastImport;document.getElementById('clientUpdateBadge').style.display='flex';}
+  else{document.getElementById('clientUpdateBadge').style.display='none';}
+  renderClientOrders();renderClientGantt();
 }
 function switchClientTab(id,btn){
   document.querySelectorAll('.client-page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.client-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('cpg-'+id).classList.add('active');
-  btn.classList.add('active');
+  document.getElementById('cpg-'+id).classList.add('active');btn.classList.add('active');
 }
 function renderClientOrders(){
   const c=loggedUser.ref;
   const active=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
   const archived=(c.archivedOrders||[]).map(oid=>{const a=DB.archivedOrdersData[oid];return a?{...a,_archived:true}:null;}).filter(Boolean);
   const all=[...active,...archived];
-  document.getElementById('clientOrdersList').innerHTML=all.length
-    ?all.map(o=>buildOrderCard(o,true)).join('')
-    :'<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
+  document.getElementById('clientOrdersList').innerHTML=all.length?all.map(o=>buildOrderCard(o,true)).join(''):'<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
 }
 function renderClientGantt(){
-  const c=loggedUser.ref;
-  const orders=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
-  if(!orders.length){
-    document.getElementById('clientGanttContainer').innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum pedido ativo vinculado</h3></div>';
-    return;
-  }
+  const c=loggedUser.ref;const orders=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
+  if(!orders.length){document.getElementById('clientGanttContainer').innerHTML='<div class="empty-state"><div class="ei">📊</div><h3>Nenhum pedido ativo vinculado</h3></div>';return;}
   buildGantt(orders,'clientGanttContainer');
 }
 
-// ─────────── IMPORTAR XML ───────────
-function handleXMLDrop(e){
-  e.preventDefault();e.currentTarget.style.borderColor='';
-  const f=Array.from(e.dataTransfer.files).find(f=>f.name.toLowerCase().endsWith('.xml'));
-  if(!f){showToast('Arraste um arquivo .XML válido','err');return;}
-  processXMLFile(f);
-}
-function importXML(e){
-  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  const f=e.target.files[0];if(!f)return;
-  processXMLFile(f);e.target.value='';
-}
+function handleXMLDrop(e){e.preventDefault();e.currentTarget.style.borderColor='';const f=Array.from(e.dataTransfer.files).find(f=>f.name.toLowerCase().endsWith('.xml'));if(!f){showToast('Arraste um arquivo .XML válido','err');return;}processXMLFile(f);}
+function importXML(e){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}const f=e.target.files[0];if(!f)return;processXMLFile(f);e.target.value='';}
 function processXMLFile(file){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   const statusEl=document.getElementById('importStatus');
@@ -1428,243 +1092,71 @@ function processXMLFile(file){
   r.onload=ev=>{
     try{
       const xml=new DOMParser().parseFromString(ev.target.result,'text/xml');
-      if(xml.querySelector('parsererror'))throw new Error('Arquivo XML inválido ou corrompido. Exporte novamente pelo MS Project.');
+      if(xml.querySelector('parsererror'))throw new Error('Arquivo XML inválido.');
       const extracted=parseProjectXML(xml);
-      if(!extracted.length)throw new Error('Nenhum pedido encontrado no XML. Verifique se o arquivo foi exportado corretamente (Arquivo → Salvar como → XML no MS Project).');
-      ORDERS=extracted;
-      DB.projectOrders=extracted;
+      if(!extracted.length)throw new Error('Nenhum pedido encontrado no XML.');
+      ORDERS=extracted;DB.projectOrders=extracted;
       let archivedCount=0;
-      ORDERS.forEach(o=>{
-        if(o.pct>=100){
-          DB.clients.forEach(c=>{
-            if((c.orders||[]).includes(o.id)){
-              if(!c.archivedOrders)c.archivedOrders=[];
-              if(!c.archivedOrders.includes(o.id)){
-                c.archivedOrders.push(o.id);
-                if(!DB.archivedOrdersData)DB.archivedOrdersData={};
-                DB.archivedOrdersData[o.id]=JSON.parse(JSON.stringify(o));
-                archivedCount++;
-              }
-            }
-          });
-        }
-      });
+      ORDERS.forEach(o=>{if(o.pct>=100){DB.clients.forEach(c=>{if((c.orders||[]).includes(o.id)){if(!c.archivedOrders)c.archivedOrders=[];if(!c.archivedOrders.includes(o.id)){c.archivedOrders.push(o.id);if(!DB.archivedOrdersData)DB.archivedOrdersData={};DB.archivedOrdersData[o.id]=JSON.parse(JSON.stringify(o));archivedCount++;}}});}});
       const n=xml.querySelectorAll('Task').length;
-      const now=new Date();
-      const dateStr=now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const now=new Date();const dateStr=now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       if(!DB.importHistory)DB.importHistory=[];
       DB.importHistory.unshift({id:'imp_'+Date.now(),file:file.name,date:dateStr,tasks:n,orders:ORDERS.length,archivedCount});
       DB.lastImport=dateStr;
-      persist().then(()=>{
-        renderDevAll();
-        renderImportHistory();
-        if(document.getElementById('page-gantt').classList.contains('active'))renderGantt();
-        const archMsg=archivedCount>0?` | ${archivedCount} arquivado(s)`:'';
-        statusEl.innerHTML=`✅ <strong>${file.name}</strong> importado — <strong>${ORDERS.length}</strong> pedidos, <strong>${n}</strong> tarefas${archMsg}`;
-        showToast('Cronograma atualizado com sucesso!');
-        const depts=new Set(ORDERS.flatMap(o=>o.depts.map(d=>d.name)));
-        if(depts.size>0){
-          statusEl.innerHTML+=`<br><span style="color:var(--text3);font-size:12px;">Departamentos detectados: ${[...depts].join(', ')}</span>`;
-        }
-      });
-    }catch(err){
-      console.error('Erro ao importar XML:',err);
-      statusEl.innerHTML=`❌ <strong>Erro:</strong> ${err.message}`;
-      showToast('Erro ao importar arquivo','err');
-    }
+      persist().then(()=>{renderDevAll();renderImportHistory();if(document.getElementById('page-gantt').classList.contains('active'))renderGantt();const archMsg=archivedCount>0?` | ${archivedCount} arquivado(s)`:'';statusEl.innerHTML=`✅ <strong>${file.name}</strong> importado — <strong>${ORDERS.length}</strong> pedidos, <strong>${n}</strong> tarefas${archMsg}`;showToast('Cronograma atualizado!');});
+    }catch(err){console.error(err);statusEl.innerHTML=`❌ <strong>Erro:</strong> ${err.message}`;showToast('Erro ao importar','err');}
   };
   r.onerror=()=>{statusEl.innerHTML='❌ Erro ao ler o arquivo.';showToast('Erro ao ler arquivo','err');};
   r.readAsText(file,'UTF-8');
 }
-
-// ─────────── PARSE MS PROJECT XML ───────────
-// O MS Project numera WBS como 1, 2, 3... para tarefas de nível 1.
-// Para extrair código e OP reais, tentamos interpretar o nome da tarefa.
-//
-// Formatos suportados no nome da tarefa nível 1:
-//   "0150.26 - RBE0150-26 - Rotor Hidrapulper 44'' BC"
-//   "0150.26 · RBE0150-26 · Rotor Hidrapulper 44'' BC"
-//   "0150.26 | RBE0150-26 | Rotor Hidrapulper 44'' BC"
-//   "RBE0150-26 - Rotor Hidrapulper"   (sem código separado)
-//   "Rotor Hidrapulper"                (só nome, usa WBS como code)
 function parseProjectXML(xmlDoc){
-  const tasks=Array.from(xmlDoc.querySelectorAll('Task'));
-  const orders=[];
-  let currentOrder=null,currentDept=null,idCounter=0;
-
+  const tasks=Array.from(xmlDoc.querySelectorAll('Task'));const orders=[];let currentOrder=null,currentDept=null,idCounter=0;
   tasks.forEach(task=>{
-    const uid=(task.querySelector('UID')?.textContent||'').trim();
-    if(!uid||uid==='0')return;
-    let rawName=(task.querySelector('Name')?.textContent||'').trim();
-    if(!rawName)return;
-
-    // Limpa sufixo de contexto do MS Project: "NOME ( WBS - OP - Pedido )"
+    const uid=(task.querySelector('UID')?.textContent||'').trim();if(!uid||uid==='0')return;
+    let rawName=(task.querySelector('Name')?.textContent||'').trim();if(!rawName)return;
     rawName=cleanTaskName(rawName);
-
-    const wbs=(task.querySelector('WBS')?.textContent||uid).trim();
-    const ol=parseInt(task.querySelector('OutlineLevel')?.textContent||'1');
-    const rawStart=task.querySelector('Start')?.textContent||'';
-    const rawFinish=task.querySelector('Finish')?.textContent||'';
-    const start=rawStart?rawStart.slice(0,10):'';
-    const finish=rawFinish?rawFinish.slice(0,10):'';
-    const pctWork=parseInt(task.querySelector('PercentWorkComplete')?.textContent||'0');
-    const pctComp=parseInt(task.querySelector('PercentComplete')?.textContent||'0');
-    const pct=Math.max(pctWork,pctComp);
-    const isMilestone=task.querySelector('Milestone')?.textContent?.trim()==='1';
-    const isSummary=task.querySelector('Summary')?.textContent?.trim()==='1';
-
-    if(ol===1){
-      // Nível 1 = Pedido principal
-      // Tenta extrair code + op + nome do campo Name
-      const parsed=parseOrderName(rawName, wbs);
-      currentOrder={
-        id:       idCounter++,
-        code:     parsed.code,
-        op:       parsed.op,
-        name:     parsed.name,
-        start,finish,pct,
-        depts:[]
-      };
-      orders.push(currentOrder);
-      currentDept=null;
-    } else if(ol===2&&currentOrder){
-      currentDept={name:rawName,pct,tasks:[]};
-      currentOrder.depts.push(currentDept);
-    } else if(ol>=3&&currentDept){
-      if(!isSummary||isMilestone){
-        currentDept.tasks.push({name:rawName,start,finish,pct,milestone:isMilestone});
-      }
-    }
+    const wbs=(task.querySelector('WBS')?.textContent||uid).trim();const ol=parseInt(task.querySelector('OutlineLevel')?.textContent||'1');
+    const rawStart=task.querySelector('Start')?.textContent||'';const rawFinish=task.querySelector('Finish')?.textContent||'';
+    const start=rawStart?rawStart.slice(0,10):'';const finish=rawFinish?rawFinish.slice(0,10):'';
+    const pctWork=parseInt(task.querySelector('PercentWorkComplete')?.textContent||'0');const pctComp=parseInt(task.querySelector('PercentComplete')?.textContent||'0');const pct=Math.max(pctWork,pctComp);
+    const isMilestone=task.querySelector('Milestone')?.textContent?.trim()==='1';const isSummary=task.querySelector('Summary')?.textContent?.trim()==='1';
+    if(ol===1){const parsed=parseOrderName(rawName,wbs);currentOrder={id:idCounter++,code:parsed.code,op:parsed.op,name:parsed.name,start,finish,pct,depts:[]};orders.push(currentOrder);currentDept=null;}
+    else if(ol===2&&currentOrder){currentDept={name:rawName,pct,tasks:[]};currentOrder.depts.push(currentDept);}
+    else if(ol>=3&&currentDept){if(!isSummary||isMilestone){currentDept.tasks.push({name:rawName,start,finish,pct,milestone:isMilestone});}}
   });
-
   return orders.filter(o=>o.name&&o.start&&o.finish&&o.depts.length>0);
 }
-
-/**
- * Tenta extrair code, op e nome de uma string de tarefa nível 1.
- * Suporta separadores: ' - ', ' · ', ' | ', ' / '
- *
- * Exemplos:
- *   "0150.26 - RBE0150-26 - Rotor Hidrapulper"  → {code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper"}
- *   "RBE0150-26 - Rotor Hidrapulper"             → {code:"RBE0150-26", op:"RBE0150-26", name:"Rotor Hidrapulper"}
- *   "Rotor Hidrapulper"                           → {code:wbs, op:"", name:"Rotor Hidrapulper"}
- */
-function parseOrderName(rawName, wbs){
-  // Separadores comuns
-  const sep=/\s+[-·|\/]\s+/;
-  const parts=rawName.split(sep).map(s=>s.trim()).filter(Boolean);
-
-  // Padrão de código: "NNNN.NN" ou "NNNN.N"
-  const reCode=/^\d{3,5}\.\d{1,3}$/;
-  // Padrão de OP: contém hífen e letras/números (ex: RBE0150-26, TPK0135-25)
-  const reOP=/^[A-Z]{2,6}\d{2,6}-\d{2,4}$/i;
-
-  if(parts.length>=3){
-    // Formato completo: CODE · OP · Nome
-    const maybeCode=parts[0];
-    const maybeOP=parts[1];
-    const name=parts.slice(2).join(' — ');
-    if((reCode.test(maybeCode)||reOP.test(maybeCode))&&(reOP.test(maybeOP)||maybeOP.length>0)){
-      return{code:maybeCode,op:maybeOP,name};
-    }
-  }
-
-  if(parts.length===2){
-    // Formato: OP · Nome  ou  Code · Nome
-    const first=parts[0];
-    const name=parts[1];
-    if(reCode.test(first)){return{code:first,op:'',name};}
-    if(reOP.test(first)){return{code:first,op:first,name};}
-    // Dois nomes genéricos — trata o primeiro como code
-    return{code:first,op:'',name};
-  }
-
-  // Só o nome — usa WBS como code (mas formata melhor que "1","2")
-  return{
-    code: wbs.includes('.')&&wbs.length>2 ? wbs : rawName.slice(0,20),
-    op:   '',
-    name: rawName
-  };
+function parseOrderName(rawName,wbs){
+  const sep=/\\s+[-·|\\/]\\s+/;const parts=rawName.split(sep).map(s=>s.trim()).filter(Boolean);
+  const reCode=/^\\d{3,5}\\.\\d{1,3}$/;const reOP=/^[A-Z]{2,6}\\d{2,6}-\\d{2,4}$/i;
+  if(parts.length>=3){const maybeCode=parts[0];const maybeOP=parts[1];const name=parts.slice(2).join(' — ');if((reCode.test(maybeCode)||reOP.test(maybeCode))&&(reOP.test(maybeOP)||maybeOP.length>0)){return{code:maybeCode,op:maybeOP,name};}}
+  if(parts.length===2){const first=parts[0];const name=parts[1];if(reCode.test(first)){return{code:first,op:'',name};}if(reOP.test(first)){return{code:first,op:first,name};}return{code:first,op:'',name};}
+  return{code:wbs.includes('.')&&wbs.length>2?wbs:rawName.slice(0,20),op:'',name:rawName};
 }
-
-// Remove sufixo de contexto que o MS Project adiciona nas tarefas filhas.
-// Ex: "FUNDIÇÃO ROTOR ( 0150.26 - RBE0150-26 - Rotor Hidrapulper )" → "FUNDIÇÃO ROTOR"
-function cleanTaskName(name){
-  const idx=name.lastIndexOf(' ( ');
-  if(idx>0&&name.endsWith(')')){
-    const candidate=name.slice(0,idx).trim();
-    if(candidate.length>0)return candidate;
-  }
-  const idx2=name.lastIndexOf(' (');
-  if(idx2>0&&name.endsWith(')')){
-    const candidate=name.slice(0,idx2).trim();
-    if(candidate.length>0)return candidate;
-  }
-  return name;
-}
-
-function deleteImport(impId){
-  if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
-  if(!confirm('Excluir este registro de importação?'))return;
-  DB.importHistory=DB.importHistory.filter(i=>i.id!==impId);
-  DB.lastImport=DB.importHistory.length>0?DB.importHistory[0].date:null;
-  persist();renderImportHistory();showToast('Registro excluído');
-}
+function cleanTaskName(name){const idx=name.lastIndexOf(' ( ');if(idx>0&&name.endsWith(')')){const candidate=name.slice(0,idx).trim();if(candidate.length>0)return candidate;}const idx2=name.lastIndexOf(' (');if(idx2>0&&name.endsWith(')')){const candidate=name.slice(0,idx2).trim();if(candidate.length>0)return candidate;}return name;}
+function deleteImport(impId){if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}if(!confirm('Excluir este registro?'))return;DB.importHistory=DB.importHistory.filter(i=>i.id!==impId);DB.lastImport=DB.importHistory.length>0?DB.importHistory[0].date:null;persist();renderImportHistory();showToast('Registro excluído');}
 function renderImportHistory(){
   const el=document.getElementById('importHistory');
   if(!DB.importHistory?.length){el.innerHTML='<div style="font-size:14px;color:var(--text3);padding:12px 0;">Nenhuma importação registrada.</div>';return;}
-  el.innerHTML=DB.importHistory.map(imp=>`
-    <div class="import-history-item">
-      <div style="font-size:20px;">🗂️</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;font-size:14px;color:var(--text);">${imp.file}</div>
-        <div style="font-size:13px;color:var(--text3);">${imp.orders||'?'} pedidos · ${imp.tasks} tarefas${imp.archivedCount?` · ${imp.archivedCount} arquivados`:''}</div>
-      </div>
-      <div style="font-family:monospace;font-size:13px;color:var(--gold);white-space:nowrap;">${imp.date}</div>
-      ${isMaster(loggedUser)?`<button class="btn btn-danger btn-sm" onclick="deleteImport('${imp.id}')" title="Excluir registro">🗑</button>`:''}
-    </div>`).join('');
+  el.innerHTML=DB.importHistory.map(imp=>`<div class="import-history-item"><div style="font-size:20px;">🗂️</div><div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:14px;color:var(--text);">${imp.file}</div><div style="font-size:13px;color:var(--text3);">${imp.orders||'?'} pedidos · ${imp.tasks} tarefas${imp.archivedCount?` · ${imp.archivedCount} arquivados`:''}</div></div><div style="font-family:monospace;font-size:13px;color:var(--gold);white-space:nowrap;">${imp.date}</div>${isMaster(loggedUser)?`<button class="btn btn-danger btn-sm" onclick="deleteImport('${imp.id}')" title="Excluir">🗑</button>`:''}</div>`).join('');
 }
 
-// ─────────── MODALS ───────────
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
-
-// ─────────── INIT ───────────
 document.querySelectorAll('.screen').forEach(s=>{if(!s.classList.contains('active'))s.style.display='none';});
-showLoading('Conectando ao servidor...');
 
+showLoading('Conectando ao servidor...');
 Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
   FILE_STORE=filesData||{};
   if(data){
-    DB=data;
-    DB.admins=DB.admins||DEFAULT_DB.admins;
-    DB.archivedOrdersData=DB.archivedOrdersData||{};
-    DB.importHistory=DB.importHistory||[];
-    DB.clients=(DB.clients||[]);
-    DB.clients.forEach(c=>{if(!c.archivedOrders)c.archivedOrders=[];});
-    MASTER_EMAILS.forEach((email,i)=>{
-      const names=['Murilo','Lucas','Jaison'];
-      if(!DB.admins.find(a=>a.email===email)){
-        DB.admins.unshift({id:'master-'+email.split('@')[0],name:names[i],email,pass:'123456',role:'master'});
-      } else {
-        const adm=DB.admins.find(a=>a.email===email);
-        if(adm)adm.role='master';
-      }
-    });
+    DB=data;DB.admins=DB.admins||DEFAULT_DB.admins;DB.archivedOrdersData=DB.archivedOrdersData||{};DB.importHistory=DB.importHistory||[];DB.clients=(DB.clients||[]);DB.clients.forEach(c=>{if(!c.archivedOrders)c.archivedOrders=[];});
+    MASTER_EMAILS.forEach((email,i)=>{const names=['Murilo','Lucas','Jaison'];if(!DB.admins.find(a=>a.email===email)){DB.admins.unshift({id:'master-'+email.split('@')[0],name:names[i],email,pass:'123456',role:'master'});}else{const adm=DB.admins.find(a=>a.email===email);if(adm)adm.role='master';}});
     if(DB.projectOrders?.length>0)ORDERS=DB.projectOrders;
-  } else {
-    persist();
-  }
+  }else{persist();}
   document.getElementById('revBadge').textContent=DB.lastImport?'📂 Atualizado':'REV.01';
-  renderStats();renderOrders();populateGanttFilter();
-  hideLoading();
-}).catch(err=>{
-  console.error('Init error:',err);
-  hideLoading();
-  showToast('Erro ao conectar. Verifique sua conexão.','err');
-});
+  renderStats();renderOrders();populateGanttFilter();hideLoading();
+}).catch(err=>{console.error('Init error:',err);hideLoading();showToast('Erro ao conectar.','err');});
 
-// ─────────── EXPORTS GLOBAIS ───────────
 Object.assign(window,{
   doLogin,openAdminLogin,doAdminLogin,backToLogin,closeAdminLogin,
   switchDevTab,switchClientTab,filterOrders,collapseAll,expandAll,toggleChip,
@@ -1676,4 +1168,10 @@ Object.assign(window,{
 });
 </script>
 </body>
-</html>
+</html>"""
+
+with open('/mnt/user-data/outputs/cartamac.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f"Gerado com sucesso! {len(html)} chars")
+PYEOF
