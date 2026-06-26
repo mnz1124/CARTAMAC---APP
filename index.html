@@ -85,11 +85,15 @@ input[type="file"]{display:none;}
   .dev-tab{font-size:12px;padding:5px 10px;min-height:34px;}
   .btn-sair-label{display:none;}
   .rev-badge{font-size:11px;padding:3px 6px;}
+  .admin-user-badge{display:none;}
 }
 
 /* PAGES */
 .page{display:none;padding:28px;}
 .page.active{display:block;}
+@media(max-width:768px){
+  .page{padding:12px;}
+}
 
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
@@ -109,37 +113,154 @@ input[type="file"]{display:none;}
 .filter-chip.active{background:rgba(200,168,75,.1);border-color:var(--gold);color:var(--gold);}
 .filter-chip input{display:none;}
 
-/* ORDER CARDS */
+/* ═══════════════════════════════════════════
+   ORDER CARDS — DESKTOP
+═══════════════════════════════════════════ */
 .orders-list{display:flex;flex-direction:column;gap:10px;}
 .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s;}
 .order-card:hover{border-color:var(--border3);}
 .order-card.delayed{border-left:3px solid var(--red);}
 .order-card.at-risk{border-left:3px solid var(--warn);}
 .order-card.on-track{border-left:3px solid var(--green);}
-.order-header{display:flex;align-items:center;padding:18px 22px;cursor:pointer;gap:14px;}
-.order-code{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.2);padding:4px 10px;border-radius:4px;white-space:nowrap;min-width:96px;text-align:center;}
-.order-info{flex:1;min-width:0;}
-.order-name{font-weight:600;font-size:16px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.order-op{font-size:13px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
-.order-meta{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
-.order-dates{font-size:13px;color:var(--text3);white-space:nowrap;}
-.status-badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:4px;white-space:nowrap;}
+
+/* Header do card — desktop */
+.order-header{
+  display:flex;
+  align-items:center;
+  padding:16px 18px;
+  cursor:pointer;
+  gap:12px;
+  flex-wrap:nowrap;
+}
+.order-code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  font-weight:700;
+  color:var(--gold);
+  background:rgba(200,168,75,.1);
+  border:1px solid rgba(200,168,75,.2);
+  padding:4px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+  flex-shrink:0;
+  min-width:0;
+  max-width:130px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.order-info{
+  flex:1;
+  min-width:0;
+}
+.order-name{
+  font-weight:600;
+  font-size:15px;
+  margin-bottom:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--text);
+}
+.order-op{
+  font-size:12px;
+  color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.order-meta{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  flex-wrap:nowrap;
+}
+.order-dates{font-size:12px;color:var(--text3);white-space:nowrap;}
+.status-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
 .badge-delayed{background:rgba(224,82,82,.15);color:var(--red);}
 .badge-risk{background:rgba(212,146,42,.15);color:var(--warn);}
 .badge-ok{background:rgba(92,184,92,.12);color:var(--green);}
 .badge-done{background:rgba(240,240,240,.08);color:var(--text2);}
-.pct-wrap{display:flex;align-items:center;gap:9px;}
-.pct-bar{width:80px;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.pct-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pct-bar{width:70px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;flex-shrink:0;}
 .pct-fill{height:100%;border-radius:3px;transition:width .3s;}
 .pct-fill.high{background:var(--green);}
 .pct-fill.mid{background:var(--warn);}
 .pct-fill.low{background:var(--red);}
-.pct-text{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;min-width:38px;text-align:right;}
-.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.chevron{color:var(--text3);font-size:18px;transition:transform .2s;margin-left:6px;}
+.pct-text{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;min-width:36px;text-align:right;}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.chevron{color:var(--text3);font-size:16px;transition:transform .2s;flex-shrink:0;}
 .order-card.open .chevron{transform:rotate(180deg);}
 .order-tasks{display:none;border-top:1px solid var(--border);}
 .order-card.open .order-tasks{display:block;}
+
+/* ═══════════════════════════════════════════
+   ORDER CARDS — MOBILE (≤640px)
+   Layout de 2 linhas para melhor leitura
+═══════════════════════════════════════════ */
+@media(max-width:640px){
+  .order-header{
+    flex-wrap:wrap;
+    padding:14px 14px 12px 14px;
+    gap:8px;
+    align-items:flex-start;
+  }
+
+  /* Linha 1: dot + code + name + chevron */
+  .order-header > .status-dot{
+    order:0;
+    margin-top:3px;
+  }
+  .order-header > .order-code{
+    order:1;
+    font-size:11px;
+    padding:3px 7px;
+    max-width:110px;
+  }
+  .order-header > .order-info{
+    order:2;
+    flex:1;
+    min-width:0;
+  }
+  .order-name{
+    font-size:14px;
+    white-space:normal;
+    line-height:1.3;
+    word-break:break-word;
+  }
+  .order-op{
+    font-size:11px;
+    margin-top:2px;
+  }
+  .order-header > .chevron{
+    order:3;
+    margin-left:auto;
+    align-self:flex-start;
+    margin-top:2px;
+  }
+
+  /* Linha 2: meta (status + progresso) — ocupa toda a largura */
+  .order-header > .order-meta{
+    order:4;
+    width:100%;
+    flex-wrap:wrap;
+    gap:8px;
+    padding-top:4px;
+    padding-left:17px; /* alinha com o nome (dot + gap) */
+    justify-content:flex-start;
+  }
+
+  /* Datas ficam ocultas no mobile para não poluir */
+  .order-dates{display:none;}
+
+  /* Barra de progresso um pouco menor */
+  .pct-bar{width:60px;}
+  .pct-text{font-size:12px;min-width:30px;}
+  .status-badge{font-size:10px;padding:3px 7px;}
+}
+
+/* TASKS */
 .dept-header{display:flex;align-items:center;gap:10px;padding:12px 22px 12px 36px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--border);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);}
 .dept-pct{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text3);margin-left:auto;}
 .task-row{display:flex;align-items:center;padding:10px 22px 10px 54px;border-bottom:1px solid rgba(42,42,42,.6);gap:10px;transition:background .1s;}
@@ -154,6 +275,14 @@ input[type="file"]{display:none;}
 .s-active{background:rgba(240,240,240,.08);color:var(--accent);}
 .s-delayed{background:rgba(224,82,82,.12);color:var(--red);}
 .s-pending{background:rgba(120,120,120,.1);color:var(--text3);}
+
+@media(max-width:640px){
+  .dept-header{padding:10px 14px 10px 14px;font-size:12px;}
+  .task-row{flex-wrap:wrap;padding:10px 14px;gap:6px;}
+  .task-name{white-space:normal;word-break:break-word;font-size:13px;}
+  .task-dates{min-width:unset;font-size:12px;width:100%;}
+  .task-pct{min-width:unset;}
+}
 
 /* GANTT */
 .gantt-wrap{position:relative;background:#121212;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
@@ -262,18 +391,30 @@ input[type="file"]{display:none;}
   .update-badge{display:none;}
   .admin-grid{grid-template-columns:1fr;}
 }
-.client-page{display:none;padding:20px;}
+.client-page{display:none;padding:16px;}
 .client-page.active{display:block;}
-.client-order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:14px;overflow:hidden;}
+
+/* CLIENT ORDER CARDS — usa as mesmas classes do admin com ajustes */
+.client-order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:12px;overflow:hidden;}
 .client-order-card.delayed{border-left:3px solid var(--red);}
 .client-order-card.at-risk{border-left:3px solid var(--warn);}
 .client-order-card.on-track{border-left:3px solid var(--green);}
-.client-order-head{display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;}
+.client-order-head{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;flex-wrap:nowrap;}
 .client-order-card.open .chevron{transform:rotate(180deg);}
 .client-order-tasks{display:none;border-top:1px solid var(--border);}
 .client-order-card.open .client-order-tasks{display:block;}
+
+@media(max-width:640px){
+  .client-order-head{flex-wrap:wrap;padding:14px 14px 12px;gap:8px;align-items:flex-start;}
+  .client-order-head > .status-dot{order:0;margin-top:3px;}
+  .client-order-head > .order-code{order:1;font-size:11px;padding:3px 7px;}
+  .client-order-head > .order-info{order:2;flex:1;min-width:0;}
+  .client-order-head > .chevron{order:3;margin-left:auto;align-self:flex-start;}
+  .client-order-head > .order-meta{order:4;width:100%;padding-top:4px;padding-left:17px;justify-content:flex-start;}
+}
+
 .docs-section{background:var(--bg3);border-radius:var(--radius);padding:16px 20px;}
-.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:10px;}
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px;}
 .doc-card{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;cursor:pointer;transition:border-color .15s;}
 .doc-card:hover{border-color:var(--gold);}
 .doc-card .dc-icon{font-size:28px;}
@@ -283,9 +424,9 @@ input[type="file"]{display:none;}
 .no-docs{font-size:14px;color:var(--text3);padding:10px 0;}
 
 /* MODALS */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:30px;width:520px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.7);max-height:90vh;overflow-y:auto;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:30px;width:520px;max-width:100%;box-shadow:0 8px 40px rgba(0,0,0,.7);max-height:90vh;overflow-y:auto;}
 .modal h3{font-size:18px;font-weight:600;margin-bottom:22px;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
 
@@ -307,21 +448,17 @@ input[type="file"]{display:none;}
 .role-badge-client{background:rgba(92,184,92,.1);border:1px solid rgba(92,184,92,.2);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
 .readonly-notice{background:rgba(46,134,171,.08);border:1px solid rgba(46,134,171,.25);border-radius:var(--radius);padding:12px 14px;font-size:14px;color:#6ab0c8;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
-@media(max-width:768px){
-  .page{padding:12px;}
-  .client-page{padding:12px;}
+/* STATS mobile */
+@media(max-width:640px){
   .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stat-card{padding:16px;}
   .stat-val{font-size:28px;}
-  .order-header{flex-wrap:wrap;gap:8px;padding:14px;}
-  .order-meta{width:100%;}
-  .order-dates{display:none;}
-  .task-row{flex-wrap:wrap;padding:10px 14px 10px 28px;gap:6px;}
-  .task-dates{min-width:unset;font-size:12px;}
-  .gantt-outer{max-height:65vh;}
   .search-input{width:100%;}
-  .modal{padding:20px 14px;}
-  .toast{bottom:16px;right:10px;left:10px;}
+  .gantt-outer{max-height:65vh;}
+  .modal{padding:20px 16px;}
+  .toast{bottom:16px;right:10px;left:10px;max-width:unset;}
   .login-box{padding:24px 20px;}
+  .user-detail{padding:16px;}
 }
 </style>
 </head>
@@ -458,7 +595,7 @@ input[type="file"]{display:none;}
     <div class="import-box">
       <h3>📂 Importar Arquivo Microsoft Project (.XML)</h3>
       <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px;color:var(--text2);">
-        <strong style="color:var(--gold);">ℹ️ Como exportar do MS Project:</strong> Arquivo → Salvar como → XML. O sistema lê OutlineLevel para identificar pedidos (nível 1), departamentos (nível 2) e tarefas (nível 3+). Pedidos com 100% são arquivados automaticamente mantendo todos os documentos.
+        <strong style="color:var(--gold);">ℹ️ Como exportar do MS Project:</strong> Arquivo → Salvar como → XML. O sistema lê OutlineLevel para identificar pedidos (nível 1), departamentos (nível 2) e tarefas (nível 3+). O código e a OP são extraídos automaticamente do nome da tarefa pai (formato: <code style="color:var(--gold);background:rgba(200,168,75,.1);padding:1px 5px;border-radius:3px;">CÓDIGO · OP · Nome do Pedido</code>). Pedidos com 100% são arquivados automaticamente mantendo todos os documentos.
       </div>
       <div class="upload-zone" onclick="document.getElementById('xmlInput').click()" ondrop="handleXMLDrop(event)" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''">
         <div class="upload-icon">🗂️</div>
@@ -550,7 +687,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const DB_REF   = doc(db, "cartamac", "db");
-const FILE_REF = doc(db, "cartamac", "files"); // Doc separado para arquivos (base64)
+const FILE_REF = doc(db, "cartamac", "files");
 
 const MASTER_EMAILS = ['murilo@cartamac.com','lucas@cartamac.com','jaison@cartamac.com'];
 
@@ -572,7 +709,7 @@ const DEFAULT_DB = {
 };
 
 let DB = JSON.parse(JSON.stringify(DEFAULT_DB));
-let FILE_STORE = {}; // { "order_ID": [{name,size,date,data}] }
+let FILE_STORE = {};
 
 let loggedUser     = null;
 let selectedUserId = null;
@@ -796,22 +933,47 @@ function renderStats(){
     <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
 }
 
+// ── Constrói o card de pedido (admin e cliente compartilham estrutura) ──
 function buildOrderCard(order,isClient=false){
   const s=getStatus(order);
   const sc=s==='delayed'?'delayed':s==='at_risk'?'at-risk':'on-track';
-  const sbadge=s==='delayed'?'<span class="status-badge badge-delayed">ATRASADO</span>':s==='at_risk'?'<span class="status-badge badge-risk">EM RISCO</span>':s==='done'?'<span class="status-badge badge-done">CONCLUÍDO</span>':'<span class="status-badge badge-ok">NO PRAZO</span>';
+  const sbadge=s==='delayed'
+    ?'<span class="status-badge badge-delayed">ATRASADO</span>'
+    :s==='at_risk'
+    ?'<span class="status-badge badge-risk">EM RISCO</span>'
+    :s==='done'
+    ?'<span class="status-badge badge-done">CONCLUÍDO</span>'
+    :'<span class="status-badge badge-ok">NO PRAZO</span>';
+
   const diff=daysDiff(order.finish);
-  const diffTxt=order.pct>=100?'':diff<0?`<span style="color:var(--red);font-size:13px;font-weight:600;">${Math.abs(diff)}d atrasado</span>`:diff<30?`<span style="color:var(--warn);font-size:13px;">${diff}d restantes</span>`:'';
-  const archived=order._archived?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">📦 Arquivado</span>':'';
+  const diffTxt=order.pct>=100
+    ?''
+    :diff<0
+    ?`<span style="color:var(--red);font-size:12px;font-weight:700;">${Math.abs(diff)}d atraso</span>`
+    :diff<30
+    ?`<span style="color:var(--warn);font-size:12px;">${diff}d restantes</span>`
+    :'';
+
+  const archived=order._archived
+    ?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">📦 Arquivado</span>'
+    :'';
+
   const deptsHTML=order.depts.map(d=>{
     const tasksHTML=d.tasks.map(t=>{
       const ts=taskStatus(t);
       const cls={done:'s-done',delayed:'s-delayed',active:'s-active',pending:'s-pending'}[ts];
       const lbl={done:'Concluído',delayed:'Atrasado',active:'Em Andamento',pending:'Pendente'}[ts];
-      return `<div class="task-row">${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:16px;display:inline-block;flex-shrink:0;"></span>'}<span class="task-name" title="${t.name}">${t.name}</span><span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span><span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span><span class="task-status ${cls}">${lbl}</span></div>`;
+      return `<div class="task-row">
+        ${t.milestone?'<span class="milestone-icon">◆</span>':'<span style="width:16px;display:inline-block;flex-shrink:0;"></span>'}
+        <span class="task-name" title="${t.name}">${t.name}</span>
+        <span class="task-dates">${fmtDate(t.start)} → ${fmtDate(t.finish)}</span>
+        <span class="task-pct" style="color:${pctColor(t.pct)}">${t.pct}%</span>
+        <span class="task-status ${cls}">${lbl}</span>
+      </div>`;
     }).join('');
     return `<div class="dept-header">${d.name}<span class="dept-pct">${d.pct}%</span></div>${tasksHTML}`;
   }).join('');
+
   let filesHTML='';
   if(isClient){
     const fk=fileKey(order.id);
@@ -821,16 +983,23 @@ function buildOrderCard(order,isClient=false){
       :`<div class="docs-grid">${files.map((f,fi)=>`<div class="doc-card" onclick="downloadOrderFile('${fk}',${fi})"><div class="dc-icon">${fileIcon(f.name)}</div><div class="dc-name" title="${f.name}">${f.name}</div><div class="dc-size">${fmtSize(f.size)}</div><div class="dc-dl">⬇ Baixar</div></div>`).join('')}</div>`;
     filesHTML=`<div class="docs-section"><div class="section-title" style="margin-bottom:8px;">📎 Documentos &amp; Arquivos</div>${docsGrid}</div>`;
   }
-  const cc=isClient?'client-order-card':'order-card';
-  const ch=isClient?'client-order-head':'order-header';
-  const ct=isClient?'client-order-tasks':'order-tasks';
+
+  // Classes e elementos de cabeçalho variam entre admin e client
+  const cc  = isClient ? 'client-order-card' : 'order-card';
+  const ch  = isClient ? 'client-order-head'  : 'order-header';
+  const ct  = isClient ? 'client-order-tasks'  : 'order-tasks';
+
+  // Exibe code e op: se a OP for diferente do code, mostra ambos; senão só o code
+  const codeLabel = order.code || '—';
+  const opLabel   = (order.op && order.op !== order.code) ? order.op : '';
+
   return `<div class="${cc} ${sc}" id="card-${order.id}">
     <div class="${ch}" onclick="this.parentElement.classList.toggle('open')">
       <span class="status-dot" style="background:${sColor(s)}"></span>
-      <span class="order-code">${order.code}</span>
+      <span class="order-code" title="${codeLabel}">${codeLabel}</span>
       <div class="order-info">
         <div class="order-name" title="${order.name}">${order.name}</div>
-        <div class="order-op">OP: ${order.op}</div>
+        ${opLabel ? `<div class="order-op">OP: ${opLabel}</div>` : ''}
       </div>
       <div class="order-meta">
         ${archived}${diffTxt}${sbadge}
@@ -908,7 +1077,6 @@ function buildGantt(orders,containerId){
   });
   const todayStr=TODAY.toISOString().slice(0,10);
   const dayIdx=ds=>{if(!ds)return 0;const d=new Date(ds);return isNaN(d)?0:Math.max(0,Math.round((d-minD)/86400000));};
-  // Cabeçalho
   let r1=`<tr class="gantt-header-row"><th class="gantt-name-th" rowspan="2" style="position:sticky;top:0;left:0;z-index:20;width:${NW}px;min-width:${NW}px;">Pedido / Área<div class="gantt-resize-handle" id="grh_${containerId}"></div></th><th class="gantt-op-th" rowspan="2" style="position:sticky;top:0;left:${NW}px;z-index:19;width:${OW}px;min-width:${OW}px;">OP</th><th class="gantt-pct-th" rowspan="2" style="position:sticky;top:0;left:${NW+OW}px;z-index:19;width:${PW}px;min-width:${PW}px;border-right:2px solid #484848 !important;">%</th>`;
   months.forEach(m=>{r1+=`<th class="gantt-month-th${m.isCur?' cur':''}" colspan="${m.count}" style="position:sticky;top:0;z-index:4;">${m.label}</th>`;});
   r1+='</tr>';
@@ -919,7 +1087,6 @@ function buildGantt(orders,containerId){
     r2+=`<th class="gantt-day-th${iT?' is-today':iWe?' is-we':''}" style="position:sticky;top:30px;z-index:4;">${d.getDate()}</th>`;
   });
   r2+='</tr>';
-  // Corpo
   let body='';
   valid.forEach(order=>{
     const s=getStatus(order);
@@ -998,19 +1165,16 @@ function selectUser(id){
   const master=isMaster(loggedUser);
   const orderOptions=ORDERS.map((o,i)=>`<option value="${i}">${o.code} · ${o.name.slice(0,40)}</option>`).join('');
 
-  // Tags de pedidos ativos
   const activeTagsHTML=(c.orders||[]).map(i=>{
     const o=ORDERS[i];if(!o)return'';
     return `<span class="tag">${o.code} · ${o.name.slice(0,30)}${master?`<span class="rm" onclick="removeOrderFromUser(${c.id},${i})" title="Remover pedido">✕</span>`:''}</span>`;
   }).join('');
 
-  // Tags de pedidos arquivados — mestres podem excluir
   const archTagsHTML=(c.archivedOrders||[]).map(oid=>{
     const arc=DB.archivedOrdersData[oid];if(!arc)return'';
     return `<span class="tag-archived">📦 ${arc.code} · ${arc.name.slice(0,25)}${master?`<span class="rm-arch" onclick="removeArchivedOrder(${c.id},${oid})" title="Excluir arquivado">🗑</span>`:''}</span>`;
   }).join('');
 
-  // Seções de arquivos: ativos + arquivados
   const activeIdxs=c.orders||[];
   const archIds=c.archivedOrders||[];
   const allFileSections=[
@@ -1041,17 +1205,14 @@ function selectUser(id){
   </div>`;
 }
 
-// Remove pedido arquivado de um cliente (somente mestres)
 function removeArchivedOrder(clientId,orderId){
   if(!isMaster(loggedUser)){showToast('Sem permissão','err');return;}
   if(!confirm(`Excluir o pedido arquivado e seus documentos? Esta ação não pode ser desfeita.`))return;
   const c=DB.clients.find(x=>x.id===clientId);if(!c)return;
   c.archivedOrders=(c.archivedOrders||[]).filter(id=>id!==orderId);
-  // Remove dados arquivados se nenhum cliente mais usa
   const stillUsed=DB.clients.some(cl=>(cl.archivedOrders||[]).includes(orderId));
   if(!stillUsed){
     delete DB.archivedOrdersData[orderId];
-    // Remove arquivos
     const fk=fileKey(orderId);
     if(FILE_STORE[fk]){delete FILE_STORE[fk];persistFiles();}
   }
@@ -1270,10 +1431,8 @@ function processXMLFile(file){
       if(xml.querySelector('parsererror'))throw new Error('Arquivo XML inválido ou corrompido. Exporte novamente pelo MS Project.');
       const extracted=parseProjectXML(xml);
       if(!extracted.length)throw new Error('Nenhum pedido encontrado no XML. Verifique se o arquivo foi exportado corretamente (Arquivo → Salvar como → XML no MS Project).');
-      // Atualiza orders
       ORDERS=extracted;
       DB.projectOrders=extracted;
-      // Arquiva concluídos
       let archivedCount=0;
       ORDERS.forEach(o=>{
         if(o.pct>=100){
@@ -1303,7 +1462,6 @@ function processXMLFile(file){
         const archMsg=archivedCount>0?` | ${archivedCount} arquivado(s)`:'';
         statusEl.innerHTML=`✅ <strong>${file.name}</strong> importado — <strong>${ORDERS.length}</strong> pedidos, <strong>${n}</strong> tarefas${archMsg}`;
         showToast('Cronograma atualizado com sucesso!');
-        // Diagnóstico: mostra estrutura detectada
         const depts=new Set(ORDERS.flatMap(o=>o.depts.map(d=>d.name)));
         if(depts.size>0){
           statusEl.innerHTML+=`<br><span style="color:var(--text3);font-size:12px;">Departamentos detectados: ${[...depts].join(', ')}</span>`;
@@ -1320,9 +1478,15 @@ function processXMLFile(file){
 }
 
 // ─────────── PARSE MS PROJECT XML ───────────
-// O MS Project exporta tarefas com nome no formato:
-// "NOME DA TAREFA ( código - OP - nome do pedido )" quando há contexto de pai.
-// Esta função limpa isso e reconstrói a hierarquia corretamente.
+// O MS Project numera WBS como 1, 2, 3... para tarefas de nível 1.
+// Para extrair código e OP reais, tentamos interpretar o nome da tarefa.
+//
+// Formatos suportados no nome da tarefa nível 1:
+//   "0150.26 - RBE0150-26 - Rotor Hidrapulper 44'' BC"
+//   "0150.26 · RBE0150-26 · Rotor Hidrapulper 44'' BC"
+//   "0150.26 | RBE0150-26 | Rotor Hidrapulper 44'' BC"
+//   "RBE0150-26 - Rotor Hidrapulper"   (sem código separado)
+//   "Rotor Hidrapulper"                (só nome, usa WBS como code)
 function parseProjectXML(xmlDoc){
   const tasks=Array.from(xmlDoc.querySelectorAll('Task'));
   const orders=[];
@@ -1331,13 +1495,11 @@ function parseProjectXML(xmlDoc){
   tasks.forEach(task=>{
     const uid=(task.querySelector('UID')?.textContent||'').trim();
     if(!uid||uid==='0')return;
-    let name=(task.querySelector('Name')?.textContent||'').trim();
-    if(!name)return;
+    let rawName=(task.querySelector('Name')?.textContent||'').trim();
+    if(!rawName)return;
 
-    // ── Limpa o sufixo que o MS Project adiciona nas tarefas filhas ──
-    // Formato típico: "NOME TAREFA ( WBS - OP - Nome do Pedido )"
-    // Remove tudo a partir de ' ( ' se vier após o nome da tarefa real
-    name=cleanTaskName(name);
+    // Limpa sufixo de contexto do MS Project: "NOME ( WBS - OP - Pedido )"
+    rawName=cleanTaskName(rawName);
 
     const wbs=(task.querySelector('WBS')?.textContent||uid).trim();
     const ol=parseInt(task.querySelector('OutlineLevel')?.textContent||'1');
@@ -1352,36 +1514,87 @@ function parseProjectXML(xmlDoc){
     const isSummary=task.querySelector('Summary')?.textContent?.trim()==='1';
 
     if(ol===1){
-      // Nível 1 = Pedido / Equipamento
-      currentOrder={id:idCounter++,code:wbs,op:wbs,name,start,finish,pct,depts:[]};
+      // Nível 1 = Pedido principal
+      // Tenta extrair code + op + nome do campo Name
+      const parsed=parseOrderName(rawName, wbs);
+      currentOrder={
+        id:       idCounter++,
+        code:     parsed.code,
+        op:       parsed.op,
+        name:     parsed.name,
+        start,finish,pct,
+        depts:[]
+      };
       orders.push(currentOrder);
       currentDept=null;
     } else if(ol===2&&currentOrder){
-      // Nível 2 = Departamento / Fase
-      currentDept={name,pct,tasks:[]};
+      currentDept={name:rawName,pct,tasks:[]};
       currentOrder.depts.push(currentDept);
     } else if(ol>=3&&currentDept){
-      // Nível 3+ = Tarefa individual (ignora summary sem ser milestone)
       if(!isSummary||isMilestone){
-        currentDept.tasks.push({name,start,finish,pct,milestone:isMilestone});
+        currentDept.tasks.push({name:rawName,start,finish,pct,milestone:isMilestone});
       }
     }
   });
 
-  // Filtra pedidos que tenham datas e pelo menos um departamento
   return orders.filter(o=>o.name&&o.start&&o.finish&&o.depts.length>0);
 }
 
-// Remove o sufixo de contexto que o MS Project adiciona nos nomes das tarefas filhas.
-// Ex: "FUNDIÇÃO ROTOR ( 0150.26 - RBE0150-26 - Rotor Hidrapulper 44'' BC )" → "FUNDIÇÃO ROTOR"
+/**
+ * Tenta extrair code, op e nome de uma string de tarefa nível 1.
+ * Suporta separadores: ' - ', ' · ', ' | ', ' / '
+ *
+ * Exemplos:
+ *   "0150.26 - RBE0150-26 - Rotor Hidrapulper"  → {code:"0150.26", op:"RBE0150-26", name:"Rotor Hidrapulper"}
+ *   "RBE0150-26 - Rotor Hidrapulper"             → {code:"RBE0150-26", op:"RBE0150-26", name:"Rotor Hidrapulper"}
+ *   "Rotor Hidrapulper"                           → {code:wbs, op:"", name:"Rotor Hidrapulper"}
+ */
+function parseOrderName(rawName, wbs){
+  // Separadores comuns
+  const sep=/\s+[-·|\/]\s+/;
+  const parts=rawName.split(sep).map(s=>s.trim()).filter(Boolean);
+
+  // Padrão de código: "NNNN.NN" ou "NNNN.N"
+  const reCode=/^\d{3,5}\.\d{1,3}$/;
+  // Padrão de OP: contém hífen e letras/números (ex: RBE0150-26, TPK0135-25)
+  const reOP=/^[A-Z]{2,6}\d{2,6}-\d{2,4}$/i;
+
+  if(parts.length>=3){
+    // Formato completo: CODE · OP · Nome
+    const maybeCode=parts[0];
+    const maybeOP=parts[1];
+    const name=parts.slice(2).join(' — ');
+    if((reCode.test(maybeCode)||reOP.test(maybeCode))&&(reOP.test(maybeOP)||maybeOP.length>0)){
+      return{code:maybeCode,op:maybeOP,name};
+    }
+  }
+
+  if(parts.length===2){
+    // Formato: OP · Nome  ou  Code · Nome
+    const first=parts[0];
+    const name=parts[1];
+    if(reCode.test(first)){return{code:first,op:'',name};}
+    if(reOP.test(first)){return{code:first,op:first,name};}
+    // Dois nomes genéricos — trata o primeiro como code
+    return{code:first,op:'',name};
+  }
+
+  // Só o nome — usa WBS como code (mas formata melhor que "1","2")
+  return{
+    code: wbs.includes('.')&&wbs.length>2 ? wbs : rawName.slice(0,20),
+    op:   '',
+    name: rawName
+  };
+}
+
+// Remove sufixo de contexto que o MS Project adiciona nas tarefas filhas.
+// Ex: "FUNDIÇÃO ROTOR ( 0150.26 - RBE0150-26 - Rotor Hidrapulper )" → "FUNDIÇÃO ROTOR"
 function cleanTaskName(name){
-  // Padrão: " ( algo ) " no final
   const idx=name.lastIndexOf(' ( ');
   if(idx>0&&name.endsWith(')')){
     const candidate=name.slice(0,idx).trim();
     if(candidate.length>0)return candidate;
   }
-  // Padrão alternativo: " (algo)" sem espaço antes da abertura
   const idx2=name.lastIndexOf(' (');
   if(idx2>0&&name.endsWith(')')){
     const candidate=name.slice(0,idx2).trim();
@@ -1429,7 +1642,6 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
     DB.importHistory=DB.importHistory||[];
     DB.clients=(DB.clients||[]);
     DB.clients.forEach(c=>{if(!c.archivedOrders)c.archivedOrders=[];});
-    // Garante os 3 mestres sempre
     MASTER_EMAILS.forEach((email,i)=>{
       const names=['Murilo','Lucas','Jaison'];
       if(!DB.admins.find(a=>a.email===email)){
