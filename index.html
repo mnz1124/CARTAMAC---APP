@@ -1,18 +1,4 @@
-bash
-
-python3 << 'PYEOF'
-import base64
-
-with open('/mnt/user-data/uploads/SIMBOLO_PRETO.jpg', 'rb') as f:
-    simbolo_b64 = base64.b64encode(f.read()).decode('utf-8')
-
-with open('/mnt/user-data/uploads/Plano_de_fundo.png', 'rb') as f:
-    fundo_b64 = base64.b64encode(f.read()).decode('utf-8')
-
-SIM = f"data:image/jpeg;base64,{simbolo_b64}"
-FUNDO = f"data:image/png;base64,{fundo_b64}"
-
-html = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1168,10 +1154,4 @@ Object.assign(window,{
 });
 </script>
 </body>
-</html>"""
-
-with open('/mnt/user-data/outputs/cartamac.html', 'w', encoding='utf-8') as f:
-    f.write(html)
-
-print(f"Gerado com sucesso! {len(html)} chars")
-PYEOF
+</html>
