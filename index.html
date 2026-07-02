@@ -74,7 +74,7 @@ input[type="file"]{display:none;}
 .dev-tab:hover{background:var(--bg3);color:var(--text);}
 .dev-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
 .header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.rev-badge{display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;white-space:nowrap;}
+.rev-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;white-space:nowrap;}
 .admin-user-badge{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .admin-user-badge strong{color:var(--gold);}
 @media(max-width:640px){
@@ -100,58 +100,6 @@ input[type="file"]{display:none;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 22px;}
 .stat-val{font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px;}
 .stat-lbl{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
-/* AJUSTES SOLICITADOS - CUSTOS, SENHAS E PORTAL DO CLIENTE */
-#page-custos .stats-row .stat-card{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-#page-custos .stats-row .stat-val{width:100%;text-align:center;margin-bottom:8px;}
-#page-custos .stats-row .stat-lbl{width:100%;text-align:center;line-height:1.3;}
-#page-custos .cost-summary-card{min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-#page-custos .cost-summary-card .csv,#page-custos .cost-summary-card .csl{width:100%;text-align:center;}
-.password-wrap{position:relative;display:flex;align-items:center;width:100%;}
-.password-wrap input{width:100%;padding-right:48px;}
-.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;}
-.password-toggle:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,.08);}
-.password-toggle:disabled{opacity:.35;cursor:not-allowed;}
-.client-stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px;}
-.client-stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 18px;min-height:82px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
-.client-stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);}
-.client-stat-card.updated::before{background:var(--green);}
-.client-stat-card.open-orders::before{background:var(--gold);}
-.client-stat-card.archived-orders::before{background:var(--text3);}
-.client-stat-card .csc-kicker{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;font-weight:700;line-height:1.2;}
-.client-stat-card .csc-main{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text);line-height:1.2;margin-top:6px;overflow-wrap:anywhere;}
-.client-stat-card .csc-sub{font-size:12px;color:var(--text3);line-height:1.35;margin-top:4px;}
-.client-date-pair{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;}
-.client-date-pair span{display:flex;flex-direction:column;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 9px;min-width:96px;color:var(--text2);font-size:12px;line-height:1.2;}
-.client-date-pair b{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-@media(max-width:700px){
-  .client-stats-row{grid-template-columns:1fr;}
-  .client-date-pair{width:100%;}
-  .client-date-pair span{flex:1;min-width:120px;}
-}
-
-#page-cronograma .stats-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px;margin-bottom:16px;}
-#page-cronograma .stat-card{min-width:0;overflow:hidden;}
-#page-cronograma .stat-card:not(.stat-alert){min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-#page-cronograma .stat-card.stat-alert{min-height:74px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:16px 20px;position:relative;}
-#page-cronograma .stat-card.stat-alert::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);}
-#page-cronograma .stat-card.stat-alert.attention::before{background:var(--red);}
-#page-cronograma .stat-card.stat-alert.due::before{background:var(--warn);}
-#page-cronograma .stat-card.stat-alert.unlinked::before{background:var(--gold);}
-#page-cronograma .stat-card.stat-alert.updated::before{background:var(--green);}
-#page-cronograma .stat-kicker{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;font-weight:700;line-height:1.2;}
-#page-cronograma .stat-main{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-top:5px;max-width:100%;overflow-wrap:anywhere;}
-#page-cronograma .stat-sub{font-size:12px;color:var(--text3);line-height:1.35;margin-top:4px;max-width:100%;overflow-wrap:anywhere;}
-@media(max-width:640px){
-  #page-cronograma .stats-row{grid-template-columns:repeat(2,minmax(0,1fr));}
-  #page-cronograma .stat-card:not(.stat-alert){min-height:82px;}
-  #page-cronograma .stat-card.stat-alert{padding:14px 16px;}
-  #page-cronograma .stat-main{font-size:13px;}
-  #page-cronograma .stat-sub{font-size:11px;}
-}
-@media(max-width:380px){
-  #page-cronograma .stats-row{grid-template-columns:1fr;}
-}
-
 
 /* FILTERS */
 .filters{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
@@ -856,8 +804,8 @@ input[type="file"]{display:none;}
         <div class="section-title">Alterar senha de acesso à aba Custos</div>
         <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Somente administradores mestres podem alterar esta senha. Ela é exigida de qualquer admin (mesmo mestre) para abrir a aba Custos.</p>
         <div class="cost-input-row" style="max-width:420px;">
-          <div class="form-group"><label>Nova senha</label><div class="password-wrap"><input type="password" id="newCostsPass" placeholder="Mínimo 4 dígitos"><button type="button" class="password-toggle" onclick="togglePassword('newCostsPass',this)" title="Mostrar senha">👁</button></div></div>
-          <div class="form-group"><label>Confirmar senha</label><div class="password-wrap"><input type="password" id="confirmCostsPass" placeholder="Repita a senha"><button type="button" class="password-toggle" onclick="togglePassword('confirmCostsPass',this)" title="Mostrar senha">👁</button></div></div>
+          <div class="form-group"><label>Nova senha</label><input type="password" id="newCostsPass" placeholder="Mínimo 4 dígitos"></div>
+          <div class="form-group"><label>Confirmar senha</label><input type="password" id="confirmCostsPass" placeholder="Repita a senha"></div>
         </div>
         <button class="btn btn-gold btn-sm" onclick="saveCostsPassword()">💾 Salvar Nova Senha</button>
       </div>
@@ -903,7 +851,7 @@ input[type="file"]{display:none;}
       <button class="client-tab" onclick="switchClientTab('gantt',this)">📊 Gantt</button>
     </nav>
   </header>
-  <div class="client-page active" id="cpg-cron"><div class="client-stats-row" id="clientStatsRow"></div><div id="clientOrdersList"></div></div>
+  <div class="client-page active" id="cpg-cron"><div id="clientOrdersList"></div></div>
   <div class="client-page" id="cpg-gantt"><div id="clientGanttContainer"></div></div>
 </div>
 
@@ -914,7 +862,7 @@ input[type="file"]{display:none;}
     <div class="form-group"><label>Nome *</label><input type="text" id="nuName" placeholder="Ex: Rio Bonito Nordeste"></div>
     <div class="form-group"><label>Empresa *</label><input type="text" id="nuCompany" placeholder="Ex: Rio Bonito Embalagens S.A."></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="nuEmail" placeholder="cliente@empresa.com.br"></div>
-    <div class="form-group"><label>Senha *</label><div class="password-wrap"><input type="password" id="nuPass" placeholder="Mínimo 6 caracteres"><button type="button" class="password-toggle" onclick="togglePassword('nuPass',this)" title="Mostrar senha">👁</button></div></div>
+    <div class="form-group"><label>Senha *</label><input type="password" id="nuPass" placeholder="Mínimo 6 caracteres"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('addUserModal')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveNewUser()">Criar Cliente</button>
@@ -930,7 +878,7 @@ input[type="file"]{display:none;}
     </div>
     <div class="form-group"><label>Nome completo *</label><input type="text" id="naName" placeholder="Ex: Fernanda Souza"></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="naEmail" placeholder="nome@cartamac.com"></div>
-    <div class="form-group"><label>Senha *</label><div class="password-wrap"><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"><button type="button" class="password-toggle" onclick="togglePassword('naPass',this)" title="Mostrar senha">👁</button></div></div>
+    <div class="form-group"><label>Senha *</label><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"></div>
     <div class="form-group">
       <label>Nível de acesso *</label>
       <select id="naRole">
@@ -1019,16 +967,6 @@ const fileIcon  = n => {const e=n.split('.').pop().toLowerCase();return{pdf:'�
 const fmtSize   = b => b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';
 const fileKey   = id => 'order_'+String(id);
 function toggleChip(id){document.getElementById(id).classList.toggle('active',document.querySelector('#'+id+' input').checked);}
-function togglePassword(inputId,btn){
-  const input=document.getElementById(inputId);
-  if(!input)return;
-  const show=input.type==='password';
-  input.type=show?'text':'password';
-  if(btn){
-    btn.textContent=show?'🙈':'👁';
-    btn.title=show?'Ocultar senha':'Mostrar senha';
-  }
-}
 
 function showToast(msg,type='ok'){
   const t=document.getElementById('toast');
@@ -1204,7 +1142,6 @@ function switchDevTab(id,btn){
   document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   btn.classList.add('active');
-  if(id==='cronograma')renderDevAll();
   if(id==='gantt')     renderGantt();
   if(id==='custos')    renderCostsPage();
   if(id==='clientes')  renderClientsPanel();
@@ -1214,46 +1151,14 @@ function switchDevTab(id,btn){
 function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
 
 // ─────────── CRONOGRAMA ───────────
-function statOrderTitle(o){return (o.code||'—')+' · '+(o.name||'Sem nome');}
-function statDaysText(diff){
-  if(diff<0)return Math.abs(diff)+' dia(s) de atraso';
-  if(diff===0)return 'Vence hoje';
-  return diff+' dia(s) restantes';
-}
 function renderStats(){
   let tot=ORDERS.length,del=0,rsk=0,dn=0,ok=0;
   ORDERS.forEach(o=>{const s=getStatus(o);if(s==='delayed')del++;else if(s==='at_risk')rsk++;else if(s==='done')dn++;else ok++;});
-
-  const active=ORDERS.filter(o=>o&&o.pct<100&&o.finish);
-  const byFinish=(a,b)=>daysDiff(a.finish)-daysDiff(b.finish);
-  const delayedOrders=active.filter(o=>daysDiff(o.finish)<0).sort(byFinish);
-  const attention=delayedOrders[0]||active.filter(o=>daysDiff(o.finish)<30).sort(byFinish)[0];
-  const attentionDiff=attention?daysDiff(attention.finish):0;
-  const attentionMain=attention?statOrderTitle(attention):'Nenhum pedido crítico';
-  const attentionSub=attention?statDaysText(attentionDiff):'Sem atrasos no momento';
-  const attentionClass=attention&&attentionDiff>=0?'due':'attention';
-
-  const nextDue=active.filter(o=>daysDiff(o.finish)>=0).sort(byFinish)[0];
-  const nextDueDiff=nextDue?daysDiff(nextDue.finish):0;
-  const nextDueMain=nextDue?statOrderTitle(nextDue):'Nenhum vencimento';
-  const nextDueSub=nextDue?statDaysText(nextDueDiff):'Sem pedidos ativos';
-
-  const linked=new Set();
-  (DB.clients||[]).forEach(c=>(c.orders||[]).forEach(i=>{const n=Number(i);if(!Number.isNaN(n))linked.add(n);}));
-  const unlinked=ORDERS.reduce((sum,o,i)=>sum+(linked.has(i)?0:1),0);
-  const lastUpdate=DB.lastImport||'Sem registro';
-
-  const cards=[
-    '<div class="stat-card"><div class="stat-val">'+tot+'</div><div class="stat-lbl">Total de Pedidos</div></div>',
-    '<div class="stat-card"><div class="stat-val" style="color:var(--red)">'+del+'</div><div class="stat-lbl">Atrasados</div></div>',
-    '<div class="stat-card"><div class="stat-val" style="color:var(--warn)">'+rsk+'</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>',
-    '<div class="stat-card"><div class="stat-val" style="color:var(--green)">'+(dn+ok)+'</div><div class="stat-lbl">No Prazo / Concluídos</div></div>',
-    '<div class="stat-card stat-alert '+attentionClass+'"><div class="stat-kicker">Maior Atenção</div><div class="stat-main">'+attentionMain+'</div><div class="stat-sub">'+attentionSub+'</div></div>',
-    '<div class="stat-card stat-alert due"><div class="stat-kicker">Próximo Vencimento</div><div class="stat-main">'+nextDueMain+'</div><div class="stat-sub">'+nextDueSub+'</div></div>',
-    '<div class="stat-card stat-alert unlinked"><div class="stat-kicker">Pedidos Não Linkados</div><div class="stat-main">'+unlinked+' pedido(s)</div><div class="stat-sub">Use a aba Clientes para liberar acesso</div></div>',
-    '<div class="stat-card stat-alert updated"><div class="stat-kicker">Última Atualização</div><div class="stat-main">'+lastUpdate+'</div><div class="stat-sub">Base exibida no portal</div></div>'
-  ].join('');
-  document.getElementById('statsRow').innerHTML=cards;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${tot}</div><div class="stat-lbl">Total de Pedidos</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">${del}</div><div class="stat-lbl">Atrasados</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--warn)">${rsk}</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
 }
 
 // ── Constrói o card de pedido (admin e cliente compartilham estrutura) ──
@@ -1280,9 +1185,6 @@ function buildOrderCard(order,isClient=false){
   const archived=order._archived
     ?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">📦 Arquivado</span>'
     :'';
-  const datesHTML=isClient
-    ?`<div class="client-date-pair"><span><b>Início</b>${fmtDate(order.start)}</span><span><b>Entrega</b>${fmtDate(order.finish)}</span></div>`
-    :`<span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>`;
 
   const deptsHTML=order.depts.map(d=>{
     const tasksHTML=d.tasks.map(t=>{
@@ -1329,7 +1231,7 @@ function buildOrderCard(order,isClient=false){
       </div>
       <div class="order-meta">
         ${archived}${diffTxt}${sbadge}
-        ${datesHTML}
+        <span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>
         <div class="pct-wrap">
           <div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div>
           <span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span>
@@ -1550,7 +1452,7 @@ function renderCostsPage(){
       <h3>Área Restrita — Custos</h3>
       <p>Esta aba contém informações financeiras sensíveis (valores de venda, custos e margens). Digite a senha de acesso para continuar.</p>
       <div class="costs-pass-box">
-        <div class="form-group"><div class="password-wrap"><input type="password" id="costsPassInput" placeholder="••••••" maxlength="12" onkeydown="if(event.key==='Enter')unlockCosts()"><button type="button" class="password-toggle" onclick="togglePassword('costsPassInput',this)" title="Mostrar senha">👁</button></div></div>
+        <div class="form-group"><input type="password" id="costsPassInput" placeholder="••••••" maxlength="12" onkeydown="if(event.key==='Enter')unlockCosts()"></div>
         <button class="btn btn-gold btn-full" onclick="unlockCosts()">Desbloquear</button>
         <div class="error-msg" id="costsPassError">Senha incorreta.</div>
       </div>
@@ -2181,7 +2083,7 @@ function selectAdmin(id){
     ${!canEdit?'<div class="readonly-notice">👁 Modo visualização</div>':''}
     <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
     <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
-    <div class="form-group"><label>Nova Senha</label><div class="password-wrap"><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}><button type="button" class="password-toggle" onclick="togglePassword('ea-pass',this)" title="Mostrar senha" ${!canEdit||isMU&&!isSelf?'disabled':''}>👁</button></div></div>
+    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       ${canEdit&&(!isMU||isSelf)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
       ${canEdit&&!isMU?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
@@ -2247,23 +2149,11 @@ function switchClientTab(id,btn){
   document.getElementById('cpg-'+id).classList.add('active');
   btn.classList.add('active');
 }
-function renderClientStats(active,archived){
-  const el=document.getElementById('clientStatsRow');
-  if(!el)return;
-  const last=DB.lastImport||'Sem registro';
-  const cards=[
-    '<div class="client-stat-card updated"><div class="csc-kicker">Última Atualização</div><div class="csc-main">'+last+'</div><div class="csc-sub">Base exibida no portal</div></div>',
-    '<div class="client-stat-card open-orders"><div class="csc-kicker">Pedidos em Aberto</div><div class="csc-main">'+active.length+'</div><div class="csc-sub">Projetos ativos vinculados</div></div>',
-    '<div class="client-stat-card archived-orders"><div class="csc-kicker">Pedidos Arquivados</div><div class="csc-main">'+archived.length+'</div><div class="csc-sub">Projetos finalizados</div></div>'
-  ].join('');
-  el.innerHTML=cards;
-}
 function renderClientOrders(){
   const c=loggedUser.ref;
   const active=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
   const archived=(c.archivedOrders||[]).map(oid=>{const a=DB.archivedOrdersData[oid];return a?{...a,_archived:true}:null;}).filter(Boolean);
   const all=[...active,...archived];
-  renderClientStats(active,archived);
   document.getElementById('clientOrdersList').innerHTML=all.length
     ?all.map(o=>buildOrderCard(o,true)).join('')
     :'<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
@@ -2517,7 +2407,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
     const removedMasterEmails=['murilo','lucas','jaison'].map(n=>n+'@cartamac.com');
     const beforeAdmins=DB.admins.length;
     DB.admins=DB.admins.filter(a=>!removedMasterEmails.includes((a.email||'').toLowerCase()));
-    if(DB.admins.length!==beforeAdmins)persist();ff
+    if(DB.admins.length!==beforeAdmins)persist();
     MASTER_EMAILS.forEach((email,i)=>{
       if(!DB.admins.find(a=>a.email===email)){
         DB.admins.unshift({id:'master-'+email.split('@')[0],name:email.split('@')[0],email,pass:'123456',role:'master'});
@@ -2530,7 +2420,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
   } else {
     persist();
   }
-  document.getElementById('revBadge').textContent='';
+  document.getElementById('revBadge').textContent=DB.lastImport?'📂 Atualizado':'REV.01';
   renderStats();renderOrders();populateGanttFilter();
   hideLoading();
 }).catch(err=>{
@@ -2542,7 +2432,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
 // ─────────── EXPORTS GLOBAIS ───────────
 Object.assign(window,{
   doLogin,openAdminLogin,doAdminLogin,backToLogin,closeAdminLogin,
-  switchDevTab,switchClientTab,filterOrders,collapseAll,expandAll,toggleChip,togglePassword,
+  switchDevTab,switchClientTab,filterOrders,collapseAll,expandAll,toggleChip,
   renderGantt,openAddUserModal,saveNewUser,selectUser,saveUserChanges,
   updateUser,addOrderToUser,removeOrderFromUser,deleteUser,removeArchivedOrder,
   triggerFileUpload,handleFileAdmin,handleDropAdmin,removeOrderFile,downloadOrderFile,
