@@ -74,7 +74,7 @@ input[type="file"]{display:none;}
 .dev-tab:hover{background:var(--bg3);color:var(--text);}
 .dev-tab.active{background:var(--bg4);color:var(--accent2);border:1px solid var(--border2);}
 .header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.rev-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;white-space:nowrap;}
+.rev-badge{display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500;white-space:nowrap;}
 .admin-user-badge{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .admin-user-badge strong{color:var(--gold);}
 @media(max-width:640px){
@@ -100,6 +100,58 @@ input[type="file"]{display:none;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 22px;}
 .stat-val{font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px;}
 .stat-lbl{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
+/* AJUSTES SOLICITADOS - CUSTOS, SENHAS E PORTAL DO CLIENTE */
+#page-custos .stats-row .stat-card{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#page-custos .stats-row .stat-val{width:100%;text-align:center;margin-bottom:8px;}
+#page-custos .stats-row .stat-lbl{width:100%;text-align:center;line-height:1.3;}
+#page-custos .cost-summary-card{min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#page-custos .cost-summary-card .csv,#page-custos .cost-summary-card .csl{width:100%;text-align:center;}
+.password-wrap{position:relative;display:flex;align-items:center;width:100%;}
+.password-wrap input{width:100%;padding-right:48px;}
+.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;}
+.password-toggle:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,.08);}
+.password-toggle:disabled{opacity:.35;cursor:not-allowed;}
+.client-stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px;}
+.client-stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 18px;min-height:82px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.client-stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);}
+.client-stat-card.updated::before{background:var(--green);}
+.client-stat-card.open-orders::before{background:var(--gold);}
+.client-stat-card.archived-orders::before{background:var(--text3);}
+.client-stat-card .csc-kicker{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;font-weight:700;line-height:1.2;}
+.client-stat-card .csc-main{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text);line-height:1.2;margin-top:6px;overflow-wrap:anywhere;}
+.client-stat-card .csc-sub{font-size:12px;color:var(--text3);line-height:1.35;margin-top:4px;}
+.client-date-pair{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;}
+.client-date-pair span{display:flex;flex-direction:column;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 9px;min-width:96px;color:var(--text2);font-size:12px;line-height:1.2;}
+.client-date-pair b{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+@media(max-width:700px){
+  .client-stats-row{grid-template-columns:1fr;}
+  .client-date-pair{width:100%;}
+  .client-date-pair span{flex:1;min-width:120px;}
+}
+
+#page-cronograma .stats-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px;margin-bottom:16px;}
+#page-cronograma .stat-card{min-width:0;overflow:hidden;}
+#page-cronograma .stat-card:not(.stat-alert){min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#page-cronograma .stat-card.stat-alert{min-height:74px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:16px 20px;position:relative;}
+#page-cronograma .stat-card.stat-alert::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);}
+#page-cronograma .stat-card.stat-alert.attention::before{background:var(--red);}
+#page-cronograma .stat-card.stat-alert.due::before{background:var(--warn);}
+#page-cronograma .stat-card.stat-alert.unlinked::before{background:var(--gold);}
+#page-cronograma .stat-card.stat-alert.updated::before{background:var(--green);}
+#page-cronograma .stat-kicker{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;font-weight:700;line-height:1.2;}
+#page-cronograma .stat-main{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-top:5px;max-width:100%;overflow-wrap:anywhere;}
+#page-cronograma .stat-sub{font-size:12px;color:var(--text3);line-height:1.35;margin-top:4px;max-width:100%;overflow-wrap:anywhere;}
+@media(max-width:640px){
+  #page-cronograma .stats-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #page-cronograma .stat-card:not(.stat-alert){min-height:82px;}
+  #page-cronograma .stat-card.stat-alert{padding:14px 16px;}
+  #page-cronograma .stat-main{font-size:13px;}
+  #page-cronograma .stat-sub{font-size:11px;}
+}
+@media(max-width:380px){
+  #page-cronograma .stats-row{grid-template-columns:1fr;}
+}
+
 
 /* FILTERS */
 .filters{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
@@ -555,6 +607,36 @@ input[type="file"]{display:none;}
 .gcal-table td{background:var(--bg4);font-family:'JetBrains Mono',monospace;font-weight:600;}
 .gcal-table tr.gcal-total td{background:var(--bg3);color:var(--gold);font-weight:700;}
 .gcal-empty{padding:30px;text-align:center;color:var(--text3);font-size:14px;}
+
+/* COSTS GANTT (aba Custos) */
+.cgantt-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:24px;}
+.cgantt-title-bar{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;}
+.cgantt-title-bar h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cgantt-title-bar .cgantt-sub{font-size:12px;font-weight:500;color:var(--text3);}
+.cgantt-outer{overflow:auto;max-height:70vh;-webkit-overflow-scrolling:touch;}
+.cgantt-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:13px;}
+.cgantt-table th,.cgantt-table td{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:9px 12px;text-align:center;white-space:nowrap;}
+.cg-name-th,.cg-name-td{text-align:left;position:sticky;left:0;z-index:6;background:var(--bg3);min-width:220px;max-width:260px;overflow:hidden;text-overflow:ellipsis;}
+.cg-pct-th,.cg-pct-td{position:sticky;left:220px;z-index:5;min-width:64px;border-right:2px solid var(--border3) !important;}
+.cgantt-table thead th{background:var(--bg3);color:var(--text2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;z-index:7;}
+.cgantt-table thead .cg-name-th,.cgantt-table thead .cg-pct-th{z-index:9;}
+.cg-month-th.cur{color:var(--gold);background:#1f1c10;}
+.cg-name-td{font-weight:600;color:var(--text);}
+.cg-code{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:3px;margin-right:6px;}
+.cg-pct-td{font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--bg2);}
+.cg-cell{background:var(--bg4);font-family:'JetBrains Mono',monospace;color:var(--text2);}
+.cg-cell.cur{background:#1a1710;}
+.cg-dash{color:var(--dim2);}
+.cgantt-table tfoot td{background:var(--bg3);}
+.cg-total-row td{color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace;background:var(--bg3);}
+.cg-total-label{color:var(--gold) !important;text-transform:uppercase;font-size:11px;letter-spacing:.4px;}
+.cgantt-wrap .gcal-summary{padding:18px 20px;margin-bottom:0;border-top:1px solid var(--border);}
+@media(max-width:768px){
+  .cg-name-th,.cg-name-td{min-width:150px;max-width:170px;}
+  .cg-pct-th,.cg-pct-td{left:150px;}
+  .cgantt-table th,.cgantt-table td{padding:7px 8px;font-size:12px;}
+  .cgantt-title-bar{padding:12px 14px;}
+}
 .budget-alert{display:flex;align-items:center;gap:8px;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3);color:var(--red);padding:10px 14px;border-radius:var(--radius);font-size:13px;font-weight:600;margin-bottom:16px;}
 
 
@@ -774,8 +856,8 @@ input[type="file"]{display:none;}
         <div class="section-title">Alterar senha de acesso à aba Custos</div>
         <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Somente administradores mestres podem alterar esta senha. Ela é exigida de qualquer admin (mesmo mestre) para abrir a aba Custos.</p>
         <div class="cost-input-row" style="max-width:420px;">
-          <div class="form-group"><label>Nova senha</label><input type="password" id="newCostsPass" placeholder="Mínimo 4 dígitos"></div>
-          <div class="form-group"><label>Confirmar senha</label><input type="password" id="confirmCostsPass" placeholder="Repita a senha"></div>
+          <div class="form-group"><label>Nova senha</label><div class="password-wrap"><input type="password" id="newCostsPass" placeholder="Mínimo 4 dígitos"><button type="button" class="password-toggle" onclick="togglePassword('newCostsPass',this)" title="Mostrar senha">👁</button></div></div>
+          <div class="form-group"><label>Confirmar senha</label><div class="password-wrap"><input type="password" id="confirmCostsPass" placeholder="Repita a senha"><button type="button" class="password-toggle" onclick="togglePassword('confirmCostsPass',this)" title="Mostrar senha">👁</button></div></div>
         </div>
         <button class="btn btn-gold btn-sm" onclick="saveCostsPassword()">💾 Salvar Nova Senha</button>
       </div>
@@ -821,7 +903,7 @@ input[type="file"]{display:none;}
       <button class="client-tab" onclick="switchClientTab('gantt',this)">📊 Gantt</button>
     </nav>
   </header>
-  <div class="client-page active" id="cpg-cron"><div id="clientOrdersList"></div></div>
+  <div class="client-page active" id="cpg-cron"><div class="client-stats-row" id="clientStatsRow"></div><div id="clientOrdersList"></div></div>
   <div class="client-page" id="cpg-gantt"><div id="clientGanttContainer"></div></div>
 </div>
 
@@ -832,7 +914,7 @@ input[type="file"]{display:none;}
     <div class="form-group"><label>Nome *</label><input type="text" id="nuName" placeholder="Ex: Rio Bonito Nordeste"></div>
     <div class="form-group"><label>Empresa *</label><input type="text" id="nuCompany" placeholder="Ex: Rio Bonito Embalagens S.A."></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="nuEmail" placeholder="cliente@empresa.com.br"></div>
-    <div class="form-group"><label>Senha *</label><input type="password" id="nuPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group"><label>Senha *</label><div class="password-wrap"><input type="password" id="nuPass" placeholder="Mínimo 6 caracteres"><button type="button" class="password-toggle" onclick="togglePassword('nuPass',this)" title="Mostrar senha">👁</button></div></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('addUserModal')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveNewUser()">Criar Cliente</button>
@@ -848,7 +930,7 @@ input[type="file"]{display:none;}
     </div>
     <div class="form-group"><label>Nome completo *</label><input type="text" id="naName" placeholder="Ex: Fernanda Souza"></div>
     <div class="form-group"><label>E-mail / Login *</label><input type="email" id="naEmail" placeholder="nome@cartamac.com"></div>
-    <div class="form-group"><label>Senha *</label><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group"><label>Senha *</label><div class="password-wrap"><input type="password" id="naPass" placeholder="Mínimo 6 caracteres"><button type="button" class="password-toggle" onclick="togglePassword('naPass',this)" title="Mostrar senha">👁</button></div></div>
     <div class="form-group">
       <label>Nível de acesso *</label>
       <select id="naRole">
@@ -859,17 +941,6 @@ input[type="file"]{display:none;}
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('addAdminModal')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveNewAdmin()">Criar Administrador</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="globalCostsCalendarModal">
-  <div class="modal modal-wide">
-    <h3>📅 Calendário Geral de Custos</h3>
-    <p style="font-size:14px;color:var(--text3);margin-bottom:18px;">Somatória, mês a mês, do valor que ainda falta gastar (lançamentos manuais + parcelamentos) em todos os pedidos.</p>
-    <div id="globalCostsCalendarBody"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('globalCostsCalendarModal')">Fechar</button>
     </div>
   </div>
 </div>
@@ -948,6 +1019,16 @@ const fileIcon  = n => {const e=n.split('.').pop().toLowerCase();return{pdf:'�
 const fmtSize   = b => b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';
 const fileKey   = id => 'order_'+String(id);
 function toggleChip(id){document.getElementById(id).classList.toggle('active',document.querySelector('#'+id+' input').checked);}
+function togglePassword(inputId,btn){
+  const input=document.getElementById(inputId);
+  if(!input)return;
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  if(btn){
+    btn.textContent=show?'🙈':'👁';
+    btn.title=show?'Ocultar senha':'Mostrar senha';
+  }
+}
 
 function showToast(msg,type='ok'){
   const t=document.getElementById('toast');
@@ -1123,6 +1204,7 @@ function switchDevTab(id,btn){
   document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   btn.classList.add('active');
+  if(id==='cronograma')renderDevAll();
   if(id==='gantt')     renderGantt();
   if(id==='custos')    renderCostsPage();
   if(id==='clientes')  renderClientsPanel();
@@ -1132,14 +1214,46 @@ function switchDevTab(id,btn){
 function renderDevAll(){renderStats();renderOrders();populateGanttFilter();}
 
 // ─────────── CRONOGRAMA ───────────
+function statOrderTitle(o){return (o.code||'—')+' · '+(o.name||'Sem nome');}
+function statDaysText(diff){
+  if(diff<0)return Math.abs(diff)+' dia(s) de atraso';
+  if(diff===0)return 'Vence hoje';
+  return diff+' dia(s) restantes';
+}
 function renderStats(){
   let tot=ORDERS.length,del=0,rsk=0,dn=0,ok=0;
   ORDERS.forEach(o=>{const s=getStatus(o);if(s==='delayed')del++;else if(s==='at_risk')rsk++;else if(s==='done')dn++;else ok++;});
-  document.getElementById('statsRow').innerHTML=`
-    <div class="stat-card"><div class="stat-val">${tot}</div><div class="stat-lbl">Total de Pedidos</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--red)">${del}</div><div class="stat-lbl">Atrasados</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--warn)">${rsk}</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${dn+ok}</div><div class="stat-lbl">No Prazo / Concluídos</div></div>`;
+
+  const active=ORDERS.filter(o=>o&&o.pct<100&&o.finish);
+  const byFinish=(a,b)=>daysDiff(a.finish)-daysDiff(b.finish);
+  const delayedOrders=active.filter(o=>daysDiff(o.finish)<0).sort(byFinish);
+  const attention=delayedOrders[0]||active.filter(o=>daysDiff(o.finish)<30).sort(byFinish)[0];
+  const attentionDiff=attention?daysDiff(attention.finish):0;
+  const attentionMain=attention?statOrderTitle(attention):'Nenhum pedido crítico';
+  const attentionSub=attention?statDaysText(attentionDiff):'Sem atrasos no momento';
+  const attentionClass=attention&&attentionDiff>=0?'due':'attention';
+
+  const nextDue=active.filter(o=>daysDiff(o.finish)>=0).sort(byFinish)[0];
+  const nextDueDiff=nextDue?daysDiff(nextDue.finish):0;
+  const nextDueMain=nextDue?statOrderTitle(nextDue):'Nenhum vencimento';
+  const nextDueSub=nextDue?statDaysText(nextDueDiff):'Sem pedidos ativos';
+
+  const linked=new Set();
+  (DB.clients||[]).forEach(c=>(c.orders||[]).forEach(i=>{const n=Number(i);if(!Number.isNaN(n))linked.add(n);}));
+  const unlinked=ORDERS.reduce((sum,o,i)=>sum+(linked.has(i)?0:1),0);
+  const lastUpdate=DB.lastImport||'Sem registro';
+
+  const cards=[
+    '<div class="stat-card"><div class="stat-val">'+tot+'</div><div class="stat-lbl">Total de Pedidos</div></div>',
+    '<div class="stat-card"><div class="stat-val" style="color:var(--red)">'+del+'</div><div class="stat-lbl">Atrasados</div></div>',
+    '<div class="stat-card"><div class="stat-val" style="color:var(--warn)">'+rsk+'</div><div class="stat-lbl">Em Risco (&lt;30d)</div></div>',
+    '<div class="stat-card"><div class="stat-val" style="color:var(--green)">'+(dn+ok)+'</div><div class="stat-lbl">No Prazo / Concluídos</div></div>',
+    '<div class="stat-card stat-alert '+attentionClass+'"><div class="stat-kicker">Maior Atenção</div><div class="stat-main">'+attentionMain+'</div><div class="stat-sub">'+attentionSub+'</div></div>',
+    '<div class="stat-card stat-alert due"><div class="stat-kicker">Próximo Vencimento</div><div class="stat-main">'+nextDueMain+'</div><div class="stat-sub">'+nextDueSub+'</div></div>',
+    '<div class="stat-card stat-alert unlinked"><div class="stat-kicker">Pedidos Não Linkados</div><div class="stat-main">'+unlinked+' pedido(s)</div><div class="stat-sub">Use a aba Clientes para liberar acesso</div></div>',
+    '<div class="stat-card stat-alert updated"><div class="stat-kicker">Última Atualização</div><div class="stat-main">'+lastUpdate+'</div><div class="stat-sub">Base exibida no portal</div></div>'
+  ].join('');
+  document.getElementById('statsRow').innerHTML=cards;
 }
 
 // ── Constrói o card de pedido (admin e cliente compartilham estrutura) ──
@@ -1166,6 +1280,9 @@ function buildOrderCard(order,isClient=false){
   const archived=order._archived
     ?'<span style="font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">📦 Arquivado</span>'
     :'';
+  const datesHTML=isClient
+    ?`<div class="client-date-pair"><span><b>Início</b>${fmtDate(order.start)}</span><span><b>Entrega</b>${fmtDate(order.finish)}</span></div>`
+    :`<span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>`;
 
   const deptsHTML=order.depts.map(d=>{
     const tasksHTML=d.tasks.map(t=>{
@@ -1212,7 +1329,7 @@ function buildOrderCard(order,isClient=false){
       </div>
       <div class="order-meta">
         ${archived}${diffTxt}${sbadge}
-        <span class="order-dates">${fmtDate(order.start)} → ${fmtDate(order.finish)}</span>
+        ${datesHTML}
         <div class="pct-wrap">
           <div class="pct-bar"><div class="pct-fill ${pctClass(order.pct)}" style="width:${order.pct}%"></div></div>
           <span class="pct-text" style="color:${pctColor(order.pct)}">${order.pct}%</span>
@@ -1433,7 +1550,7 @@ function renderCostsPage(){
       <h3>Área Restrita — Custos</h3>
       <p>Esta aba contém informações financeiras sensíveis (valores de venda, custos e margens). Digite a senha de acesso para continuar.</p>
       <div class="costs-pass-box">
-        <div class="form-group"><input type="password" id="costsPassInput" placeholder="••••••" maxlength="12" onkeydown="if(event.key==='Enter')unlockCosts()"></div>
+        <div class="form-group"><div class="password-wrap"><input type="password" id="costsPassInput" placeholder="••••••" maxlength="12" onkeydown="if(event.key==='Enter')unlockCosts()"><button type="button" class="password-toggle" onclick="togglePassword('costsPassInput',this)" title="Mostrar senha">👁</button></div></div>
         <button class="btn btn-gold btn-full" onclick="unlockCosts()">Desbloquear</button>
         <div class="error-msg" id="costsPassError">Senha incorreta.</div>
       </div>
@@ -1486,7 +1603,6 @@ function renderCostsContent(){
   const toolbar=`
     <div class="filters">
       <input type="text" class="search-input" placeholder="🔍  Buscar pedido, código, cliente..." id="costsSearchInput" oninput="filterCostCards()">
-      <button class="btn btn-sm btn-ghost" onclick="openGlobalCostsCalendar()">📅 Calendário Geral</button>
       <button class="btn btn-sm btn-ghost" onclick="relockCosts()">🔒 Bloquear aba</button>
       ${!master?'<div class="readonly-notice" style="margin:0;">👁 Modo visualização — somente mestres podem editar valores</div>':''}
     </div>`;
@@ -1495,7 +1611,7 @@ function renderCostsContent(){
     ?ORDERS.map(o=>buildCostCard(o,master)).join('')
     :'<div class="empty-state"><div class="ei">💰</div><h3>Nenhum pedido disponível</h3><p>Importe um arquivo XML na aba Importar para começar.</p></div>';
 
-  content.innerHTML=`${statsHTML}${toolbar}<div class="orders-list" id="costsCardsList">${cardsHTML}</div>`;
+  content.innerHTML=`${statsHTML}${toolbar}${buildCostsGanttSection()}<div class="orders-list" id="costsCardsList">${cardsHTML}</div>`;
 
   // restaura card aberto, se houver, e religa os listeners dos inputs
   if(openCostCardId!==null){
@@ -1748,7 +1864,6 @@ function applyInstallmentPlan(orderId){
   persist();
   openCostCardId=orderId;
   renderCostsContent();
-  renderGlobalCostsCalendar();
   showToast('Parcelamento lançado no calendário');
 }
 function removeInstallmentPlan(orderId,planId){
@@ -1758,64 +1873,115 @@ function removeInstallmentPlan(orderId,planId){
   persist();
   openCostCardId=orderId;
   renderCostsContent();
-  renderGlobalCostsCalendar();
   showToast('Parcelamento removido');
 }
-// ─────────── CALENDÁRIO GERAL DE CUSTOS ───────────
-function openGlobalCostsCalendar(){
-  renderGlobalCostsCalendar();
-  document.getElementById('globalCostsCalendarModal').classList.add('open');
-}
-function renderGlobalCostsCalendar(){
-  const body=document.getElementById('globalCostsCalendarBody');
-  if(!body)return;
-
-  // soma, por mês, manual + parcelamentos, de todos os pedidos
-  const totalsByMonth={};
-  let grandTotal=0;
+// ─────────── GANTT DE CUSTOS (visão geral mensal + resumo) ───────────
+// Retorna a lista ordenada (chave AAAA-MM) de todos os meses que possuem
+// algum lançamento (manual ou parcelamento) em qualquer pedido.
+function getGlobalCostMonths(){
+  const set={};
   ORDERS.forEach(o=>{
     const e=getCostEntry(o.id);
-    Object.entries(e.months||{}).forEach(([key,val])=>{
-      const v=Number(val)||0;
-      if(v===0)return;
-      totalsByMonth[key]=(totalsByMonth[key]||0)+v;
-      grandTotal+=v;
-    });
-    const autoTotals=getInstallmentMonthTotals(e);
-    Object.entries(autoTotals).forEach(([key,v])=>{
-      totalsByMonth[key]=(totalsByMonth[key]||0)+v;
-      grandTotal+=v;
-    });
+    Object.entries(e.months||{}).forEach(([k,v])=>{ if(Number(v))set[k]=true; });
+    const auto=getInstallmentMonthTotals(e);
+    Object.keys(auto).forEach(k=>{ if(Number(auto[k]))set[k]=true; });
   });
+  return Object.keys(set).sort();
+}
+// Monta a seção de Gantt de Custos: pedidos nas linhas, meses nas colunas,
+// valor (manual + parcelamento) dividido por mês, % gasto, e resumo no rodapé.
+function buildCostsGanttSection(){
+  const keys=getGlobalCostMonths();
+  const todayKey=monthKey(TODAY.getFullYear(),TODAY.getMonth());
 
-  const keys=Object.keys(totalsByMonth).sort();
   if(keys.length===0){
-    body.innerHTML=`<div class="gcal-empty">Nenhum lançamento de custo (manual ou parcelado) encontrado ainda.</div>`;
-    return;
+    return `<div class="cgantt-wrap">
+      <div class="cgantt-title-bar"><h3>📊 Gantt de Custos</h3></div>
+      <div class="gcal-empty">Nenhum lançamento de custo (manual ou parcelado) encontrado ainda. Lance valores mensais ou um parcelamento em algum pedido abaixo para ver o gantt aqui.</div>
+    </div>`;
   }
 
-  const todayKey=monthKey(TODAY.getFullYear(),TODAY.getMonth());
-  const maxMonth=Object.values(totalsByMonth).reduce((m,v)=>Math.max(m,v),0);
-
-  const headerHTML=keys.map(k=>{
+  const monthHeaderHTML=keys.map(k=>{
     const [y,m]=k.split('-').map(Number);
     const cur=k===todayKey?' cur':'';
-    return `<th class="${cur}">${MONTH_NAMES[m-1]}/${y}</th>`;
+    return `<th class="cg-month-th${cur}">${MONTH_NAMES[m-1]}/${String(y).slice(2)}</th>`;
   }).join('');
-  const cellsHTML=keys.map(k=>`<td>${fmtBRL(totalsByMonth[k])}</td>`).join('');
 
-  body.innerHTML=`
+  const totalsByMonth={};
+  let grandTotal=0;
+
+  const rows=ORDERS.map(order=>{
+    const e=getCostEntry(order.id);
+    const auto=getInstallmentMonthTotals(e);
+    let hasAny=false;
+    const cells=keys.map(k=>{
+      const v=(Number(e.months[k])||0)+(auto[k]||0);
+      if(v)hasAny=true;
+      totalsByMonth[k]=(totalsByMonth[k]||0)+v;
+      grandTotal+=v;
+      const cur=k===todayKey?' cur':'';
+      return `<td class="cg-cell${cur}">${v?fmtBRL(v):'<span class="cg-dash">—</span>'}</td>`;
+    }).join('');
+    if(!hasAny)return '';
+
+    const spent=calcSpent(e);
+    const budget=Number(e.budgetCost)||0;
+    const pct=budget>0?Math.round((spent/budget)*100):0;
+    let pctColor='var(--text2)';
+    if(budget>0){
+      if(spent>budget)pctColor='var(--red)';
+      else if(pct>=80)pctColor='var(--warn)';
+      else pctColor='var(--green)';
+    }
+    const codeLabel=order.code||'—';
+
+    return `<tr>
+      <td class="cg-name-td" title="${order.name}"><span class="cg-code">${codeLabel}</span>${order.name}</td>
+      <td class="cg-pct-td" style="color:${pctColor}">${budget>0?pct+'%':'—'}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  if(!rows){
+    return `<div class="cgantt-wrap">
+      <div class="cgantt-title-bar"><h3>📊 Gantt de Custos</h3></div>
+      <div class="gcal-empty">Nenhum lançamento de custo (manual ou parcelado) encontrado ainda. Lance valores mensais ou um parcelamento em algum pedido abaixo para ver o gantt aqui.</div>
+    </div>`;
+  }
+
+  const maxMonth=Object.values(totalsByMonth).reduce((m,v)=>Math.max(m,v),0);
+  const totalCellsHTML=keys.map(k=>`<td>${fmtBRL(totalsByMonth[k]||0)}</td>`).join('');
+
+  return `
+  <div class="cgantt-wrap">
+    <div class="cgantt-title-bar">
+      <h3>📊 Gantt de Custos <span class="cgantt-sub">valor a gastar por mês (lançamentos manuais + parcelamentos)</span></h3>
+    </div>
+    <div class="cgantt-outer">
+      <table class="cgantt-table">
+        <thead>
+          <tr>
+            <th class="cg-name-th">Pedido</th>
+            <th class="cg-pct-th">%</th>
+            ${monthHeaderHTML}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr class="cg-total-row">
+            <td class="cg-name-td cg-total-label">Total</td>
+            <td class="cg-pct-td"></td>
+            ${totalCellsHTML}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
     <div class="gcal-summary">
       <div class="stat-card"><div class="stat-val">${fmtBRL(grandTotal)}</div><div class="stat-lbl">Total a Gastar (Todos os Meses)</div></div>
       <div class="stat-card"><div class="stat-val">${fmtBRL(maxMonth)}</div><div class="stat-lbl">Maior Mês</div></div>
       <div class="stat-card"><div class="stat-val">${keys.length}</div><div class="stat-lbl">Meses com Lançamentos</div></div>
     </div>
-    <div class="gcal-table-wrap">
-      <table class="gcal-table">
-        <thead><tr>${headerHTML}</tr></thead>
-        <tbody><tr class="gcal-total">${cellsHTML}</tr></tbody>
-      </table>
-    </div>`;
+  </div>`;
 }
 function filterCostCards(){
   const q=document.getElementById('costsSearchInput').value.toLowerCase();
@@ -2015,7 +2181,7 @@ function selectAdmin(id){
     ${!canEdit?'<div class="readonly-notice">👁 Modo visualização</div>':''}
     <div class="form-group"><label>Nome</label><input type="text" id="ea-name" value="${a.name}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
     <div class="form-group"><label>E-mail</label><input type="email" id="ea-email" value="${a.email}" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
-    <div class="form-group"><label>Nova Senha</label><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}></div>
+    <div class="form-group"><label>Nova Senha</label><div class="password-wrap"><input type="password" id="ea-pass" placeholder="••••••••" ${!canEdit||isMU&&!isSelf?'disabled':''}><button type="button" class="password-toggle" onclick="togglePassword('ea-pass',this)" title="Mostrar senha" ${!canEdit||isMU&&!isSelf?'disabled':''}>👁</button></div></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       ${canEdit&&(!isMU||isSelf)?`<button class="btn btn-gold btn-sm" onclick="saveAdminChanges('${id}')">💾 Salvar</button>`:''}
       ${canEdit&&!isMU?`<button class="btn btn-danger btn-sm" onclick="deleteAdmin('${id}')">Excluir Admin</button>`:''}
@@ -2081,11 +2247,23 @@ function switchClientTab(id,btn){
   document.getElementById('cpg-'+id).classList.add('active');
   btn.classList.add('active');
 }
+function renderClientStats(active,archived){
+  const el=document.getElementById('clientStatsRow');
+  if(!el)return;
+  const last=DB.lastImport||'Sem registro';
+  const cards=[
+    '<div class="client-stat-card updated"><div class="csc-kicker">Última Atualização</div><div class="csc-main">'+last+'</div><div class="csc-sub">Base exibida no portal</div></div>',
+    '<div class="client-stat-card open-orders"><div class="csc-kicker">Pedidos em Aberto</div><div class="csc-main">'+active.length+'</div><div class="csc-sub">Projetos ativos vinculados</div></div>',
+    '<div class="client-stat-card archived-orders"><div class="csc-kicker">Pedidos Arquivados</div><div class="csc-main">'+archived.length+'</div><div class="csc-sub">Projetos finalizados</div></div>'
+  ].join('');
+  el.innerHTML=cards;
+}
 function renderClientOrders(){
   const c=loggedUser.ref;
   const active=(c.orders||[]).map(i=>ORDERS[i]).filter(Boolean);
   const archived=(c.archivedOrders||[]).map(oid=>{const a=DB.archivedOrdersData[oid];return a?{...a,_archived:true}:null;}).filter(Boolean);
   const all=[...active,...archived];
+  renderClientStats(active,archived);
   document.getElementById('clientOrdersList').innerHTML=all.length
     ?all.map(o=>buildOrderCard(o,true)).join('')
     :'<div class="empty-state"><div class="ei">📋</div><h3>Nenhum pedido vinculado</h3><p>Entre em contato com a Cartamac</p></div>';
@@ -2339,7 +2517,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
     const removedMasterEmails=['murilo','lucas','jaison'].map(n=>n+'@cartamac.com');
     const beforeAdmins=DB.admins.length;
     DB.admins=DB.admins.filter(a=>!removedMasterEmails.includes((a.email||'').toLowerCase()));
-    if(DB.admins.length!==beforeAdmins)persist();
+    if(DB.admins.length!==beforeAdmins)persist();ff
     MASTER_EMAILS.forEach((email,i)=>{
       if(!DB.admins.find(a=>a.email===email)){
         DB.admins.unshift({id:'master-'+email.split('@')[0],name:email.split('@')[0],email,pass:'123456',role:'master'});
@@ -2352,7 +2530,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
   } else {
     persist();
   }
-  document.getElementById('revBadge').textContent=DB.lastImport?'📂 Atualizado':'REV.01';
+  document.getElementById('revBadge').textContent='';
   renderStats();renderOrders();populateGanttFilter();
   hideLoading();
 }).catch(err=>{
@@ -2364,7 +2542,7 @@ Promise.all([dbLoad(),filesLoad()]).then(([data,filesData])=>{
 // ─────────── EXPORTS GLOBAIS ───────────
 Object.assign(window,{
   doLogin,openAdminLogin,doAdminLogin,backToLogin,closeAdminLogin,
-  switchDevTab,switchClientTab,filterOrders,collapseAll,expandAll,toggleChip,
+  switchDevTab,switchClientTab,filterOrders,collapseAll,expandAll,toggleChip,togglePassword,
   renderGantt,openAddUserModal,saveNewUser,selectUser,saveUserChanges,
   updateUser,addOrderToUser,removeOrderFromUser,deleteUser,removeArchivedOrder,
   triggerFileUpload,handleFileAdmin,handleDropAdmin,removeOrderFile,downloadOrderFile,
@@ -2372,8 +2550,7 @@ Object.assign(window,{
   importXML,handleXMLDrop,deleteImport,closeModal,
   unlockCosts,relockCosts,toggleCostCard,updateCostField,updateCostMonth,
   filterCostCards,saveCostsPassword,
-  updatePctPreview,applyInstallmentPlan,removeInstallmentPlan,
-  openGlobalCostsCalendar,renderGlobalCostsCalendar
+  updatePctPreview,applyInstallmentPlan,removeInstallmentPlan
 });
 </script>
 </body>
